@@ -27,8 +27,12 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Boilerplate",
-  description: "Production-ready SaaS starter kit",
+  title: {
+    default: "SmartEdgePicks",
+    template: "%s | SmartEdgePicks",
+  },
+  description:
+    "AI-backed sports picks, expert handicapper plays, free daily selections, and VIP membership plans.",
 };
 
 export default function RootLayout({
