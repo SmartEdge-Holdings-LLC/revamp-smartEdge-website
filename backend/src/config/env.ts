@@ -18,6 +18,15 @@ for (const key of requiredVars) {
 
 const port = Number(process.env.PORT ?? 5000);
 
+function parseFrontendUrls(raw: string): string[] {
+  return raw
+    .split(",")
+    .map((url) => url.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
+}
+
+const frontendUrls = parseFrontendUrls(process.env.FRONTEND_URL as string);
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port,
@@ -42,7 +51,10 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   emailFrom: (process.env.EMAIL_FROM ?? "noreply@example.com").trim().replace(/[>]+$/, ""),
   appName: process.env.APP_NAME ?? "YourSaaSApp",
-  frontendUrl: process.env.FRONTEND_URL as string,
+  /** Primary frontend URL (first entry in FRONTEND_URL) for Stripe redirects and emails. */
+  frontendUrl: frontendUrls[0] as string,
+  /** Allowed browser origins for CORS (comma-separated FRONTEND_URL). */
+  frontendUrls,
   telnyxApiKey: process.env.TELNYX_API_KEY ?? "",
   telnyxFromNumber: process.env.TELNYX_FROM_NUMBER ?? "",
   telnyxMessagingProfileId: process.env.TELNYX_MESSAGING_PROFILE_ID ?? "",

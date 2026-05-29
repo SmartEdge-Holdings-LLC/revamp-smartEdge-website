@@ -17,7 +17,7 @@ import { stripeWebhookController } from "./webhooks/stripeWebhook";
 
 const app = express();
 
-app.use(cors({ origin: env.frontendUrl, credentials: true }));
+app.use(cors({ origin: env.frontendUrls, credentials: true }));
 app.use(
   helmet({
     contentSecurityPolicy: false,
