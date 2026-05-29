@@ -1,0 +1,1028 @@
+{
+  "conferences": [
+    {
+      "id": "atlantic_coast_conference",
+      "name": "ACC",
+      "teams": [
+        {
+          "id": "boston_college_eagles",
+          "abbrev": "BC",
+          "name": "Boston College Eagles",
+          "shortName": "Boston College",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/boston_college_eagles.png"
+        },
+        {
+          "id": "california_golden_bears",
+          "abbrev": "CAL",
+          "name": "California Golden Bears",
+          "shortName": "California",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/california_golden_bears.png"
+        },
+        {
+          "id": "clemson_tigers",
+          "abbrev": "CLEM",
+          "name": "Clemson Tigers",
+          "shortName": "Clemson",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/clemson_tigers.png"
+        },
+        {
+          "id": "duke_blue_devils",
+          "abbrev": "DUKE",
+          "name": "Duke Blue Devils",
+          "shortName": "Duke",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/duke_blue_devils.png"
+        },
+        {
+          "id": "florida_state_seminoles",
+          "abbrev": "FSU",
+          "name": "Florida State Seminoles",
+          "shortName": "Florida State",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/florida_state_seminoles.png"
+        },
+        {
+          "id": "georgia_tech_yellow_jackets",
+          "abbrev": "GT",
+          "name": "Georgia Tech Yellow Jackets",
+          "shortName": "Georgia Tech",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/georgia_tech_yellow_jackets.png"
+        },
+        {
+          "id": "louisville_cardinals",
+          "abbrev": "LOU",
+          "name": "Louisville Cardinals",
+          "shortName": "Louisville",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/louisville_cardinals.png"
+        },
+        {
+          "id": "miami_hurricanes",
+          "abbrev": "MIA",
+          "name": "Miami Hurricanes",
+          "shortName": "Miami",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/miami_hurricanes.png"
+        },
+        {
+          "id": "nc_state_wolfpack",
+          "abbrev": "NCSU",
+          "name": "NC State Wolfpack",
+          "shortName": "NC State",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/nc_state_wolfpack.png"
+        },
+        {
+          "id": "north_carolina_tar_heels",
+          "abbrev": "UNC",
+          "name": "North Carolina Tar Heels",
+          "shortName": "North Carolina",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/north_carolina_tar_heels.png"
+        },
+        {
+          "id": "pittsburgh_panthers",
+          "abbrev": "PITT",
+          "name": "Pittsburgh Panthers",
+          "shortName": "Pittsburgh",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/pittsburgh_panthers.png"
+        },
+        {
+          "id": "smu_mustangs",
+          "abbrev": "SMU",
+          "name": "SMU Mustangs",
+          "shortName": "SMU",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/smu_mustangs.png"
+        },
+        {
+          "id": "stanford_cardinal",
+          "abbrev": "STAN",
+          "name": "Stanford Cardinal",
+          "shortName": "Stanford",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/stanford_cardinal.png"
+        },
+        {
+          "id": "syracuse_orange",
+          "abbrev": "SYR",
+          "name": "Syracuse Orange",
+          "shortName": "Syracuse",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/syracuse_orange.png"
+        },
+        {
+          "id": "virginia_cavaliers",
+          "abbrev": "UVA",
+          "name": "Virginia Cavaliers",
+          "shortName": "Virginia",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/virginia_cavaliers.png"
+        },
+        {
+          "id": "virginia_tech_hokies",
+          "abbrev": "VT",
+          "name": "Virginia Tech Hokies",
+          "shortName": "Virginia Tech",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/virginia_tech_hokies.png"
+        },
+        {
+          "id": "wake_forest_demon_deacons",
+          "abbrev": "WAKE",
+          "name": "Wake Forest Demon Deacons",
+          "shortName": "Wake Forest",
+          "logo": "/leagues/ncaaf/atlantic_coast_conference/wake_forest_demon_deacons.png"
+        }
+      ]
+    },
+    {
+      "id": "american_conference",
+      "name": "American",
+      "teams": [
+        {
+          "id": "army_black_knights",
+          "abbrev": "ARMY",
+          "name": "Army Black Knights",
+          "shortName": "Army",
+          "logo": "/leagues/ncaaf/american_conference/army_black_knights.png"
+        },
+        {
+          "id": "charlotte_49ers",
+          "abbrev": "CLT",
+          "name": "Charlotte 49ers",
+          "shortName": "Charlotte",
+          "logo": "/leagues/ncaaf/american_conference/charlotte_49ers.png"
+        },
+        {
+          "id": "east_carolina_pirates",
+          "abbrev": "ECU",
+          "name": "East Carolina Pirates",
+          "shortName": "East Carolina",
+          "logo": "/leagues/ncaaf/american_conference/east_carolina_pirates.png"
+        },
+        {
+          "id": "florida_atlantic_owls",
+          "abbrev": "FAU",
+          "name": "Florida Atlantic Owls",
+          "shortName": "Florida Atlantic",
+          "logo": "/leagues/ncaaf/american_conference/florida_atlantic_owls.png"
+        },
+        {
+          "id": "memphis_tigers",
+          "abbrev": "MEM",
+          "name": "Memphis Tigers",
+          "shortName": "Memphis",
+          "logo": "/leagues/ncaaf/american_conference/memphis_tigers.png"
+        },
+        {
+          "id": "navy_midshipmen",
+          "abbrev": "NAVY",
+          "name": "Navy Midshipmen",
+          "shortName": "Navy",
+          "logo": "/leagues/ncaaf/american_conference/navy_midshipmen.png"
+        },
+        {
+          "id": "north_texas_mean_green",
+          "abbrev": "UNT",
+          "name": "North Texas Mean Green",
+          "shortName": "North Texas",
+          "logo": "/leagues/ncaaf/american_conference/north_texas_mean_green.png"
+        },
+        {
+          "id": "rice_owls",
+          "abbrev": "RICE",
+          "name": "Rice Owls",
+          "shortName": "Rice",
+          "logo": "/leagues/ncaaf/american_conference/rice_owls.png"
+        },
+        {
+          "id": "south_florida_bulls",
+          "abbrev": "USF",
+          "name": "South Florida Bulls",
+          "shortName": "South Florida",
+          "logo": "/leagues/ncaaf/american_conference/south_florida_bulls.png"
+        },
+        {
+          "id": "temple_owls",
+          "abbrev": "TEM",
+          "name": "Temple Owls",
+          "shortName": "Temple",
+          "logo": "/leagues/ncaaf/american_conference/temple_owls.png"
+        },
+        {
+          "id": "tulane_green_wave",
+          "abbrev": "TULN",
+          "name": "Tulane Green Wave",
+          "shortName": "Tulane",
+          "logo": "/leagues/ncaaf/american_conference/tulane_green_wave.png"
+        },
+        {
+          "id": "tulsa_golden_hurricane",
+          "abbrev": "TLSA",
+          "name": "Tulsa Golden Hurricane",
+          "shortName": "Tulsa",
+          "logo": "/leagues/ncaaf/american_conference/tulsa_golden_hurricane.png"
+        },
+        {
+          "id": "uab_blazers",
+          "abbrev": "UAB",
+          "name": "UAB Blazers",
+          "shortName": "UAB",
+          "logo": "/leagues/ncaaf/american_conference/uab_blazers.png"
+        },
+        {
+          "id": "utsa_roadrunners",
+          "abbrev": "UTSA",
+          "name": "UTSA Roadrunners",
+          "shortName": "UTSA",
+          "logo": "/leagues/ncaaf/american_conference/utsa_roadrunners.png"
+        }
+      ]
+    },
+    {
+      "id": "big_12_conference",
+      "name": "Big 12",
+      "teams": [
+        {
+          "id": "arizona_state_sun_devils",
+          "abbrev": "ASU",
+          "name": "Arizona State Sun Devils",
+          "shortName": "Arizona State",
+          "logo": "/leagues/ncaaf/big_12_conference/arizona_state_sun_devils.png"
+        },
+        {
+          "id": "arizona_wildcats",
+          "abbrev": "ARIZ",
+          "name": "Arizona Wildcats",
+          "shortName": "Arizona",
+          "logo": "/leagues/ncaaf/big_12_conference/arizona_wildcats.png"
+        },
+        {
+          "id": "baylor_bears",
+          "abbrev": "BAY",
+          "name": "Baylor Bears",
+          "shortName": "Baylor",
+          "logo": "/leagues/ncaaf/big_12_conference/baylor_bears.png"
+        },
+        {
+          "id": "byu_cougars",
+          "abbrev": "BYU",
+          "name": "BYU Cougars",
+          "shortName": "BYU",
+          "logo": "/leagues/ncaaf/big_12_conference/byu_cougars.png"
+        },
+        {
+          "id": "cincinnati_bearcats",
+          "abbrev": "CIN",
+          "name": "Cincinnati Bearcats",
+          "shortName": "Cincinnati",
+          "logo": "/leagues/ncaaf/big_12_conference/cincinnati_bearcats.png"
+        },
+        {
+          "id": "colorado_buffaloes",
+          "abbrev": "COLO",
+          "name": "Colorado Buffaloes",
+          "shortName": "Colorado",
+          "logo": "/leagues/ncaaf/big_12_conference/colorado_buffaloes.png"
+        },
+        {
+          "id": "houston_cougars",
+          "abbrev": "HOU",
+          "name": "Houston Cougars",
+          "shortName": "Houston",
+          "logo": "/leagues/ncaaf/big_12_conference/houston_cougars.png"
+        },
+        {
+          "id": "iowa_state_cyclones",
+          "abbrev": "ISU",
+          "name": "Iowa State Cyclones",
+          "shortName": "Iowa State",
+          "logo": "/leagues/ncaaf/big_12_conference/iowa_state_cyclones.png"
+        },
+        {
+          "id": "kansas_jayhawks",
+          "abbrev": "KU",
+          "name": "Kansas Jayhawks",
+          "shortName": "Kansas",
+          "logo": "/leagues/ncaaf/big_12_conference/kansas_jayhawks.png"
+        },
+        {
+          "id": "kansas_state_wildcats",
+          "abbrev": "KSU",
+          "name": "Kansas State Wildcats",
+          "shortName": "Kansas State",
+          "logo": "/leagues/ncaaf/big_12_conference/kansas_state_wildcats.png"
+        },
+        {
+          "id": "oklahoma_state_cowboys",
+          "abbrev": "OKST",
+          "name": "Oklahoma State Cowboys",
+          "shortName": "Oklahoma State",
+          "logo": "/leagues/ncaaf/big_12_conference/oklahoma_state_cowboys.png"
+        },
+        {
+          "id": "tcu_horned_frogs",
+          "abbrev": "TCU",
+          "name": "TCU Horned Frogs",
+          "shortName": "TCU",
+          "logo": "/leagues/ncaaf/big_12_conference/tcu_horned_frogs.png"
+        },
+        {
+          "id": "texas_tech_red_raiders",
+          "abbrev": "TTU",
+          "name": "Texas Tech Red Raiders",
+          "shortName": "Texas Tech",
+          "logo": "/leagues/ncaaf/big_12_conference/texas_tech_red_raiders.png"
+        },
+        {
+          "id": "ucf_knights",
+          "abbrev": "UCF",
+          "name": "UCF Knights",
+          "shortName": "UCF",
+          "logo": "/leagues/ncaaf/big_12_conference/ucf_knights.png"
+        },
+        {
+          "id": "utah_utes",
+          "abbrev": "UTAH",
+          "name": "Utah Utes",
+          "shortName": "Utah",
+          "logo": "/leagues/ncaaf/big_12_conference/utah_utes.png"
+        },
+        {
+          "id": "west_virginia_mountaineers",
+          "abbrev": "WVU",
+          "name": "West Virginia Mountaineers",
+          "shortName": "West Virginia",
+          "logo": "/leagues/ncaaf/big_12_conference/west_virginia_mountaineers.png"
+        }
+      ]
+    },
+    {
+      "id": "big_ten_conference",
+      "name": "Big Ten",
+      "teams": [
+        {
+          "id": "illinois_fighting_illini",
+          "abbrev": "ILL",
+          "name": "Illinois Fighting Illini",
+          "shortName": "Illinois",
+          "logo": "/leagues/ncaaf/big_ten_conference/illinois_fighting_illini.png"
+        },
+        {
+          "id": "indiana_hoosiers",
+          "abbrev": "IU",
+          "name": "Indiana Hoosiers",
+          "shortName": "Indiana",
+          "logo": "/leagues/ncaaf/big_ten_conference/indiana_hoosiers.png"
+        },
+        {
+          "id": "iowa_hawkeyes",
+          "abbrev": "IOWA",
+          "name": "Iowa Hawkeyes",
+          "shortName": "Iowa",
+          "logo": "/leagues/ncaaf/big_ten_conference/iowa_hawkeyes.png"
+        },
+        {
+          "id": "maryland_terrapins",
+          "abbrev": "MD",
+          "name": "Maryland Terrapins",
+          "shortName": "Maryland",
+          "logo": "/leagues/ncaaf/big_ten_conference/maryland_terrapins.png"
+        },
+        {
+          "id": "michigan_state_spartans",
+          "abbrev": "MSU",
+          "name": "Michigan State Spartans",
+          "shortName": "Michigan State",
+          "logo": "/leagues/ncaaf/big_ten_conference/michigan_state_spartans.png"
+        },
+        {
+          "id": "michigan_wolverines",
+          "abbrev": "MICH",
+          "name": "Michigan Wolverines",
+          "shortName": "Michigan",
+          "logo": "/leagues/ncaaf/big_ten_conference/michigan_wolverines.png"
+        },
+        {
+          "id": "minnesota_golden_gophers",
+          "abbrev": "MINN",
+          "name": "Minnesota Golden Gophers",
+          "shortName": "Minnesota",
+          "logo": "/leagues/ncaaf/big_ten_conference/minnesota_golden_gophers.png"
+        },
+        {
+          "id": "nebraska_cornhuskers",
+          "abbrev": "NEB",
+          "name": "Nebraska Cornhuskers",
+          "shortName": "Nebraska",
+          "logo": "/leagues/ncaaf/big_ten_conference/nebraska_cornhuskers.png"
+        },
+        {
+          "id": "northwestern_wildcats",
+          "abbrev": "NU",
+          "name": "Northwestern Wildcats",
+          "shortName": "Northwestern",
+          "logo": "/leagues/ncaaf/big_ten_conference/northwestern_wildcats.png"
+        },
+        {
+          "id": "ohio_state_buckeyes",
+          "abbrev": "OSU",
+          "name": "Ohio State Buckeyes",
+          "shortName": "Ohio State",
+          "logo": "/leagues/ncaaf/big_ten_conference/ohio_state_buckeyes.png"
+        },
+        {
+          "id": "oregon_ducks",
+          "abbrev": "ORE",
+          "name": "Oregon Ducks",
+          "shortName": "Oregon",
+          "logo": "/leagues/ncaaf/big_ten_conference/oregon_ducks.png"
+        },
+        {
+          "id": "penn_state_nittany_lions",
+          "abbrev": "PSU",
+          "name": "Penn State Nittany Lions",
+          "shortName": "Penn State",
+          "logo": "/leagues/ncaaf/big_ten_conference/penn_state_nittany_lions.png"
+        },
+        {
+          "id": "purdue_boilermakers",
+          "abbrev": "PUR",
+          "name": "Purdue Boilermakers",
+          "shortName": "Purdue",
+          "logo": "/leagues/ncaaf/big_ten_conference/purdue_boilermakers.png"
+        },
+        {
+          "id": "rutgers_scarlet_knights",
+          "abbrev": "RUTG",
+          "name": "Rutgers Scarlet Knights",
+          "shortName": "Rutgers",
+          "logo": "/leagues/ncaaf/big_ten_conference/rutgers_scarlet_knights.png"
+        },
+        {
+          "id": "ucla_bruins",
+          "abbrev": "UCLA",
+          "name": "UCLA Bruins",
+          "shortName": "UCLA",
+          "logo": "/leagues/ncaaf/big_ten_conference/ucla_bruins.png"
+        },
+        {
+          "id": "usc_trojans",
+          "abbrev": "USC",
+          "name": "USC Trojans",
+          "shortName": "USC",
+          "logo": "/leagues/ncaaf/big_ten_conference/usc_trojans.png"
+        },
+        {
+          "id": "washington_huskies",
+          "abbrev": "WASH",
+          "name": "Washington Huskies",
+          "shortName": "Washington",
+          "logo": "/leagues/ncaaf/big_ten_conference/washington_huskies.png"
+        },
+        {
+          "id": "wisconsin_badgers",
+          "abbrev": "WIS",
+          "name": "Wisconsin Badgers",
+          "shortName": "Wisconsin",
+          "logo": "/leagues/ncaaf/big_ten_conference/wisconsin_badgers.png"
+        }
+      ]
+    },
+    {
+      "id": "conference_usa",
+      "name": "Conference USA",
+      "teams": [
+        {
+          "id": "delaware_blue_hens",
+          "abbrev": "DEL",
+          "name": "Delaware Blue Hens",
+          "shortName": "Delaware",
+          "logo": "/leagues/ncaaf/conference_usa/delaware_blue_hens.png"
+        },
+        {
+          "id": "florida_international_panthers",
+          "abbrev": "FIU",
+          "name": "Florida International Panthers",
+          "shortName": "Florida International",
+          "logo": "/leagues/ncaaf/conference_usa/florida_international_panthers.png"
+        },
+        {
+          "id": "jacksonville_state_gamecocks",
+          "abbrev": "JVST",
+          "name": "Jacksonville State Gamecocks",
+          "shortName": "Jacksonville State",
+          "logo": "/leagues/ncaaf/conference_usa/jacksonville_state_gamecocks.png"
+        },
+        {
+          "id": "kennesaw_state_owls",
+          "abbrev": "KENN",
+          "name": "Kennesaw State Owls",
+          "shortName": "Kennesaw State",
+          "logo": "/leagues/ncaaf/conference_usa/kennesaw_state_owls.png"
+        },
+        {
+          "id": "liberty_flames",
+          "abbrev": "LIB",
+          "name": "Liberty Flames",
+          "shortName": "Liberty",
+          "logo": "/leagues/ncaaf/conference_usa/liberty_flames.png"
+        },
+        {
+          "id": "louisiana_tech_bulldogs",
+          "abbrev": "LT",
+          "name": "Louisiana Tech Bulldogs",
+          "shortName": "Louisiana Tech",
+          "logo": "/leagues/ncaaf/conference_usa/louisiana_tech_bulldogs.png"
+        },
+        {
+          "id": "middle_tennessee_blue_raiders",
+          "abbrev": "MTSU",
+          "name": "Middle Tennessee Blue Raiders",
+          "shortName": "Middle Tennessee",
+          "logo": "/leagues/ncaaf/conference_usa/middle_tennessee_blue_raiders.png"
+        },
+        {
+          "id": "missouri_state_bears",
+          "abbrev": "MOST",
+          "name": "Missouri State Bears",
+          "shortName": "Missouri State",
+          "logo": "/leagues/ncaaf/conference_usa/missouri_state_bears.png"
+        },
+        {
+          "id": "new_mexico_state_aggies",
+          "abbrev": "NMSU",
+          "name": "New Mexico State Aggies",
+          "shortName": "New Mexico State",
+          "logo": "/leagues/ncaaf/conference_usa/new_mexico_state_aggies.png"
+        },
+        {
+          "id": "sam_houston_bearkats",
+          "abbrev": "SHSU",
+          "name": "Sam Houston Bearkats",
+          "shortName": "Sam Houston",
+          "logo": "/leagues/ncaaf/conference_usa/sam_houston_bearkats.png"
+        },
+        {
+          "id": "utep_miners",
+          "abbrev": "UTEP",
+          "name": "UTEP Miners",
+          "shortName": "UTEP",
+          "logo": "/leagues/ncaaf/conference_usa/utep_miners.png"
+        },
+        {
+          "id": "western_kentucky_hilltoppers",
+          "abbrev": "WKU",
+          "name": "Western Kentucky Hilltoppers",
+          "shortName": "Western Kentucky",
+          "logo": "/leagues/ncaaf/conference_usa/western_kentucky_hilltoppers.png"
+        }
+      ]
+    },
+    {
+      "id": "fbs_independents",
+      "name": "FBS Independents",
+      "teams": [
+        {
+          "id": "notre_dame_fighting_irish",
+          "abbrev": "ND",
+          "name": "Notre Dame Fighting Irish",
+          "shortName": "Notre Dame",
+          "logo": "/leagues/ncaaf/fbs_independents/notre_dame_fighting_irish.png"
+        },
+        {
+          "id": "uconn_huskies",
+          "abbrev": "CONN",
+          "name": "UConn Huskies",
+          "shortName": "UConn",
+          "logo": "/leagues/ncaaf/fbs_independents/uconn_huskies.png"
+        }
+      ]
+    },
+    {
+      "id": "mid_american_conference",
+      "name": "MAC",
+      "teams": [
+        {
+          "id": "akron_zips",
+          "abbrev": "AKR",
+          "name": "Akron Zips",
+          "shortName": "Akron",
+          "logo": "/leagues/ncaaf/mid_american_conference/akron_zips.png"
+        },
+        {
+          "id": "ball_state_cardinals",
+          "abbrev": "BALL",
+          "name": "Ball State Cardinals",
+          "shortName": "Ball State",
+          "logo": "/leagues/ncaaf/mid_american_conference/ball_state_cardinals.png"
+        },
+        {
+          "id": "bowling_green_falcons",
+          "abbrev": "BGSU",
+          "name": "Bowling Green Falcons",
+          "shortName": "Bowling Green",
+          "logo": "/leagues/ncaaf/mid_american_conference/bowling_green_falcons.png"
+        },
+        {
+          "id": "buffalo_bulls",
+          "abbrev": "BUFF",
+          "name": "Buffalo Bulls",
+          "shortName": "Buffalo",
+          "logo": "/leagues/ncaaf/mid_american_conference/buffalo_bulls.png"
+        },
+        {
+          "id": "central_michigan_chippewas",
+          "abbrev": "CMU",
+          "name": "Central Michigan Chippewas",
+          "shortName": "Central Michigan",
+          "logo": "/leagues/ncaaf/mid_american_conference/central_michigan_chippewas.png"
+        },
+        {
+          "id": "eastern_michigan_eagles",
+          "abbrev": "EMU",
+          "name": "Eastern Michigan Eagles",
+          "shortName": "Eastern Michigan",
+          "logo": "/leagues/ncaaf/mid_american_conference/eastern_michigan_eagles.png"
+        },
+        {
+          "id": "kent_state_golden_flashes",
+          "abbrev": "KENT",
+          "name": "Kent State Golden Flashes",
+          "shortName": "Kent State",
+          "logo": "/leagues/ncaaf/mid_american_conference/kent_state_golden_flashes.png"
+        },
+        {
+          "id": "massachusetts_minutemen",
+          "abbrev": "MASS",
+          "name": "Massachusetts Minutemen",
+          "shortName": "Massachusetts",
+          "logo": "/leagues/ncaaf/mid_american_conference/massachusetts_minutemen.png"
+        },
+        {
+          "id": "miami_oh_redhawks",
+          "abbrev": "M-OH",
+          "name": "Miami (OH) RedHawks",
+          "shortName": "Miami (OH)",
+          "logo": "/leagues/ncaaf/mid_american_conference/miami_oh_redhawks.png"
+        },
+        {
+          "id": "northern_illinois_huskies",
+          "abbrev": "NIU",
+          "name": "Northern Illinois Huskies",
+          "shortName": "Northern Illinois",
+          "logo": "/leagues/ncaaf/mid_american_conference/northern_illinois_huskies.png"
+        },
+        {
+          "id": "ohio_bobcats",
+          "abbrev": "OHIO",
+          "name": "Ohio Bobcats",
+          "shortName": "Ohio",
+          "logo": "/leagues/ncaaf/mid_american_conference/ohio_bobcats.png"
+        },
+        {
+          "id": "toledo_rockets",
+          "abbrev": "TOL",
+          "name": "Toledo Rockets",
+          "shortName": "Toledo",
+          "logo": "/leagues/ncaaf/mid_american_conference/toledo_rockets.png"
+        },
+        {
+          "id": "western_michigan_broncos",
+          "abbrev": "WMU",
+          "name": "Western Michigan Broncos",
+          "shortName": "Western Michigan",
+          "logo": "/leagues/ncaaf/mid_american_conference/western_michigan_broncos.png"
+        }
+      ]
+    },
+    {
+      "id": "mountain_west_conference",
+      "name": "Mountain West",
+      "teams": [
+        {
+          "id": "air_force_falcons",
+          "abbrev": "AFA",
+          "name": "Air Force Falcons",
+          "shortName": "Air Force",
+          "logo": "/leagues/ncaaf/mountain_west_conference/air_force_falcons.png"
+        },
+        {
+          "id": "boise_state_broncos",
+          "abbrev": "BOIS",
+          "name": "Boise State Broncos",
+          "shortName": "Boise State",
+          "logo": "/leagues/ncaaf/mountain_west_conference/boise_state_broncos.png"
+        },
+        {
+          "id": "colorado_state_rams",
+          "abbrev": "CSU",
+          "name": "Colorado State Rams",
+          "shortName": "Colorado State",
+          "logo": "/leagues/ncaaf/mountain_west_conference/colorado_state_rams.png"
+        },
+        {
+          "id": "fresno_state_bulldogs",
+          "abbrev": "FRES",
+          "name": "Fresno State Bulldogs",
+          "shortName": "Fresno State",
+          "logo": "/leagues/ncaaf/mountain_west_conference/fresno_state_bulldogs.png"
+        },
+        {
+          "id": "hawai_i_rainbow_warriors",
+          "abbrev": "HAW",
+          "name": "Hawai'i Rainbow Warriors",
+          "shortName": "Hawai'i",
+          "logo": "/leagues/ncaaf/mountain_west_conference/hawai_i_rainbow_warriors.png"
+        },
+        {
+          "id": "nevada_wolf_pack",
+          "abbrev": "NEV",
+          "name": "Nevada Wolf Pack",
+          "shortName": "Nevada",
+          "logo": "/leagues/ncaaf/mountain_west_conference/nevada_wolf_pack.png"
+        },
+        {
+          "id": "new_mexico_lobos",
+          "abbrev": "UNM",
+          "name": "New Mexico Lobos",
+          "shortName": "New Mexico",
+          "logo": "/leagues/ncaaf/mountain_west_conference/new_mexico_lobos.png"
+        },
+        {
+          "id": "san_diego_state_aztecs",
+          "abbrev": "SDSU",
+          "name": "San Diego State Aztecs",
+          "shortName": "San Diego State",
+          "logo": "/leagues/ncaaf/mountain_west_conference/san_diego_state_aztecs.png"
+        },
+        {
+          "id": "san_jos_state_spartans",
+          "abbrev": "SJSU",
+          "name": "San José State Spartans",
+          "shortName": "San José State",
+          "logo": "/leagues/ncaaf/mountain_west_conference/san_jos_state_spartans.png"
+        },
+        {
+          "id": "unlv_rebels",
+          "abbrev": "UNLV",
+          "name": "UNLV Rebels",
+          "shortName": "UNLV",
+          "logo": "/leagues/ncaaf/mountain_west_conference/unlv_rebels.png"
+        },
+        {
+          "id": "utah_state_aggies",
+          "abbrev": "USU",
+          "name": "Utah State Aggies",
+          "shortName": "Utah State",
+          "logo": "/leagues/ncaaf/mountain_west_conference/utah_state_aggies.png"
+        },
+        {
+          "id": "wyoming_cowboys",
+          "abbrev": "WYO",
+          "name": "Wyoming Cowboys",
+          "shortName": "Wyoming",
+          "logo": "/leagues/ncaaf/mountain_west_conference/wyoming_cowboys.png"
+        }
+      ]
+    },
+    {
+      "id": "pac_12_conference",
+      "name": "Pac-12",
+      "teams": [
+        {
+          "id": "oregon_state_beavers",
+          "abbrev": "ORST",
+          "name": "Oregon State Beavers",
+          "shortName": "Oregon State",
+          "logo": "/leagues/ncaaf/pac_12_conference/oregon_state_beavers.png"
+        },
+        {
+          "id": "washington_state_cougars",
+          "abbrev": "WSU",
+          "name": "Washington State Cougars",
+          "shortName": "Washington State",
+          "logo": "/leagues/ncaaf/pac_12_conference/washington_state_cougars.png"
+        }
+      ]
+    },
+    {
+      "id": "southeastern_conference",
+      "name": "SEC",
+      "teams": [
+        {
+          "id": "alabama_crimson_tide",
+          "abbrev": "ALA",
+          "name": "Alabama Crimson Tide",
+          "shortName": "Alabama",
+          "logo": "/leagues/ncaaf/southeastern_conference/alabama_crimson_tide.png"
+        },
+        {
+          "id": "arkansas_razorbacks",
+          "abbrev": "ARK",
+          "name": "Arkansas Razorbacks",
+          "shortName": "Arkansas",
+          "logo": "/leagues/ncaaf/southeastern_conference/arkansas_razorbacks.png"
+        },
+        {
+          "id": "auburn_tigers",
+          "abbrev": "AUB",
+          "name": "Auburn Tigers",
+          "shortName": "Auburn",
+          "logo": "/leagues/ncaaf/southeastern_conference/auburn_tigers.png"
+        },
+        {
+          "id": "florida_gators",
+          "abbrev": "FLA",
+          "name": "Florida Gators",
+          "shortName": "Florida",
+          "logo": "/leagues/ncaaf/southeastern_conference/florida_gators.png"
+        },
+        {
+          "id": "georgia_bulldogs",
+          "abbrev": "UGA",
+          "name": "Georgia Bulldogs",
+          "shortName": "Georgia",
+          "logo": "/leagues/ncaaf/southeastern_conference/georgia_bulldogs.png"
+        },
+        {
+          "id": "kentucky_wildcats",
+          "abbrev": "UK",
+          "name": "Kentucky Wildcats",
+          "shortName": "Kentucky",
+          "logo": "/leagues/ncaaf/southeastern_conference/kentucky_wildcats.png"
+        },
+        {
+          "id": "lsu_tigers",
+          "abbrev": "LSU",
+          "name": "LSU Tigers",
+          "shortName": "LSU",
+          "logo": "/leagues/ncaaf/southeastern_conference/lsu_tigers.png"
+        },
+        {
+          "id": "mississippi_state_bulldogs",
+          "abbrev": "MSST",
+          "name": "Mississippi State Bulldogs",
+          "shortName": "Mississippi State",
+          "logo": "/leagues/ncaaf/southeastern_conference/mississippi_state_bulldogs.png"
+        },
+        {
+          "id": "missouri_tigers",
+          "abbrev": "MIZ",
+          "name": "Missouri Tigers",
+          "shortName": "Missouri",
+          "logo": "/leagues/ncaaf/southeastern_conference/missouri_tigers.png"
+        },
+        {
+          "id": "oklahoma_sooners",
+          "abbrev": "OU",
+          "name": "Oklahoma Sooners",
+          "shortName": "Oklahoma",
+          "logo": "/leagues/ncaaf/southeastern_conference/oklahoma_sooners.png"
+        },
+        {
+          "id": "ole_miss_rebels",
+          "abbrev": "MISS",
+          "name": "Ole Miss Rebels",
+          "shortName": "Ole Miss",
+          "logo": "/leagues/ncaaf/southeastern_conference/ole_miss_rebels.png"
+        },
+        {
+          "id": "south_carolina_gamecocks",
+          "abbrev": "SC",
+          "name": "South Carolina Gamecocks",
+          "shortName": "South Carolina",
+          "logo": "/leagues/ncaaf/southeastern_conference/south_carolina_gamecocks.png"
+        },
+        {
+          "id": "tennessee_volunteers",
+          "abbrev": "TENN",
+          "name": "Tennessee Volunteers",
+          "shortName": "Tennessee",
+          "logo": "/leagues/ncaaf/southeastern_conference/tennessee_volunteers.png"
+        },
+        {
+          "id": "texas_a_m_aggies",
+          "abbrev": "TA&M",
+          "name": "Texas A&M Aggies",
+          "shortName": "Texas A&M",
+          "logo": "/leagues/ncaaf/southeastern_conference/texas_a_m_aggies.png"
+        },
+        {
+          "id": "texas_longhorns",
+          "abbrev": "TEX",
+          "name": "Texas Longhorns",
+          "shortName": "Texas",
+          "logo": "/leagues/ncaaf/southeastern_conference/texas_longhorns.png"
+        },
+        {
+          "id": "vanderbilt_commodores",
+          "abbrev": "VAN",
+          "name": "Vanderbilt Commodores",
+          "shortName": "Vanderbilt",
+          "logo": "/leagues/ncaaf/southeastern_conference/vanderbilt_commodores.png"
+        }
+      ]
+    },
+    {
+      "id": "sun_belt_east",
+      "name": "Sun Belt (East)",
+      "teams": [
+        {
+          "id": "app_state_mountaineers",
+          "abbrev": "APP",
+          "name": "App State Mountaineers",
+          "shortName": "App State",
+          "logo": "/leagues/ncaaf/sun_belt_east/app_state_mountaineers.png"
+        },
+        {
+          "id": "coastal_carolina_chanticleers",
+          "abbrev": "CCU",
+          "name": "Coastal Carolina Chanticleers",
+          "shortName": "Coastal Carolina",
+          "logo": "/leagues/ncaaf/sun_belt_east/coastal_carolina_chanticleers.png"
+        },
+        {
+          "id": "georgia_southern_eagles",
+          "abbrev": "GASO",
+          "name": "Georgia Southern Eagles",
+          "shortName": "Georgia Southern",
+          "logo": "/leagues/ncaaf/sun_belt_east/georgia_southern_eagles.png"
+        },
+        {
+          "id": "georgia_state_panthers",
+          "abbrev": "GAST",
+          "name": "Georgia State Panthers",
+          "shortName": "Georgia State",
+          "logo": "/leagues/ncaaf/sun_belt_east/georgia_state_panthers.png"
+        },
+        {
+          "id": "james_madison_dukes",
+          "abbrev": "JMU",
+          "name": "James Madison Dukes",
+          "shortName": "James Madison",
+          "logo": "/leagues/ncaaf/sun_belt_east/james_madison_dukes.png"
+        },
+        {
+          "id": "marshall_thundering_herd",
+          "abbrev": "MRSH",
+          "name": "Marshall Thundering Herd",
+          "shortName": "Marshall",
+          "logo": "/leagues/ncaaf/sun_belt_east/marshall_thundering_herd.png"
+        },
+        {
+          "id": "old_dominion_monarchs",
+          "abbrev": "ODU",
+          "name": "Old Dominion Monarchs",
+          "shortName": "Old Dominion",
+          "logo": "/leagues/ncaaf/sun_belt_east/old_dominion_monarchs.png"
+        }
+      ]
+    },
+    {
+      "id": "sun_belt_west",
+      "name": "Sun Belt (West)",
+      "teams": [
+        {
+          "id": "arkansas_state_red_wolves",
+          "abbrev": "ARST",
+          "name": "Arkansas State Red Wolves",
+          "shortName": "Arkansas State",
+          "logo": "/leagues/ncaaf/sun_belt_west/arkansas_state_red_wolves.png"
+        },
+        {
+          "id": "louisiana_ragin_cajuns",
+          "abbrev": "UL",
+          "name": "Louisiana Ragin' Cajuns",
+          "shortName": "Louisiana",
+          "logo": "/leagues/ncaaf/sun_belt_west/louisiana_ragin_cajuns.png"
+        },
+        {
+          "id": "south_alabama_jaguars",
+          "abbrev": "USA",
+          "name": "South Alabama Jaguars",
+          "shortName": "South Alabama",
+          "logo": "/leagues/ncaaf/sun_belt_west/south_alabama_jaguars.png"
+        },
+        {
+          "id": "southern_miss_golden_eagles",
+          "abbrev": "USM",
+          "name": "Southern Miss Golden Eagles",
+          "shortName": "Southern Miss",
+          "logo": "/leagues/ncaaf/sun_belt_west/southern_miss_golden_eagles.png"
+        },
+        {
+          "id": "texas_state_bobcats",
+          "abbrev": "TXST",
+          "name": "Texas State Bobcats",
+          "shortName": "Texas State",
+          "logo": "/leagues/ncaaf/sun_belt_west/texas_state_bobcats.png"
+        },
+        {
+          "id": "troy_trojans",
+          "abbrev": "TROY",
+          "name": "Troy Trojans",
+          "shortName": "Troy",
+          "logo": "/leagues/ncaaf/sun_belt_west/troy_trojans.png"
+        },
+        {
+          "id": "ul_monroe_warhawks",
+          "abbrev": "ULM",
+          "name": "UL Monroe Warhawks",
+          "shortName": "UL Monroe",
+          "logo": "/leagues/ncaaf/sun_belt_west/ul_monroe_warhawks.png"
+        }
+      ]
+    }
+  ]
+}

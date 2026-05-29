@@ -1,0 +1,317 @@
+"use client";
+
+import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
+import { toast } from "sonner";
+import Link from "next/link";
+import { AuthShell } from "@/components/auth/AuthShell";
+import { AuthFormCard, AuthFormHeader } from "@/components/auth/AuthFormCard";
+import { authInputClass } from "@/components/auth/auth-form-styles";
+import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
+import { Input } from "@/components/ui/input";
+import { stashPendingCheckoutPlan } from "@/lib/pending-checkout-plan";
+import { startSubscriptionCheckout } from "@/lib/start-checkout";
+import {
+  getPlanDisplayName,
+  parseSubscriptionPlanParams,
+  type SubscriptionPlanSelection,
+} from "@/lib/subscription-plan";
+
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+async function ensureCheckoutSession() {
+  let session = await getSession();
+  if (!session?.user?.backendToken) {
+    session = await getSession();
+  }
+  if (!session?.user?.backendToken) {
+    throw new Error("Please sign in again to continue to payment.");
+  }
+  return session;
+}
+
+function RegisterForm() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: session, status, update } = useSession();
+
+  const plan = useMemo(
+    () =>
+      parseSubscriptionPlanParams(
+        searchParams.get("brand"),
+        searchParams.get("tier")
+      ),
+    [searchParams]
+  );
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const checkoutLock = useRef(false);
+  const clearedStaleSession = useRef(false);
+
+  const isLoggedIn = status === "authenticated" && Boolean(session?.user?.backendToken);
+
+  useEffect(() => {
+    if (!plan) {
+      router.replace("/#pricing");
+    }
+  }, [plan, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || clearedStaleSession.current) return;
+    if (!session?.user?.backendToken) {
+      clearedStaleSession.current = true;
+      void signOut({ redirect: false });
+    }
+  }, [status, session]);
+
+  const goToCheckout = async () => {
+    if (!plan || checkoutLock.current) return;
+    checkoutLock.current = true;
+    setLoading(true);
+    try {
+      await ensureCheckoutSession();
+      await startSubscriptionCheckout(plan);
+    } catch (error) {
+      checkoutLock.current = false;
+      setLoading(false);
+      toast.error((error as Error).message);
+    }
+  };
+
+  const onSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!plan) return;
+
+    setLoading(true);
+    checkoutLock.current = true;
+    try {
+      const response = await fetch(`${backendUrl}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Registration failed");
+
+      const signInResult = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (signInResult?.error) {
+        throw new Error("Account created but sign-in failed. Please log in.");
+      }
+
+      await update();
+      await ensureCheckoutSession();
+      await startSubscriptionCheckout(plan);
+    } catch (error) {
+      toast.error((error as Error).message);
+      setLoading(false);
+      checkoutLock.current = false;
+    }
+  };
+
+  if (!plan) {
+    return null;
+  }
+
+  if (isLoggedIn && session?.user) {
+    return (
+      <RegisterPageExistingUser
+        plan={plan}
+        email={session.user.email ?? ""}
+        loading={loading}
+        onContinue={() => void goToCheckout()}
+      />
+    );
+  }
+
+  return (
+    <RegisterPageContent
+      plan={plan}
+      loading={loading}
+      onSubmit={onSubmit}
+      name={name}
+      setName={setName}
+      email={email}
+      setEmail={setEmail}
+      password={password}
+      setPassword={setPassword}
+    />
+  );
+}
+
+function RegisterPageExistingUser({
+  plan,
+  email,
+  loading,
+  onContinue,
+}: {
+  plan: SubscriptionPlanSelection;
+  email: string;
+  loading: boolean;
+  onContinue: () => void;
+}) {
+  const planName = getPlanDisplayName(plan);
+
+  return (
+    <AuthShell>
+      <AuthFormCard>
+        <AuthFormHeader
+          title="Continue checkout"
+          description={
+            <>
+              Signed in as <span className="font-medium text-white">{email}</span>. Complete
+              payment for <span className="font-medium text-white">{planName}</span> when you&apos;re
+              ready.
+            </>
+          }
+        />
+        <PricingAccentButton
+          type="button"
+          loading={loading}
+          onClick={onContinue}
+          className="mt-1 cursor-pointer"
+        >
+          Continue to payment
+        </PricingAccentButton>
+        <p className="mt-8 text-center typo-body-md text-slate-400">
+          <Link
+            className="font-semibold text-accent underline-offset-4 transition hover:text-white hover:underline"
+            href="/login"
+            onClick={() => stashPendingCheckoutPlan(plan)}
+          >
+            Use a different account
+          </Link>
+        </p>
+      </AuthFormCard>
+    </AuthShell>
+  );
+}
+
+function RegisterPageContent({
+  plan,
+  loading,
+  onSubmit,
+  name,
+  setName,
+  email,
+  setEmail,
+  password,
+  setPassword,
+}: {
+  plan: SubscriptionPlanSelection;
+  loading: boolean;
+  onSubmit: (e: FormEvent) => void;
+  name: string;
+  setName: (v: string) => void;
+  email: string;
+  setEmail: (v: string) => void;
+  password: string;
+  setPassword: (v: string) => void;
+}) {
+  const planName = getPlanDisplayName(plan);
+
+  return (
+    <AuthShell>
+      <AuthFormCard>
+        <AuthFormHeader
+          title="Create account"
+          description={
+            <>
+              You selected <span className="font-medium text-white">{planName}</span>. Enter your
+              details, then you&apos;ll pay securely with Stripe.
+            </>
+          }
+        />
+
+        <form className="flex flex-col gap-5" onSubmit={onSubmit}>
+          <div className="space-y-2">
+            <label
+              htmlFor="register-name"
+              className="block typo-caption font-semibold uppercase tracking-[0.12em] text-slate-400"
+            >
+              Name
+            </label>
+            <Input
+              id="register-name"
+              autoComplete="name"
+              className={authInputClass}
+              placeholder="Your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="register-email"
+              className="block typo-caption font-semibold uppercase tracking-[0.12em] text-slate-400"
+            >
+              Email
+            </label>
+            <Input
+              id="register-email"
+              autoComplete="email"
+              className={authInputClass}
+              placeholder="you@example.com"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="register-password"
+              className="block typo-caption font-semibold uppercase tracking-[0.12em] text-slate-400"
+            >
+              Password
+            </label>
+            <Input
+              id="register-password"
+              autoComplete="new-password"
+              className={authInputClass}
+              placeholder="At least 8 characters"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+              required
+              disabled={loading}
+            />
+          </div>
+          <PricingAccentButton type="submit" loading={loading} className="mt-1 cursor-pointer">
+            {loading ? "Continuing to checkout…" : "Continue to payment"}
+          </PricingAccentButton>
+        </form>
+
+        <p className="mt-8 text-center typo-body-md text-slate-400">
+          Already have an account?{" "}
+          <Link
+            className="font-semibold text-accent underline-offset-4 transition hover:text-white hover:underline"
+            href="/login"
+            onClick={() => stashPendingCheckoutPlan(plan)}
+          >
+            Sign in
+          </Link>
+        </p>
+      </AuthFormCard>
+    </AuthShell>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
+  );
+}

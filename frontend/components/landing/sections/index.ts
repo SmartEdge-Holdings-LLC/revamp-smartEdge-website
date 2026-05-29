@@ -1,0 +1,9 @@
+export { FreePicksSection } from "./FreePicksSection";
+export { StatsBarSection } from "./StatsBarSection";
+export { HowItWorksSection } from "./HowItWorksSection";
+export { SportsCoverageSection } from "./SportsCoverageSection";
+export { HandicappersSection } from "./HandicappersSection";
+export { TestimonialsSection } from "./TestimonialsSection";
+export { WhyTrustSection } from "./WhyTrustSection";
+export { FaqSection } from "./FaqSection";
+export { LandingFooter } from "./LandingFooter";
