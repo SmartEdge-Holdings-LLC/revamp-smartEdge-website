@@ -11,11 +11,17 @@ const server = http.createServer(app);
 app.use(errorHandler);
 
 void (async () => {
-  await connectDb();
-  logConfiguredStripeProducts();
-  server.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
-    console.log(`   http://localhost:${PORT}`);
-    console.log(`   Swagger UI: http://localhost:${PORT}/api-docs`);
-  });
+  try {
+    await connectDb();
+    logConfiguredStripeProducts();
+    server.listen(PORT, () => {
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`   http://localhost:${PORT}`);
+      console.log(`   Swagger UI: http://localhost:${PORT}/api-docs`);
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to start server:", err);
+    process.exit(1);
+  }
 })();
