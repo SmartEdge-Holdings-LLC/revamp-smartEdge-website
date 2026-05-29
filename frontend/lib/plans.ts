@@ -1,7 +1,9 @@
-import { PlanName } from "@/types";
+import type { PlanName } from "@/types";
+
+type LegacyPlanName = Extract<PlanName, "free" | "starter" | "pro" | "enterprise">;
 
 export const PLAN_FEATURES: Record<
-  PlanName,
+  LegacyPlanName,
   { users: number | "unlimited"; projects: number | "unlimited"; features: string[] }
 > = {
   free: {

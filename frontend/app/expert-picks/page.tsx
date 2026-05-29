@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { LandingSubpageLayout } from "@/components/landing/LandingSubpageLayout";
 import { ExpertPicksSection } from "@/components/landing/sections/ExpertPicksSection";
 
@@ -11,7 +12,15 @@ export const metadata: Metadata = {
 export default function ExpertPicksPage() {
   return (
     <LandingSubpageLayout>
-      <ExpertPicksSection />
+      <Suspense
+        fallback={
+          <div className="flex flex-1 items-center justify-center py-24">
+            <div className="size-8 animate-pulse rounded-full bg-white/10" />
+          </div>
+        }
+      >
+        <ExpertPicksSection />
+      </Suspense>
     </LandingSubpageLayout>
   );
 }

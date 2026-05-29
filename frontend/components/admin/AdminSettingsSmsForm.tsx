@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -68,7 +68,7 @@ const inputClass =
 const textareaClass =
   "min-h-32 w-full rounded-md border border-white/10 bg-[#131313] px-4 py-3 text-white outline-none transition focus:border-white/25";
 
-export function AdminSettingsSmsForm() {
+function AdminSettingsSmsFormInner() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<SettingsTab>("broadcast");
   const [isHandicapper, setIsHandicapper] = useState(false);
@@ -435,6 +435,20 @@ export function AdminSettingsSmsForm() {
         </div>
       )}
     </div>
+  );
+}
+
+export function AdminSettingsSmsForm() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[240px] items-center justify-center">
+          <div className="size-8 animate-pulse rounded-full bg-white/10" />
+        </div>
+      }
+    >
+      <AdminSettingsSmsFormInner />
+    </Suspense>
   );
 }
 

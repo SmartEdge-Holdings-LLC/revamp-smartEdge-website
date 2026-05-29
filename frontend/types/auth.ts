@@ -1,3 +1,5 @@
+import type { BackendMemberUser } from "@/types/member-session";
+
 /** Backend `Admin.role` legacy `superadmin` is still returned by some deployments; treat it like `admin`. */
 export type AppRole = "member" | "admin" | "subadmin" | "handicapper" | "superadmin";
 
@@ -15,7 +17,7 @@ export interface AuthAdmin {
   updatedAt?: string;
 }
 
-export type { BackendMemberUser as AuthMember } from "@/types/member-session";
+export type AuthMember = BackendMemberUser;
 
 export interface LoginResponseMember {
   user: AuthMember;

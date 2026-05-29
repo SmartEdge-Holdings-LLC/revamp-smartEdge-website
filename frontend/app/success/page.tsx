@@ -63,7 +63,7 @@ function SuccessContent() {
           body: JSON.stringify({ sessionId }),
         });
         const syncData = (await syncRes.json()) as {
-          subscription?: { entitlements?: BackendMemberUser["entitlements"] };
+          subscription?: Pick<BackendMemberUser, "entitlements" | "brandSubscriptions">;
         };
 
         const token = session?.user?.backendToken;

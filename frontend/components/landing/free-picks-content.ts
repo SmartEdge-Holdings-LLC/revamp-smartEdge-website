@@ -2,6 +2,8 @@ import type { PublicPick, PublicPickSource } from "@/lib/api/picksApi";
 import { getPickLeagueLogo } from "@/lib/sports-leagues";
 import type { League } from "@/types/picks";
 
+export type { PublicPickSource };
+
 export type SportHighlight = {
   label: string;
   image: string;

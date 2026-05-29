@@ -132,7 +132,7 @@ export function ExpertPicksSection() {
   React.useEffect(() => {
     let cancelled = false;
 
-    if (!canLoadPaidPicks) {
+    if (!canLoadPaidPicks || !token) {
       setPaidPicks([]);
       setLoading(false);
       setError(null);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { Check, Coins, Info, Trophy, X } from "lucide-react";
@@ -343,7 +343,7 @@ function PricingCard({
 }
 
 /** Plan tabs + pricing cards (reused on home `#pricing` and free picks). */
-export function PricingPlansPanel({
+function PricingPlansPanelInner({
   className,
   tabLayoutId = "pricing-plan-tab",
   planView: controlledPlanView,
@@ -457,6 +457,30 @@ export function PricingPlansPanel({
         </motion.div>
       </AnimatePresence>
     </div>
+  );
+}
+
+export function PricingPlansPanel(
+  props: {
+    className?: string;
+    tabLayoutId?: string;
+    planView?: PlanView;
+    showTabs?: boolean;
+  }
+) {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className={cn(
+            "min-h-[320px] animate-pulse rounded-2xl bg-white/5",
+            props.className
+          )}
+        />
+      }
+    >
+      <PricingPlansPanelInner {...props} />
+    </Suspense>
   );
 }
 
