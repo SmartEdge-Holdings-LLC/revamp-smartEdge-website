@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { Activity, TrendingUp } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";

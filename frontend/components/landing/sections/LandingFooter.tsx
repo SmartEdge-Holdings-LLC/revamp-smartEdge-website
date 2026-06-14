@@ -43,8 +43,8 @@ export function LandingFooter() {
             aria-label="Footer"
             className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4 lg:justify-items-end"
           >
-            {FOOTER_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className={linkClassName}>
+            {FOOTER_LINKS.map((link, idx) => (
+              <Link key={`${idx}-${link.href}`} href={link.href} className={linkClassName}>
                 {link.label}
               </Link>
             ))}
