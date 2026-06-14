@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Activity, MapPin, TrendingUp } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { OddsSportSubNav } from "@/components/landing/OddsSportSubNav";
+import { fetchMlbOdds, fetchNflOdds, type ParlayEvent } from "@/lib/api/parlayOddsApi";
 import { ODDS_GAMES, oddsSportLogo, type OddsGame, type OddsSport } from "./odds-data";
 
 interface OddsContentProps {
@@ -134,8 +135,140 @@ function OddsGameRow({ game }: { game: OddsGame }) {
   );
 }
 
+function ParlayEventRow({ event, sport }: { event: ParlayEvent; sport: OddsSport }): React.ReactNode {
+  const leagueLogo = oddsSportLogo(sport);
+
+  function formatCommenceTime(iso: string): string {
+    const d = new Date(iso);
+    return d.toLocaleString("en-US", {
+      timeZone: "America/New_York",
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  function formatAmericanOdds(price: number): string {
+    return price > 0 ? `+${price}` : String(price);
+  }
+
+  const primaryBookmaker = event.bookmakers[0];
+  if (!primaryBookmaker) return <></>;
+
+  const h2hMarket = primaryBookmaker.markets.find(m => m.key === "h2h");
+  const spreadsMarket = primaryBookmaker.markets.find(m => m.key === "spreads");
+  const totalsMarket = primaryBookmaker.markets.find(m => m.key === "totals");
+
+  const awayH2h = h2hMarket?.outcomes[0];
+  const homeH2h = h2hMarket?.outcomes[1];
+  const awaySpread = spreadsMarket?.outcomes[0];
+  const homeSpread = spreadsMarket?.outcomes[1];
+  const overTotal = totalsMarket?.outcomes[0];
+  const underTotal = totalsMarket?.outcomes[1];
+
+  return (
+    <article className="rounded-2xl border border-white/10 bg-white/3 p-4 transition-colors hover:border-white/15 hover:bg-white/5 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/6 pb-4">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {leagueLogo ? (
+            <span className="flex size-7 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5">
+              <BrandImage
+                src={leagueLogo}
+                alt={sport}
+                width={24}
+                height={24}
+                className="h-5 w-5 object-contain"
+              />
+            </span>
+          ) : null}
+          <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+            {formatCommenceTime(event.commence_time)}
+          </span>
+        </div>
+        <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent">
+          {sport}
+        </span>
+      </div>
+
+      <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="grid min-w-0 flex-1 grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="text-sm font-semibold text-white sm:text-[15px]">
+              {event.away_team}
+            </span>
+          </div>
+          <span className="px-1 text-center text-xs font-semibold uppercase tracking-widest text-zinc-600">
+            @
+          </span>
+          <div className="flex min-w-0 items-center justify-end gap-3">
+            <span className="text-right text-sm font-semibold text-white sm:text-[15px]">
+              {event.home_team}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/6 pt-4 sm:justify-end sm:gap-5 sm:border-t-0 sm:pt-0 lg:border-l lg:border-white/6 lg:pl-6">
+          {awaySpread && homeSpread ? (
+            <OddsCell
+              label="Spread"
+              value={`${formatAmericanOdds(awaySpread.price)} ${awaySpread.point ? `(${awaySpread.point})` : ""}`}
+              sub={`${formatAmericanOdds(homeSpread.price)} ${homeSpread.point ? `(${homeSpread.point})` : ""}`}
+            />
+          ) : null}
+          {awayH2h && homeH2h ? (
+            <OddsCell
+              label="Moneyline"
+              value={formatAmericanOdds(awayH2h.price)}
+              sub={formatAmericanOdds(homeH2h.price)}
+            />
+          ) : null}
+          {overTotal && underTotal ? (
+            <OddsCell
+              label={`Total ${overTotal.point ?? "N/A"}`}
+              value={formatAmericanOdds(overTotal.price)}
+              sub={formatAmericanOdds(underTotal.price)}
+            />
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function OddsContent({ sport, onSportChange }: OddsContentProps) {
-  const games = useMemo(() => ODDS_GAMES.filter((g) => g.sport === sport), [sport]);
+  const [apiEvents, setApiEvents] = useState<ParlayEvent[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setApiEvents(null);
+
+    const fetchOdds = async () => {
+      let data;
+      if (sport === "MLB") {
+        data = await fetchMlbOdds();
+      } else if (sport === "NFL") {
+        data = await fetchNflOdds();
+      }
+
+      if (data?.events) {
+        setApiEvents(data.events);
+      }
+      setIsLoading(false);
+    };
+
+    fetchOdds();
+  }, [sport]);
+
+  const games = useMemo(() => {
+    if (apiEvents && apiEvents.length > 0) {
+      return null;
+    }
+    return ODDS_GAMES.filter((g) => g.sport === sport);
+  }, [sport, apiEvents]);
+
   const sportLogo = oddsSportLogo(sport);
 
   return (
@@ -170,15 +303,32 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
         <div className="mt-10 flex items-center justify-center gap-2 text-[13px] text-zinc-500">
           <TrendingUp className="size-3.5 text-accent" />
           <span>
-            Showing <span className="font-medium text-zinc-300">{games.length}</span> games ·{" "}
-            <span className="font-medium text-zinc-300">{sport}</span>
+            Showing{" "}
+            <span className="font-medium text-zinc-300">
+              {apiEvents?.length ?? games?.length ?? 0}
+            </span>{" "}
+            games · <span className="font-medium text-zinc-300">{sport}</span>
           </span>
         </div>
 
         <div className="mt-6 space-y-4" role="tabpanel">
-          {games.map((game) => (
-            <OddsGameRow key={game.id} game={game} />
-          ))}
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="text-sm text-zinc-400">Loading odds...</div>
+            </div>
+          ) : apiEvents && apiEvents.length > 0 ? (
+            apiEvents.map((event) => (
+              <ParlayEventRow key={event.id} event={event} sport={sport} />
+            ))
+          ) : games && games.length > 0 ? (
+            games.map((game) => (
+              <OddsGameRow key={game.id} game={game} />
+            ))
+          ) : (
+            <div className="flex justify-center py-8">
+              <div className="text-sm text-zinc-400">No games available</div>
+            </div>
+          )}
         </div>
 
         <p className="mt-8 text-center text-xs leading-relaxed text-zinc-600">

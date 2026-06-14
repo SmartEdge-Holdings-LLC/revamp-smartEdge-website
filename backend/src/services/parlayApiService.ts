@@ -3,6 +3,7 @@ import { env } from "../config/env";
 const PARLAY_API_BASE = "https://parlay-api.com/v1";
 const PARLAY_SANDBOX_BASE = "https://parlay-api.com/v1/sandbox";
 export const NFL_SPORT_KEY = "americanfootball_nfl";
+export const MLB_SPORT_KEY = "baseball_mlb";
 
 export type ParlaySport = {
   key: string;
@@ -174,6 +175,76 @@ export async function fetchNflEvents(): Promise<{
   }
 
   const path = `/sports/${NFL_SPORT_KEY}/events`;
+  const { data, meta } = await parlayGet<
+    Array<{
+      id: string;
+      sport_key: string;
+      commence_time: string;
+      home_team: string;
+      away_team: string;
+    }>
+  >(path);
+
+  return {
+    events: Array.isArray(data) ? data : [],
+    meta,
+  };
+}
+
+export async function fetchMlbOdds(options?: {
+  regions?: string;
+  markets?: string;
+  bookmakers?: string;
+}): Promise<{
+  events: ParlayEventOdds[];
+  meta: ParlayFetchMeta;
+}> {
+  if (!env.parlayApiKey && !useSandbox()) {
+    throw new ParlayApiError(
+      "PARLAY_API_KEY is not set. Add your key to .env or run in development to use sandbox data.",
+      503
+    );
+  }
+
+  const regions = options?.regions ?? "us";
+  const markets = options?.markets ?? "h2h,spreads,totals";
+
+  const query: Record<string, string> = {
+    regions,
+    markets,
+    oddsFormat: "american",
+  };
+  if (options?.bookmakers) {
+    query.bookmakers = options.bookmakers;
+  }
+
+  const path = `/sports/${MLB_SPORT_KEY}/odds`;
+  const { data, meta } = await parlayGet<ParlayEventOdds[]>(path, query);
+
+  return {
+    events: Array.isArray(data) ? data : [],
+    meta,
+  };
+}
+
+export async function fetchMlbEvents(): Promise<{
+  events: Array<{
+    id: string;
+    sport_key: string;
+    commence_time: string;
+    home_team: string;
+    away_team: string;
+  }>;
+  meta: ParlayFetchMeta;
+}> {
+  if (!env.parlayApiKey && !useSandbox()) {
+    throw new ParlayApiError(
+      "PARLAY_API_KEY is not set. Add your key to .env or run in development to use sandbox data.",
+      503
+    );
+  }
+
+  const path = `/sports/${MLB_SPORT_KEY}/events`;
   const { data, meta } = await parlayGet<
     Array<{
       id: string;
