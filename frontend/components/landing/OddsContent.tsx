@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Activity, TrendingUp } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { OddsSportSubNav } from "@/components/landing/OddsSportSubNav";
+import { fetchSportOdds, type Game } from "@/lib/api/parlayOddsApi";
 import { ODDS_GAMES, oddsSportLogo, type OddsGame, type OddsSport } from "./odds-data";
 
 interface OddsContentProps {
@@ -135,6 +136,88 @@ function OddsGameRow({ game }: { game: OddsGame }) {
   );
 }
 
+function OddsTable({ games, sport }: { games: Game[]; sport: OddsSport }) {
+  // Extract unique sportsbooks
+  const sportsbooks = Array.from(
+    new Map(
+      games
+        .flatMap((g) => g.bookmakers)
+        .map((b) => [b.key, b.title])
+    ).entries()
+  );
+
+  function formatCommenceTime(iso: string): string {
+    const d = new Date(iso);
+    return d.toLocaleString("en-US", {
+      timeZone: "America/New_York",
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  function formatOdds(price: number | null): string {
+    if (price === null) return "—";
+    return price > 0 ? `+${price}` : String(price);
+  }
+
+  return (
+    <div className="w-full overflow-x-auto rounded-lg border border-white/10 bg-white/3">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-white/10 bg-white/5">
+            <th className="sticky left-0 w-48 border-r border-white/10 bg-white/8 px-4 py-3 text-left font-semibold text-white">
+              Game
+            </th>
+            {sportsbooks.map(([key, title]) => (
+              <th key={key} className="min-w-32 border-r border-white/10 px-3 py-3 text-center font-semibold text-accent">
+                {title}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {games.map((game) => (
+            <tr key={game.event_id} className="border-b border-white/10 hover:bg-white/5">
+              <td className="sticky left-0 w-48 border-r border-white/10 bg-white/3 px-4 py-4">
+                <div className="space-y-1">
+                  <div className="text-xs text-zinc-400">{formatCommenceTime(game.commence_time)}</div>
+                  <div className="text-xs font-semibold text-white">{game.away_team.substring(0, 12)}</div>
+                  <div className="text-xs font-semibold text-white">@ {game.home_team.substring(0, 12)}</div>
+                  {game.is_live && <div className="text-[10px] font-bold text-red-400">LIVE</div>}
+                </div>
+              </td>
+              {sportsbooks.map(([bookmakerId]) => {
+                const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
+                return (
+                  <td key={bookmakerId} className="min-w-32 border-r border-white/10 px-2 py-4 text-center text-xs">
+                    {bookmaker ? (
+                      <div className="space-y-1">
+                        <div className="flex flex-col gap-0.5">
+                          <div className="text-zinc-400">Away</div>
+                          <span className="font-semibold text-white">{formatOdds(bookmaker.away_odds)}</span>
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                          <div className="text-zinc-400">Home</div>
+                          <span className="font-semibold text-white">{formatOdds(bookmaker.home_odds)}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-zinc-500">—</div>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function OddsTableSkeleton() {
   return (
     <div className="w-full space-y-3 rounded-lg border border-white/10 bg-white/3 p-4">
@@ -164,6 +247,29 @@ function OddsTableSkeleton() {
 }
 
 export function OddsContent({ sport, onSportChange }: OddsContentProps) {
+  const [apiGames, setApiGames] = useState<Game[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setApiGames(null);
+
+    const fetchOdds = async () => {
+      try {
+        const data = await fetchSportOdds(sport);
+        if (data?.games) {
+          setApiGames(data.games);
+        }
+      } catch (error) {
+        console.error("Error fetching odds:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOdds();
+  }, [sport]);
+
   const games = useMemo(() => ODDS_GAMES.filter((g) => g.sport === sport), [sport]);
   const sportLogo = oddsSportLogo(sport);
 
@@ -191,19 +297,31 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
           </div>
           <h1 className="typo-hero-title mt-6 text-white">Odds Board</h1>
           <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-subtle md:text-xl">
-            Live odds table loading. Real-time sportsbook data coming soon.
+            {isLoading ? "Loading live odds..." : "Compare moneyline odds across all sportsbooks."}
           </p>
         </div>
 
         <div className="mt-10 flex items-center justify-center gap-2 text-[13px] text-zinc-500">
           <TrendingUp className="size-3.5 text-accent" />
           <span>
-            <span className="font-medium text-zinc-300">{sport}</span> · Live odds loading
+            Showing{" "}
+            <span className="font-medium text-zinc-300">
+              {apiGames?.length ?? 0}
+            </span>{" "}
+            games · <span className="font-medium text-zinc-300">{sport}</span>
           </span>
         </div>
 
         <div className="mt-6" role="tabpanel">
-          <OddsTableSkeleton />
+          {isLoading ? (
+            <OddsTableSkeleton />
+          ) : apiGames && apiGames.length > 0 ? (
+            <OddsTable games={apiGames} sport={sport} />
+          ) : (
+            <div className="flex justify-center py-8">
+              <div className="text-sm text-zinc-400">No games available at the moment</div>
+            </div>
+          )}
         </div>
 
         <p className="mt-8 text-center text-xs leading-relaxed text-zinc-600">
