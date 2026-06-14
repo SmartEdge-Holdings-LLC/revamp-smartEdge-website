@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ interface UserDetailsDialogProps {
   user: AdminUserListItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onRequestDelete?: (user: AdminUserListItem) => void;
 }
 
 function formatDateTimeDisplay(value?: string | null): string | null {
@@ -174,6 +176,7 @@ export function UserDetailsDialog({
   user,
   open,
   onOpenChange,
+  onRequestDelete,
 }: UserDetailsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -280,6 +283,18 @@ export function UserDetailsDialog({
                   value={formatDateTimeDisplay(user.updatedAt)}
                 />
               </Section>
+
+              <div className="mt-4 border-t border-white/8 pt-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => user && onRequestDelete?.(user)}
+                  className="h-9 w-full gap-2 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300"
+                >
+                  <Trash2 className="size-4" />
+                  Delete user permanently
+                </Button>
+              </div>
             </div>
           </>
         ) : null}

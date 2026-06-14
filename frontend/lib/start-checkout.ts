@@ -1,8 +1,10 @@
-import type { SubscriptionPlanSelection } from "@/lib/subscription-plan";
+import { getProductIdForPlan, type SubscriptionPlanSelection } from "@/lib/subscription-plan";
 
 export async function startSubscriptionCheckout(
-  selection: SubscriptionPlanSelection
+  selection: SubscriptionPlanSelection,
+  options?: { promotionCode?: string | null }
 ): Promise<void> {
+  const promotionCode = options?.promotionCode?.trim().toUpperCase();
   const response = await fetch("/api/stripe/create-checkout-session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -10,6 +12,8 @@ export async function startSubscriptionCheckout(
     body: JSON.stringify({
       brand: selection.brand,
       tier: selection.tier,
+      productId: getProductIdForPlan(selection),
+      ...(promotionCode ? { promotionCode } : {}),
     }),
   });
 

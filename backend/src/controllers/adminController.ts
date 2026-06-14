@@ -3,6 +3,8 @@ import { z } from "zod";
 import { adminService } from "../services/adminService";
 import { jonahUsersService } from "../services/jonahUsersService";
 import { adminAnalyticsService } from "../services/adminAnalyticsService";
+import { jonahAnalyticsService } from "../services/jonahAnalyticsService";
+import { jonahStripeSalesService } from "../services/jonahStripeSalesService";
 import { adminStripeSalesService } from "../services/adminStripeSalesService";
 import { smsService } from "../services/smsService";
 import { userService } from "../services/userService";
@@ -193,6 +195,24 @@ export const adminController = {
     }
   },
 
+  async getJonahAnalytics(_req: Request, res: Response) {
+    try {
+      const analytics = await jonahAnalyticsService.getOverview();
+      return res.json({ analytics });
+    } catch (error) {
+      return res.status(500).json({ error: (error as Error).message });
+    }
+  },
+
+  async getJonahSalesByDay(req: Request, res: Response) {
+    try {
+      const result = await jonahStripeSalesService.getSalesByDay(req.query.range);
+      return res.json(result);
+    } catch (error) {
+      return res.status(500).json({ error: (error as Error).message });
+    }
+  },
+
   async listUsers(req: Request, res: Response) {
     try {
       const { page, limit, search, status, joinedFrom, joinedTo } =
@@ -208,6 +228,19 @@ export const adminController = {
       return res.json(result);
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
+    }
+  },
+
+  async deleteUser(req: Request, res: Response) {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const result = await userService.deleteByIdForAdmin(id ?? "");
+      return res.json(result);
+    } catch (error) {
+      const msg = (error as Error).message;
+      if (msg === "User not found") return res.status(404).json({ error: msg });
+      if (msg === "Invalid user id") return res.status(400).json({ error: msg });
+      return res.status(400).json({ error: msg });
     }
   },
 

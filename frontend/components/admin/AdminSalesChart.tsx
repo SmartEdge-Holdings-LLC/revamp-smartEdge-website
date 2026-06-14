@@ -4,6 +4,7 @@ import * as React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   getAdminSalesByDay,
+  getJonahSalesByDay,
   type AdminSalesByDayResponse,
   type SalesRange,
 } from "@/lib/api/adminApi";
@@ -96,18 +97,24 @@ function SalesChartSkeleton() {
   );
 }
 
-export function AdminSalesChart() {
+type AdminSalesChartProps = {
+  /** `jonah` = handicapper dashboard (Jonah products only). */
+  scope?: "admin" | "jonah";
+};
+
+export function AdminSalesChart({ scope = "admin" }: AdminSalesChartProps) {
   const [range, setRange] = React.useState<SalesRange>("4w");
   const [data, setData] = React.useState<AdminSalesByDayResponse | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const fetchSales = scope === "jonah" ? getJonahSalesByDay : getAdminSalesByDay;
 
   React.useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
 
-    void getAdminSalesByDay(range)
+    void fetchSales(range)
       .then((res) => {
         if (!cancelled) setData(res);
       })
@@ -124,7 +131,7 @@ export function AdminSalesChart() {
     return () => {
       cancelled = true;
     };
-  }, [range]);
+  }, [range, fetchSales]);
 
   const currency = data?.currency ?? "usd";
   const chartData = React.useMemo(() => (data ? toChartRows(data) : []), [data]);
@@ -136,9 +143,13 @@ export function AdminSalesChart() {
     <Card className="border-white/10 bg-white/5 p-0 py-0 text-white shadow-[inset_0_1px_0_0_rgb(255_255_255/0.06)] backdrop-blur-md">
       <CardHeader className="flex flex-col gap-4 border-b border-white/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-6">
         <div className="flex flex-1 flex-col justify-center gap-1">
-          <CardTitle className="typo-heading-md text-white">Stripe sales</CardTitle>
+          <CardTitle className="typo-heading-md text-white">
+            {scope === "jonah" ? "Jonah sales" : "Stripe sales"}
+          </CardTitle>
           <CardDescription className="text-slate-400">
-            Gross charge volume by day from Stripe
+            {scope === "jonah"
+              ? "Gross sales from Jonah product subscriptions only"
+              : "Gross charge volume by day from Stripe"}
           </CardDescription>
           <div className="mt-2 flex flex-wrap items-baseline gap-2">
             {loading ? (

@@ -10,7 +10,12 @@ import { AuthFormCard, AuthFormHeader } from "@/components/auth/AuthFormCard";
 import { authInputClass } from "@/components/auth/auth-form-styles";
 import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { Input } from "@/components/ui/input";
+import { CheckoutPromoCode } from "@/components/checkout/CheckoutPromoCode";
 import { stashPendingCheckoutPlan } from "@/lib/pending-checkout-plan";
+import {
+  consumePendingCheckoutPromo,
+  stashPendingCheckoutPromo,
+} from "@/lib/pending-checkout-promo";
 import { startSubscriptionCheckout } from "@/lib/start-checkout";
 import {
   getPlanDisplayName,
@@ -49,8 +54,15 @@ function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
   const checkoutLock = useRef(false);
   const clearedStaleSession = useRef(false);
+
+  useEffect(() => {
+    const fromUrl = searchParams.get("promo")?.trim().toUpperCase();
+    const fromStorage = consumePendingCheckoutPromo();
+    setPromoCode(fromUrl || fromStorage || "");
+  }, [searchParams]);
 
   const isLoggedIn = status === "authenticated" && Boolean(session?.user?.backendToken);
 
@@ -74,7 +86,9 @@ function RegisterForm() {
     setLoading(true);
     try {
       await ensureCheckoutSession();
-      await startSubscriptionCheckout(plan);
+      await startSubscriptionCheckout(plan, {
+        promotionCode: promoCode.trim() || undefined,
+      });
     } catch (error) {
       checkoutLock.current = false;
       setLoading(false);
@@ -108,7 +122,9 @@ function RegisterForm() {
 
       await update();
       await ensureCheckoutSession();
-      await startSubscriptionCheckout(plan);
+      await startSubscriptionCheckout(plan, {
+        promotionCode: promoCode.trim() || undefined,
+      });
     } catch (error) {
       toast.error((error as Error).message);
       setLoading(false);
@@ -126,6 +142,8 @@ function RegisterForm() {
         plan={plan}
         email={session.user.email ?? ""}
         loading={loading}
+        promoCode={promoCode}
+        onPromoCodeChange={setPromoCode}
         onContinue={() => void goToCheckout()}
       />
     );
@@ -142,6 +160,8 @@ function RegisterForm() {
       setEmail={setEmail}
       password={password}
       setPassword={setPassword}
+      promoCode={promoCode}
+      onPromoCodeChange={setPromoCode}
     />
   );
 }
@@ -150,11 +170,15 @@ function RegisterPageExistingUser({
   plan,
   email,
   loading,
+  promoCode,
+  onPromoCodeChange,
   onContinue,
 }: {
   plan: SubscriptionPlanSelection;
   email: string;
   loading: boolean;
+  promoCode: string;
+  onPromoCodeChange: (code: string) => void;
   onContinue: () => void;
 }) {
   const planName = getPlanDisplayName(plan);
@@ -172,11 +196,17 @@ function RegisterPageExistingUser({
             </>
           }
         />
+        <CheckoutPromoCode
+          className="mt-2"
+          value={promoCode}
+          onChange={onPromoCodeChange}
+          disabled={loading}
+        />
         <PricingAccentButton
           type="button"
           loading={loading}
           onClick={onContinue}
-          className="mt-1 cursor-pointer"
+          className="mt-4 cursor-pointer"
         >
           Continue to payment
         </PricingAccentButton>
@@ -184,7 +214,10 @@ function RegisterPageExistingUser({
           <Link
             className="font-semibold text-accent underline-offset-4 transition hover:text-white hover:underline"
             href="/login"
-            onClick={() => stashPendingCheckoutPlan(plan)}
+            onClick={() => {
+              stashPendingCheckoutPlan(plan);
+              stashPendingCheckoutPromo(promoCode);
+            }}
           >
             Use a different account
           </Link>
@@ -204,6 +237,8 @@ function RegisterPageContent({
   setEmail,
   password,
   setPassword,
+  promoCode,
+  onPromoCodeChange,
 }: {
   plan: SubscriptionPlanSelection;
   loading: boolean;
@@ -214,6 +249,8 @@ function RegisterPageContent({
   setEmail: (v: string) => void;
   password: string;
   setPassword: (v: string) => void;
+  promoCode: string;
+  onPromoCodeChange: (code: string) => void;
 }) {
   const planName = getPlanDisplayName(plan);
 
@@ -288,6 +325,11 @@ function RegisterPageContent({
               disabled={loading}
             />
           </div>
+          <CheckoutPromoCode
+            value={promoCode}
+            onChange={onPromoCodeChange}
+            disabled={loading}
+          />
           <PricingAccentButton type="submit" loading={loading} className="mt-1 cursor-pointer">
             {loading ? "Continuing to checkout…" : "Continue to payment"}
           </PricingAccentButton>

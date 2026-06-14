@@ -42,6 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
+   
       lang="en"
       className={cn(
         "h-full antialiased font-sans",
@@ -51,7 +52,10 @@ export default function RootLayout({
         GeistSans.variable
       )}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col font-sans"
+      >
         <Providers>
           {children}
           <Toaster />

@@ -1,13 +1,10 @@
 "use client";
 
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
+import { AUTH_COOKIE, isAuthTokenExpired } from "@/lib/authSession";
 import type { AppRole, AuthSession } from "@/types/auth";
 
-export const AUTH_COOKIE = {
-  TOKEN: "sep_token",
-  ROLE: "sep_role",
-  EMAIL: "sep_email",
-} as const;
+export { AUTH_COOKIE };
 
 const ONE_WEEK_SECONDS = 60 * 60 * 24 * 7;
 
@@ -38,5 +35,19 @@ export function readAuthSession(): Pick<AuthSession, "token" | "role" | "email">
   if (typeof token !== "string" || typeof role !== "string" || typeof email !== "string") {
     return null;
   }
+  if (isAuthTokenExpired(token)) {
+    clearAuthSession();
+    return null;
+  }
   return { token, role: role as AppRole, email };
+}
+
+/** Clears admin cookies and sends the browser to login (client-only). */
+export function redirectToLogin(redirectPath?: string) {
+  clearAuthSession();
+  const path =
+    redirectPath && redirectPath !== "/login"
+      ? `/login?redirect=${encodeURIComponent(redirectPath)}`
+      : "/login";
+  window.location.assign(path);
 }

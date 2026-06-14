@@ -1,7 +1,8 @@
 "use client";
 
 import { getCookie } from "cookies-next";
-import { AUTH_COOKIE } from "@/lib/authCookies";
+import { clearAuthSession, redirectToLogin } from "@/lib/authCookies";
+import { AUTH_COOKIE, isAuthTokenExpired } from "@/lib/authSession";
 import type {
   JonahUsersResponse,
   ListJonahUsersParams,
@@ -24,6 +25,12 @@ import type {
   ListVideosResponse,
   UpdateVideoPayload,
 } from "@/types/videos";
+import type {
+  AdminPromotion,
+  CreatePromotionPayload,
+  ListPromotionsResponse,
+  UpdatePromotionPayload,
+} from "@/types/promotions";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -39,13 +46,23 @@ class AdminApiError extends Error {
 /** Reads the admin JWT persisted at login from the `sep_token` cookie (client-side only). */
 function readAdminToken(): string {
   const token = getCookie(AUTH_COOKIE.TOKEN);
-  if (typeof token !== "string" || token.length === 0) {
+  if (typeof token !== "string" || token.length === 0 || isAuthTokenExpired(token)) {
+    if (typeof window !== "undefined") {
+      redirectToLogin(window.location.pathname);
+    }
     throw new AdminApiError(
       "Not authenticated. Please sign in as an admin.",
       401
     );
   }
   return token;
+}
+
+function handleAdminUnauthorized(status: number) {
+  if (status === 401 && typeof window !== "undefined") {
+    clearAuthSession();
+    redirectToLogin(window.location.pathname);
+  }
 }
 
 /**
@@ -102,6 +119,7 @@ export async function listAdminUsers(
     | { error?: string };
 
   if (!res.ok) {
+    handleAdminUnauthorized(res.status);
     const message =
       (data as { error?: string }).error ??
       `Failed to load users (HTTP ${res.status})`;
@@ -109,6 +127,14 @@ export async function listAdminUsers(
   }
 
   return data as ListUsersResponse;
+}
+
+/** `DELETE /api/admin/users/:id` — permanently delete a member and related data. */
+export async function deleteAdminUser(id: string): Promise<{ deleted: boolean }> {
+  return adminFetch<{ deleted: boolean }>(
+    `/api/admin/users/${encodeURIComponent(id)}`,
+    { method: "DELETE" }
+  );
 }
 
 /**
@@ -158,6 +184,7 @@ export async function listJonahUsers(
   const data = (await res.json().catch(() => ({}))) as JonahUsersResponse | { error?: string };
 
   if (!res.ok) {
+    handleAdminUnauthorized(res.status);
     const message =
       (data as { error?: string }).error ??
       `Failed to load Jonah subscribers (HTTP ${res.status})`;
@@ -188,6 +215,7 @@ async function adminFetch<T>(
   });
   const data = (await res.json().catch(() => ({}))) as T & { error?: string };
   if (!res.ok) {
+    handleAdminUnauthorized(res.status);
     const message = data.error ?? `Request failed (HTTP ${res.status})`;
     throw new AdminApiError(message, res.status);
   }
@@ -441,10 +469,83 @@ export async function getAdminSalesByDay(
   );
 }
 
+export type JonahAnalyticsOverview = {
+  weeklyActiveUsers: number;
+  totalInactiveSubscribers: number;
+  totalUsers: number;
+  activeSubscribers: number;
+  churnRatePercent: number;
+  newSubscriptionsWeekly: number;
+  averageRevenuePerCustomer: number;
+  currency: string;
+  monthlyRecurringRevenue: number;
+  weeklyRevenue: number;
+  generatedAt: string;
+  period: {
+    weeklyActiveFrom: string;
+    churnWindowDays: number;
+    revenueWindowDays: number;
+  };
+};
+
+/** `GET /api/admin/jonah/analytics` — Jonah product subscribers only (handicapper dashboard). */
+export async function getJonahAnalytics(): Promise<{ analytics: JonahAnalyticsOverview }> {
+  return adminFetch<{ analytics: JonahAnalyticsOverview }>("/api/admin/jonah/analytics", {
+    method: "GET",
+  });
+}
+
+/** `GET /api/admin/jonah/analytics/sales?range=` — Jonah product sales per day. */
+export async function getJonahSalesByDay(
+  range: SalesRange = "7d"
+): Promise<AdminSalesByDayResponse> {
+  return adminFetch<AdminSalesByDayResponse>(
+    `/api/admin/jonah/analytics/sales?range=${encodeURIComponent(range)}`,
+    { method: "GET" }
+  );
+}
+
 export async function getAdminProfile(): Promise<{ admin: AdminProfile }> {
   return adminFetch<{ admin: AdminProfile }>("/api/admin/profile", {
     method: "GET",
   });
+}
+
+/** `GET /api/admin/promotions` */
+export async function listAdminPromotions(): Promise<ListPromotionsResponse> {
+  return adminFetch<ListPromotionsResponse>("/api/admin/promotions", { method: "GET" });
+}
+
+/** `POST /api/admin/promotions` */
+export async function createAdminPromotion(
+  payload: CreatePromotionPayload
+): Promise<{ promotion: AdminPromotion }> {
+  return adminFetch<{ promotion: AdminPromotion }>("/api/admin/promotions", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+/** `PUT /api/admin/promotions/:id` */
+export async function updateAdminPromotion(
+  id: string,
+  payload: UpdatePromotionPayload
+): Promise<{ promotion: AdminPromotion }> {
+  return adminFetch<{ promotion: AdminPromotion }>(
+    `/api/admin/promotions/${encodeURIComponent(id)}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }
+  );
+}
+
+/** `DELETE /api/admin/promotions/:id` */
+export async function deleteAdminPromotion(id: string): Promise<{ deleted: boolean }> {
+  return adminFetch<{ deleted: boolean }>(
+    `/api/admin/promotions/${encodeURIComponent(id)}`,
+    { method: "DELETE" }
+  );
 }
 
 export { AdminApiError };

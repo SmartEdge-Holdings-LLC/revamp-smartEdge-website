@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { isAuthTokenExpired, loginRedirectPath } from "@/lib/authSession";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -11,7 +12,10 @@ export const metadata = {
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  const token = session?.user?.backendToken;
+  if (!session?.user || !token || isAuthTokenExpired(token)) {
+    redirect(loginRedirectPath("/dashboard"));
+  }
 
   return (
     <div className="dark min-h-svh bg-black text-slate-100">

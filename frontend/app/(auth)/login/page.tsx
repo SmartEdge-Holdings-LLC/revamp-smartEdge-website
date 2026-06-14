@@ -13,8 +13,10 @@ import { Input } from "@/components/ui/input";
 import { authInputClass } from "@/components/auth/auth-form-styles";
 import { loginRequest } from "@/lib/api/authApi";
 import { persistAuthSession } from "@/lib/authCookies";
+import { CheckoutPromoCode } from "@/components/checkout/CheckoutPromoCode";
 import { startSubscriptionCheckout } from "@/lib/start-checkout";
 import { consumePendingCheckoutPlan } from "@/lib/pending-checkout-plan";
+import { consumePendingCheckoutPromo } from "@/lib/pending-checkout-promo";
 import {
   getPlanDisplayName,
   planSearchParams,
@@ -29,9 +31,11 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlanSelection | null>(null);
+  const [promoCode, setPromoCode] = useState("");
 
   useEffect(() => {
     setCheckoutPlan(consumePendingCheckoutPlan());
+    setPromoCode(consumePendingCheckoutPromo() ?? "");
   }, []);
 
   const plan = checkoutPlan;
@@ -40,7 +44,9 @@ function LoginForm() {
     event.preventDefault();
     setLoading(true);
     try {
-      if (plan) {
+      const result = await loginRequest({ email, password });
+
+      if (result.role === "member") {
         const signInResult = await signIn("credentials", {
           email,
           password,
@@ -49,35 +55,34 @@ function LoginForm() {
         if (signInResult?.error) {
           throw new Error("Invalid credentials");
         }
-        const session = await getSession();
-        if (!session?.user?.backendToken) {
-          throw new Error("Sign-in succeeded but session is missing. Try again.");
-        }
-        toast.success("Signed in — opening checkout…");
-        await startSubscriptionCheckout(plan);
-        return;
-      }
 
-      // Members use NextAuth (dashboard requires session); admins use cookie JWT.
-      const signInResult = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-      if (!signInResult?.error) {
+        if (plan) {
+          const session = await getSession();
+          if (!session?.user?.backendToken) {
+            throw new Error("Sign-in succeeded but session is missing. Try again.");
+          }
+          toast.success("Signed in — opening checkout…");
+          await startSubscriptionCheckout(plan, {
+            promotionCode: promoCode.trim() || undefined,
+          });
+          return;
+        }
+
         toast.success("Logged in");
         const redirectParam = searchParams.get("redirect");
-        router.push(redirectParam ?? "/dashboard");
+        router.push(redirectParam ?? result.redirect);
         return;
       }
 
-      const result = await loginRequest({ email, password });
-      if (result.role === "member") {
-        throw new Error("Invalid credentials");
+      if (plan) {
+        throw new Error("Use a member account to complete checkout.");
       }
 
-      const resolvedEmail = result.admin.email;
-      persistAuthSession({ token: result.token, role: result.role, email: resolvedEmail });
+      persistAuthSession({
+        token: result.token,
+        role: result.role,
+        email: result.admin.email,
+      });
 
       toast.success("Logged in");
       const redirectParam = searchParams.get("redirect");
@@ -159,6 +164,13 @@ function LoginForm() {
               </button>
             </div>
           </div>
+          {plan && (
+            <CheckoutPromoCode
+              value={promoCode}
+              onChange={setPromoCode}
+              disabled={loading}
+            />
+          )}
           <p className="-mt-1 text-right">
             <Link
               href="/forgot-password"

@@ -6,7 +6,7 @@ import { Activity, MapPin, TrendingUp } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { OddsSportSubNav } from "@/components/landing/OddsSportSubNav";
-import { fetchMlbOdds, fetchNflOdds, type ParlayEvent } from "@/lib/api/parlayOddsApi";
+import { fetchSportOdds, type Game } from "@/lib/api/parlayOddsApi";
 import { ODDS_GAMES, oddsSportLogo, type OddsGame, type OddsSport } from "./odds-data";
 
 interface OddsContentProps {
@@ -135,12 +135,12 @@ function OddsGameRow({ game }: { game: OddsGame }) {
   );
 }
 
-function OddsTable({ events, sport }: { events: ParlayEvent[]; sport: OddsSport }) {
+function OddsTable({ games, sport }: { games: Game[]; sport: OddsSport }) {
   // Extract unique sportsbooks
   const sportsbooks = Array.from(
     new Map(
-      events
-        .flatMap((e) => e.bookmakers)
+      games
+        .flatMap((g) => g.bookmakers)
         .map((b) => [b.key, b.title])
     ).entries()
   );
@@ -157,46 +157,9 @@ function OddsTable({ events, sport }: { events: ParlayEvent[]; sport: OddsSport 
     });
   }
 
-  function formatOdds(price: number | null | undefined): string {
-    if (price === null || price === undefined) return "—";
-    if (Math.abs(price) > 10 || price < 0) {
-      return price > 0 ? `+${price}` : String(price);
-    } else {
-      return price.toFixed(2);
-    }
-  }
-
-  function getOddsForBookmakerAndGame(
-    event: ParlayEvent,
-    bookmakerId: string
-  ): { h2h: [string, string] | null; spreads: [string, string] | null; totals: [string, string] | null } {
-    const bookmaker = event.bookmakers.find((b) => b.key === bookmakerId);
-    if (!bookmaker) return { h2h: null, spreads: null, totals: null };
-
-    const h2hMarket = bookmaker.markets.find((m) => m.key === "h2h");
-    const spreadsMarket = bookmaker.markets.find((m) => m.key === "spreads");
-    const totalsMarket = bookmaker.markets.find((m) => m.key === "totals");
-
-    return {
-      h2h: h2hMarket
-        ? [
-            `${formatOdds(h2hMarket.outcomes[0]?.price)}`,
-            `${formatOdds(h2hMarket.outcomes[1]?.price)}`,
-          ]
-        : null,
-      spreads: spreadsMarket
-        ? [
-            `${formatOdds(spreadsMarket.outcomes[0]?.price)} ${spreadsMarket.outcomes[0]?.point ? `(${spreadsMarket.outcomes[0].point})` : ""}`,
-            `${formatOdds(spreadsMarket.outcomes[1]?.price)} ${spreadsMarket.outcomes[1]?.point ? `(${spreadsMarket.outcomes[1].point})` : ""}`,
-          ]
-        : null,
-      totals: totalsMarket
-        ? [
-            `O ${formatOdds(totalsMarket.outcomes[0]?.price)} (${totalsMarket.outcomes[0]?.point})`,
-            `U ${formatOdds(totalsMarket.outcomes[1]?.price)} (${totalsMarket.outcomes[1]?.point})`,
-          ]
-        : null,
-    };
+  function formatOdds(price: number | null): string {
+    if (price === null) return "—";
+    return price > 0 ? `+${price}` : String(price);
   }
 
   return (
@@ -208,62 +171,41 @@ function OddsTable({ events, sport }: { events: ParlayEvent[]; sport: OddsSport 
               Game
             </th>
             {sportsbooks.map(([key, title]) => (
-              <th key={key} className="min-w-36 border-r border-white/10 px-3 py-3 text-center font-semibold text-accent">
+              <th key={key} className="min-w-32 border-r border-white/10 px-3 py-3 text-center font-semibold text-accent">
                 {title}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {events.map((event) => (
-            <tr key={event.id} className="border-b border-white/10 hover:bg-white/5">
+          {games.map((game) => (
+            <tr key={game.event_id} className="border-b border-white/10 hover:bg-white/5">
               <td className="sticky left-0 w-48 border-r border-white/10 bg-white/3 px-4 py-4">
                 <div className="space-y-1">
-                  <div className="text-xs text-zinc-400">{formatCommenceTime(event.commence_time)}</div>
-                  <div className="font-semibold text-white">
-                    {event.away_team.substring(0, 3).toUpperCase()}
-                  </div>
-                  <div className="font-semibold text-white">
-                    {event.home_team.substring(0, 3).toUpperCase()}
-                  </div>
+                  <div className="text-xs text-zinc-400">{formatCommenceTime(game.commence_time)}</div>
+                  <div className="text-xs font-semibold text-white">{game.away_team.substring(0, 12)}</div>
+                  <div className="text-xs font-semibold text-white">@ {game.home_team.substring(0, 12)}</div>
+                  {game.is_live && <div className="text-[10px] font-bold text-red-400">LIVE</div>}
                 </div>
               </td>
               {sportsbooks.map(([bookmakerId]) => {
-                const odds = getOddsForBookmakerAndGame(event, bookmakerId);
+                const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
                 return (
-                  <td key={bookmakerId} className="min-w-36 border-r border-white/10 px-3 py-4 text-center text-xs">
-                    <div className="space-y-2">
-                      {odds.h2h && (
-                        <div>
-                          <div className="text-zinc-400">ML</div>
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-semibold text-white">{odds.h2h[0]}</span>
-                            <span className="font-semibold text-white">{odds.h2h[1]}</span>
-                          </div>
+                  <td key={bookmakerId} className="min-w-32 border-r border-white/10 px-2 py-4 text-center text-xs">
+                    {bookmaker ? (
+                      <div className="space-y-1">
+                        <div className="flex flex-col gap-0.5">
+                          <div className="text-zinc-400">Away</div>
+                          <span className="font-semibold text-white">{formatOdds(bookmaker.away_odds)}</span>
                         </div>
-                      )}
-                      {odds.spreads && (
-                        <div>
-                          <div className="text-zinc-400">Spread</div>
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-semibold text-white">{odds.spreads[0]}</span>
-                            <span className="font-semibold text-white">{odds.spreads[1]}</span>
-                          </div>
+                        <div className="flex flex-col gap-0.5">
+                          <div className="text-zinc-400">Home</div>
+                          <span className="font-semibold text-white">{formatOdds(bookmaker.home_odds)}</span>
                         </div>
-                      )}
-                      {odds.totals && (
-                        <div>
-                          <div className="text-zinc-400">Total</div>
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-semibold text-white">{odds.totals[0]}</span>
-                            <span className="font-semibold text-white">{odds.totals[1]}</span>
-                          </div>
-                        </div>
-                      )}
-                      {!odds.h2h && !odds.spreads && !odds.totals && (
-                        <div className="text-zinc-500">—</div>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="text-zinc-500">—</div>
+                    )}
                   </td>
                 );
               })}
@@ -276,7 +218,7 @@ function OddsTable({ events, sport }: { events: ParlayEvent[]; sport: OddsSport 
 }
 
 export function OddsContent({ sport, onSportChange }: OddsContentProps) {
-  const [apiEvents, setApiEvents] = useState<ParlayEvent[] | null>(null);
+  const [apiEvents, setApiEvents] = useState<Game[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -284,15 +226,10 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
     setApiEvents(null);
 
     const fetchOdds = async () => {
-      let data;
-      if (sport === "MLB") {
-        data = await fetchMlbOdds();
-      } else if (sport === "NFL") {
-        data = await fetchNflOdds();
-      }
+      const data = await fetchSportOdds(sport);
 
-      if (data?.events) {
-        setApiEvents(data.events);
+      if (data?.games) {
+        setApiEvents(data.games);
       }
       setIsLoading(false);
     };
@@ -313,7 +250,7 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
     <div className="relative z-10 flex flex-1 flex-col">
       <OddsSportSubNav sport={sport} onSportChange={onSportChange} />
 
-      <div className="mx-auto w-full max-w-6xl px-5 pb-24 pt-6 sm:px-6 md:pb-32 md:pt-8">
+      <div className="mx-auto w-full max-w-7xl px-5 pb-24 pt-6 sm:px-6 md:pb-32 md:pt-8">
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
             {sportLogo ? (
@@ -333,8 +270,7 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
           </div>
           <h1 className="typo-hero-title mt-6 text-white">Odds Board</h1>
           <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-subtle md:text-xl">
-            Compare spreads, moneylines, and totals across major leagues. Sample lines below mirror
-            what members track in the dashboard.
+            Compare moneyline odds across all sportsbooks. Live odds update in real-time.
           </p>
         </div>
 
@@ -355,7 +291,7 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
               <div className="text-sm text-zinc-400">Loading odds...</div>
             </div>
           ) : apiEvents && apiEvents.length > 0 ? (
-            <OddsTable events={apiEvents} sport={sport} />
+            <OddsTable games={apiEvents} sport={sport} />
           ) : games && games.length > 0 ? (
             <div className="space-y-4">
               {games.map((game) => (
@@ -370,8 +306,7 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
         </div>
 
         <p className="mt-8 text-center text-xs leading-relaxed text-zinc-600">
-          Odds shown are sample lines for display purposes. Always verify lines with your sportsbook
-          before placing wagers.
+          Odds shown are from Parlay API and update in real-time. Always verify with your sportsbook.
         </p>
 
         <div className="mx-auto mt-12 flex max-w-md flex-col items-center gap-4 text-center">

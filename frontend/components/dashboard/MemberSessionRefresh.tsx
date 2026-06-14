@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { isAuthTokenExpired } from "@/lib/authSession";
 import {
   mapBackendMemberToSessionUser,
   type BackendMemberUser,
@@ -14,7 +15,12 @@ export function MemberSessionRefresh() {
 
   useEffect(() => {
     const token = session?.user?.backendToken;
-    if (!token || refreshed.current) return;
+    if (!token || isAuthTokenExpired(token) || refreshed.current) {
+      if (token && isAuthTokenExpired(token)) {
+        void signOut({ callbackUrl: "/login" });
+      }
+      return;
+    }
     refreshed.current = true;
 
     void (async () => {
@@ -23,6 +29,10 @@ export function MemberSessionRefresh() {
           credentials: "same-origin",
           cache: "no-store",
         });
+        if (res.status === 401) {
+          await signOut({ callbackUrl: "/login" });
+          return;
+        }
         if (!res.ok) return;
         const { user } = (await res.json()) as { user: BackendMemberUser };
         await update({ user: mapBackendMemberToSessionUser(user, token) });

@@ -2,19 +2,21 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { readAuthSession } from "@/lib/authCookies";
+import { readAuthSession, redirectToLogin } from "@/lib/authCookies";
 
-const HANDICAPPER_HOME = "/admin/handicappers";
+const HANDICAPPER_HOME = "/admin";
 
-/** Routes handicappers may access (upload picks + Jonah subscribers). */
+/** Routes handicappers may access (dashboard, picks, Jonah subscribers). */
 const HANDICAPPER_ALLOWED_PREFIXES = [
   HANDICAPPER_HOME,
+  "/admin/handicappers",
   "/admin/picks",
   "/admin/settings",
 ];
 
 function isHandicapperAllowedPath(pathname: string) {
-  return HANDICAPPER_ALLOWED_PREFIXES.some(
+  if (pathname === "/admin") return true;
+  return HANDICAPPER_ALLOWED_PREFIXES.filter((p) => p !== "/admin").some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
 }
@@ -26,7 +28,10 @@ export function AdminAccessGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const session = readAuthSession();
-    if (!session) return;
+    if (!session) {
+      redirectToLogin(pathname);
+      return;
+    }
 
     if (session.role === "handicapper" && !isHandicapperAllowedPath(pathname)) {
       router.replace(HANDICAPPER_HOME);

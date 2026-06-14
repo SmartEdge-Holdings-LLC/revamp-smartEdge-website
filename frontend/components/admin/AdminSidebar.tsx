@@ -53,6 +53,7 @@ const SYSTEM_NAV: NavItem[] = [
 ];
 
 const HANDICAPPER_NAV: NavItem[] = [
+  { title: "Overview", url: "/admin", icon: LayoutDashboard },
   { title: "Jonah Subscribers", url: "/admin/handicappers", icon: Trophy },
   { title: "Picks", url: "/admin/picks", icon: LineChart },
   { title: "Settings", url: "/admin/settings", icon: Settings },
@@ -129,7 +130,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
   }, []);
 
   const handicapperOnly = isHandicapperRole(role);
-  const homeHref = handicapperOnly ? "/admin/picks" : "/admin";
+  const homeHref = "/admin";
 
   return (
     <Sidebar

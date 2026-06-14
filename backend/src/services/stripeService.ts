@@ -5,6 +5,7 @@ import {
 import { User, type IUser } from "../models/User";
 import { resolveDefaultPriceIdForProduct, stripe } from "../lib/stripe";
 import { env } from "../config/env";
+import { promotionsService } from "./promotionsService";
 
 export type MemberPaymentMethod = {
   id: string;
@@ -171,7 +172,12 @@ export const stripeService = {
   },
   async createCheckoutSession(
     userId: string,
-    input: { productId?: string; brand?: string; tier?: string }
+    input: {
+      productId?: string;
+      brand?: string;
+      tier?: string;
+      promotionCode?: string;
+    }
   ) {
     const normalizedProductId = resolveCheckoutProductId(input);
     const productEntry = getConfiguredStripeProducts().find(
@@ -183,6 +189,16 @@ export const stripeService = {
     if (!user) throw new Error("User not found");
 
     const customerId = await ensureStripeCustomerForCurrentMode(user);
+
+    let discounts: { promotion_code: string }[] | undefined;
+    if (input.promotionCode?.trim()) {
+      const resolved = await promotionsService.resolvePromotionForCheckout(
+        userId,
+        input.promotionCode
+      );
+      discounts = [{ promotion_code: resolved.stripePromotionCodeId }];
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
@@ -193,6 +209,9 @@ export const stripeService = {
       metadata: {
         userId: user._id.toString(),
         productId: normalizedProductId,
+        ...(input.promotionCode?.trim()
+          ? { promotionCode: input.promotionCode.trim().toUpperCase() }
+          : {}),
       },
       subscription_data: {
         metadata: {
@@ -203,7 +222,7 @@ export const stripeService = {
             : {}),
         },
       },
-      allow_promotion_codes: true,
+      ...(discounts ? { discounts } : { allow_promotion_codes: true }),
       billing_address_collection: "auto",
     });
 

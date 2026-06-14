@@ -2,6 +2,7 @@ import { Router } from "express";
 import { adminController } from "../controllers/adminController";
 import { picksController } from "../controllers/picksController";
 import { videosController } from "../controllers/videosController";
+import { promotionsController } from "../controllers/promotionsController";
 import { adminAuthMiddleware } from "../middleware/adminAuth";
 import {
   requireAdminJwt,
@@ -17,7 +18,10 @@ router.get("/profile", requireHandicapperAccess, adminController.profile);
 router.get("/analytics", requireAdminJwt, adminController.getAnalytics);
 router.get("/analytics/sales", requireAdminJwt, adminController.getSalesByDay);
 router.get("/users", requireAdminJwt, adminController.listUsers);
+router.delete("/users/:id", requireAdminJwt, adminController.deleteUser);
 router.get("/jonah-users", requireHandicapperAccess, adminController.listJonahUsers);
+router.get("/jonah/analytics", requireHandicapperAccess, adminController.getJonahAnalytics);
+router.get("/jonah/analytics/sales", requireHandicapperAccess, adminController.getJonahSalesByDay);
 router.post("/password/update", requireHandicapperAccess, adminController.updateOwnPassword);
 router.post("/sms/test", requireAdminJwt, adminController.sendTestSms);
 router.post("/sms/broadcast", requireAdminJwt, adminController.sendBulkSms);
@@ -38,5 +42,11 @@ router.get("/videos/:id", requireAdminJwt, videosController.getOne);
 router.post("/videos", requireAdminJwt, videosController.create);
 router.put("/videos/:id", requireAdminJwt, videosController.update);
 router.delete("/videos/:id", requireAdminJwt, videosController.remove);
+
+router.get("/promotions", requireAdminJwt, promotionsController.list);
+router.get("/promotions/:id", requireAdminJwt, promotionsController.getOne);
+router.post("/promotions", requireAdminJwt, promotionsController.create);
+router.put("/promotions/:id", requireAdminJwt, promotionsController.update);
+router.delete("/promotions/:id", requireAdminJwt, promotionsController.remove);
 
 export default router;

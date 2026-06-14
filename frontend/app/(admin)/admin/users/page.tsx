@@ -11,10 +11,12 @@ import {
   ListFilter,
   RefreshCw,
   Search,
+  Trash2,
   X,
 } from "lucide-react";
 
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { DeleteUserConfirmDialog } from "@/components/admin/DeleteUserConfirmDialog";
 import { UserDetailsDialog } from "@/components/admin/UserDetailsDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -169,6 +171,9 @@ export default function UsersPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [selectedUser, setSelectedUser] =
     React.useState<AdminUserListItem | null>(null);
+  const [userToDelete, setUserToDelete] = React.useState<AdminUserListItem | null>(
+    null
+  );
 
   const statusFilter = React.useMemo<SubscriptionStatus[]>(
     () =>
@@ -262,6 +267,19 @@ export default function UsersPage() {
   const total = data?.total ?? 0;
   const showingFrom = data ? (data.page - 1) * data.limit + 1 : 0;
   const showingTo = data ? Math.min(data.page * data.limit, data.total) : 0;
+
+  const refreshList = React.useCallback(() => {
+    lastFetchedKeyRef.current = null;
+    void fetchUsers(page, debouncedSearch, statusFilter, dateRange);
+  }, [fetchUsers, page, debouncedSearch, statusFilter, dateRange]);
+
+  const handleUserDeleted = React.useCallback(() => {
+    if (selectedUser?._id === userToDelete?._id) {
+      setSelectedUser(null);
+    }
+    setUserToDelete(null);
+    refreshList();
+  }, [selectedUser?._id, userToDelete?._id, refreshList]);
 
   return (
     <>
@@ -601,15 +619,27 @@ export default function UsersPage() {
                     <TableCell className="typo-body-sm text-white">{formatDateET(u.createdAt)}</TableCell>
                     <TableCell className="typo-body-sm text-white">{formatDateET(u.updatedAt)}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => setSelectedUser(u)}
-                        className="h-8 gap-1.5 border border-transparent bg-[#c75931] text-white hover:bg-[#b54f2a] hover:text-white"
-                      >
-                        <Eye className="size-3.5" />
-                        View all details
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => setSelectedUser(u)}
+                          className="h-8 gap-1.5 border border-transparent bg-[#c75931] text-white hover:bg-[#b54f2a] hover:text-white"
+                        >
+                          <Eye className="size-3.5" />
+                          View
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setUserToDelete(u)}
+                          className="size-8 text-subtle hover:bg-rose-500/10 hover:text-rose-400"
+                          aria-label={`Delete ${u.email}`}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -672,6 +702,18 @@ export default function UsersPage() {
         onOpenChange={(open) => {
           if (!open) setSelectedUser(null);
         }}
+        onRequestDelete={(u) => {
+          setUserToDelete(u);
+        }}
+      />
+
+      <DeleteUserConfirmDialog
+        user={userToDelete}
+        open={userToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setUserToDelete(null);
+        }}
+        onDeleted={handleUserDeleted}
       />
     </>
   );

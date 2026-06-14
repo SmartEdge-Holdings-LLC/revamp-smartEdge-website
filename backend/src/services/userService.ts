@@ -1,7 +1,13 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import type { SignOptions } from "jsonwebtoken";
+import mongoose from "mongoose";
 import { env } from "../config/env";
+import { stripe } from "../lib/stripe";
+import { JonahSubscriber } from "../models/JonahSubscriber";
+import { PasswordReset } from "../models/PasswordReset";
+import { Promotion } from "../models/Promotion";
+import { Subscription } from "../models/Subscription";
 import { User } from "../models/User";
 
 export const userService = {
@@ -104,5 +110,55 @@ export const userService = {
     ]);
     const totalPages = Math.ceil(total / limit) || 1;
     return { users, page, limit, total, totalPages };
+  },
+
+  /**
+   * Permanently removes a member and related app data. Cancels Stripe subscriptions
+   * and deletes the Stripe customer when present.
+   */
+  async deleteByIdForAdmin(userId: string) {
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new Error("Invalid user id");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const objectId = user._id;
+    const subscriptionIds = [
+      user.brandSubscriptions?.smartedge?.stripeSubscriptionId,
+      user.brandSubscriptions?.jonah?.stripeSubscriptionId,
+    ].filter((id): id is string => typeof id === "string" && id.length > 0);
+
+    for (const subscriptionId of subscriptionIds) {
+      try {
+        await stripe.subscriptions.cancel(subscriptionId);
+      } catch {
+        /* subscription may already be canceled or missing in Stripe */
+      }
+    }
+
+    if (user.stripeCustomerId) {
+      try {
+        await stripe.customers.del(user.stripeCustomerId);
+      } catch {
+        /* customer may already be deleted in Stripe */
+      }
+    }
+
+    await Promise.all([
+      Subscription.deleteMany({ userId: objectId }),
+      JonahSubscriber.deleteOne({ userId: objectId }),
+      PasswordReset.deleteMany({ targetType: "member", targetId: objectId }),
+      Promotion.updateMany(
+        { assignedUserIds: objectId },
+        { $pull: { assignedUserIds: objectId } }
+      ),
+    ]);
+
+    await User.deleteOne({ _id: objectId });
+    return { deleted: true };
   },
 };
