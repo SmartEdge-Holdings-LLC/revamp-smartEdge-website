@@ -135,8 +135,15 @@ function OddsGameRow({ game }: { game: OddsGame }) {
   );
 }
 
-function ParlayEventRow({ event, sport }: { event: ParlayEvent; sport: OddsSport }): React.ReactNode {
-  const leagueLogo = oddsSportLogo(sport);
+function OddsTable({ events, sport }: { events: ParlayEvent[]; sport: OddsSport }) {
+  // Extract unique sportsbooks
+  const sportsbooks = Array.from(
+    new Map(
+      events
+        .flatMap((e) => e.bookmakers)
+        .map((b) => [b.key, b.title])
+    ).entries()
+  );
 
   function formatCommenceTime(iso: string): string {
     const d = new Date(iso);
@@ -151,75 +158,120 @@ function ParlayEventRow({ event, sport }: { event: ParlayEvent; sport: OddsSport
   }
 
   function formatOdds(price: number | null | undefined): string {
-    if (price === null || price === undefined) return "N/A";
-    // Check if it's American odds (between -10000 and 10000) or decimal (1-10 range)
+    if (price === null || price === undefined) return "—";
     if (Math.abs(price) > 10 || price < 0) {
-      // American odds
       return price > 0 ? `+${price}` : String(price);
     } else {
-      // Decimal odds
       return price.toFixed(2);
     }
   }
 
+  function getOddsForBookmakerAndGame(
+    event: ParlayEvent,
+    bookmakerId: string
+  ): { h2h: [string, string] | null; spreads: [string, string] | null; totals: [string, string] | null } {
+    const bookmaker = event.bookmakers.find((b) => b.key === bookmakerId);
+    if (!bookmaker) return { h2h: null, spreads: null, totals: null };
+
+    const h2hMarket = bookmaker.markets.find((m) => m.key === "h2h");
+    const spreadsMarket = bookmaker.markets.find((m) => m.key === "spreads");
+    const totalsMarket = bookmaker.markets.find((m) => m.key === "totals");
+
+    return {
+      h2h: h2hMarket
+        ? [
+            `${formatOdds(h2hMarket.outcomes[0]?.price)}`,
+            `${formatOdds(h2hMarket.outcomes[1]?.price)}`,
+          ]
+        : null,
+      spreads: spreadsMarket
+        ? [
+            `${formatOdds(spreadsMarket.outcomes[0]?.price)} ${spreadsMarket.outcomes[0]?.point ? `(${spreadsMarket.outcomes[0].point})` : ""}`,
+            `${formatOdds(spreadsMarket.outcomes[1]?.price)} ${spreadsMarket.outcomes[1]?.point ? `(${spreadsMarket.outcomes[1].point})` : ""}`,
+          ]
+        : null,
+      totals: totalsMarket
+        ? [
+            `O ${formatOdds(totalsMarket.outcomes[0]?.price)} (${totalsMarket.outcomes[0]?.point})`,
+            `U ${formatOdds(totalsMarket.outcomes[1]?.price)} (${totalsMarket.outcomes[1]?.point})`,
+          ]
+        : null,
+    };
+  }
+
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/3 p-4 transition-colors hover:border-white/15 hover:bg-white/5 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/6 pb-4">
-        <div className="flex flex-wrap items-center gap-2.5">
-          {leagueLogo ? (
-            <span className="flex size-7 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5">
-              <BrandImage
-                src={leagueLogo}
-                alt={sport}
-                width={24}
-                height={24}
-                className="h-5 w-5 object-contain"
-              />
-            </span>
-          ) : null}
-          <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">
-            {formatCommenceTime(event.commence_time)}
-          </span>
-        </div>
-        <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent">
-          {sport}
-        </span>
-      </div>
-
-      <div className="mt-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-white">
-            {event.away_team} @ {event.home_team}
-          </h3>
-        </div>
-
-        <div className="space-y-2">
-          {event.bookmakers.map((bookmaker) => (
-            <div key={bookmaker.key} className="rounded-lg border border-white/8 bg-white/2 p-3">
-              <div className="mb-2 text-xs font-semibold text-accent/80">{bookmaker.title}</div>
-              <div className="grid gap-2">
-                {bookmaker.markets.map((market) => (
-                  <div key={market.key} className="text-xs">
-                    <div className="mb-1 text-zinc-500 uppercase">{market.key}</div>
-                    <div className="flex flex-wrap gap-3">
-                      {market.outcomes.map((outcome, idx) => (
-                        <div key={idx} className="flex items-center gap-1">
-                          <span className="truncate text-zinc-400">{outcome.name}:</span>
-                          <span className="font-semibold text-white">
-                            {formatOdds(outcome.price)}
-                            {outcome.point ? ` (${outcome.point > 0 ? "+" : ""}${outcome.point})` : ""}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+    <div className="w-full overflow-x-auto rounded-lg border border-white/10 bg-white/3">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-white/10 bg-white/5">
+            <th className="sticky left-0 w-48 border-r border-white/10 bg-white/8 px-4 py-3 text-left font-semibold text-white">
+              Game
+            </th>
+            {sportsbooks.map(([key, title]) => (
+              <th key={key} className="min-w-36 border-r border-white/10 px-3 py-3 text-center font-semibold text-accent">
+                {title}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {events.map((event) => (
+            <tr key={event.id} className="border-b border-white/10 hover:bg-white/5">
+              <td className="sticky left-0 w-48 border-r border-white/10 bg-white/3 px-4 py-4">
+                <div className="space-y-1">
+                  <div className="text-xs text-zinc-400">{formatCommenceTime(event.commence_time)}</div>
+                  <div className="font-semibold text-white">
+                    {event.away_team.substring(0, 3).toUpperCase()}
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="font-semibold text-white">
+                    {event.home_team.substring(0, 3).toUpperCase()}
+                  </div>
+                </div>
+              </td>
+              {sportsbooks.map(([bookmakerId]) => {
+                const odds = getOddsForBookmakerAndGame(event, bookmakerId);
+                return (
+                  <td key={bookmakerId} className="min-w-36 border-r border-white/10 px-3 py-4 text-center text-xs">
+                    <div className="space-y-2">
+                      {odds.h2h && (
+                        <div>
+                          <div className="text-zinc-400">ML</div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold text-white">{odds.h2h[0]}</span>
+                            <span className="font-semibold text-white">{odds.h2h[1]}</span>
+                          </div>
+                        </div>
+                      )}
+                      {odds.spreads && (
+                        <div>
+                          <div className="text-zinc-400">Spread</div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold text-white">{odds.spreads[0]}</span>
+                            <span className="font-semibold text-white">{odds.spreads[1]}</span>
+                          </div>
+                        </div>
+                      )}
+                      {odds.totals && (
+                        <div>
+                          <div className="text-zinc-400">Total</div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold text-white">{odds.totals[0]}</span>
+                            <span className="font-semibold text-white">{odds.totals[1]}</span>
+                          </div>
+                        </div>
+                      )}
+                      {!odds.h2h && !odds.spreads && !odds.totals && (
+                        <div className="text-zinc-500">—</div>
+                      )}
+                    </div>
+                  </td>
+                );
+              })}
+            </tr>
           ))}
-        </div>
-      </div>
-    </article>
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -297,19 +349,19 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
           </span>
         </div>
 
-        <div className="mt-6 space-y-4" role="tabpanel">
+        <div className="mt-6" role="tabpanel">
           {isLoading ? (
             <div className="flex justify-center py-8">
               <div className="text-sm text-zinc-400">Loading odds...</div>
             </div>
           ) : apiEvents && apiEvents.length > 0 ? (
-            apiEvents.map((event) => (
-              <ParlayEventRow key={event.id} event={event} sport={sport} />
-            ))
+            <OddsTable events={apiEvents} sport={sport} />
           ) : games && games.length > 0 ? (
-            games.map((game) => (
-              <OddsGameRow key={game.id} game={game} />
-            ))
+            <div className="space-y-4">
+              {games.map((game) => (
+                <OddsGameRow key={game.id} game={game} />
+              ))}
+            </div>
           ) : (
             <div className="flex justify-center py-8">
               <div className="text-sm text-zinc-400">No games available</div>
