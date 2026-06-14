@@ -6,7 +6,7 @@ import { OddsSportSubNav } from "@/components/landing/OddsSportSubNav";
 import type { OddsSport } from "@/components/landing/odds-data";
 
 export function OddsPageShell() {
-  const [sport, setSport] = useState<OddsSport>("NBA");
+  const [sport, setSport] = useState<OddsSport>("MLB");
 
   return <OddsContent sport={sport} onSportChange={setSport} />;
 }

@@ -1,6 +1,6 @@
 import { getSportsLeagueLogo } from "@/lib/sports-leagues";
 
-export type OddsSport = "NFL" | "NBA" | "MLB" | "NHL";
+export type OddsSport = "MLB";
 
 export interface OddsTeam {
   name: string;
@@ -23,7 +23,7 @@ export interface OddsGame {
   lineNote?: string;
 }
 
-export const ODDS_SPORTS: OddsSport[] = ["NBA", "MLB", "NHL", "NFL"];
+export const ODDS_SPORTS: OddsSport[] = ["MLB"];
 
 function nflLogo(file: string) {
   return `/leagues/nfl/${encodeURIComponent(file)}`;

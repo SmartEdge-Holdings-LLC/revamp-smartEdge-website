@@ -1,11 +1,4 @@
-export type OddsSport = "NFL" | "NBA" | "MLB" | "NHL";
-
-const SPORT_MAP: Record<OddsSport, string> = {
-  NFL: "americanfootball_nfl",
-  NBA: "basketball_nba",
-  MLB: "baseball_mlb",
-  NHL: "ice_hockey_nhl",
-};
+export type OddsSport = "MLB";
 
 export interface Bookmaker {
   key: string;
@@ -34,9 +27,8 @@ export interface OddsResponse {
 
 export async function fetchSportOdds(sport: OddsSport): Promise<OddsResponse | null> {
   try {
-    const sportKey = SPORT_MAP[sport];
     const response = await fetch(
-      `https://parlay-api.com/live/api/games?sport=${sportKey}`,
+      "https://parlay-api.com/live/api/games?sport=baseball_mlb",
       {
         method: "GET",
         headers: {
@@ -47,13 +39,13 @@ export async function fetchSportOdds(sport: OddsSport): Promise<OddsResponse | n
     );
 
     if (!response.ok) {
-      console.error(`Failed to fetch ${sport} odds: ${response.status}`);
+      console.error(`Failed to fetch MLB odds: ${response.status}`);
       return null;
     }
 
     return await response.json();
   } catch (error) {
-    console.error(`Error fetching ${sport} odds:`, error);
+    console.error("Error fetching MLB odds:", error);
     return null;
   }
 }
