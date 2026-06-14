@@ -4,6 +4,8 @@ const PARLAY_API_BASE = "https://parlay-api.com/v1";
 const PARLAY_SANDBOX_BASE = "https://parlay-api.com/v1/sandbox";
 export const NFL_SPORT_KEY = "americanfootball_nfl";
 export const MLB_SPORT_KEY = "baseball_mlb";
+export const NBA_SPORT_KEY = "basketball_nba";
+export const NHL_SPORT_KEY = "ice_hockey_nhl";
 
 export type ParlaySport = {
   key: string;
