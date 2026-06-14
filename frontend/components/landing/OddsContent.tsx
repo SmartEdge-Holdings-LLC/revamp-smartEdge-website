@@ -150,23 +150,17 @@ function ParlayEventRow({ event, sport }: { event: ParlayEvent; sport: OddsSport
     });
   }
 
-  function formatAmericanOdds(price: number): string {
-    return price > 0 ? `+${price}` : String(price);
+  function formatOdds(price: number | null | undefined): string {
+    if (price === null || price === undefined) return "N/A";
+    // Check if it's American odds (between -10000 and 10000) or decimal (1-10 range)
+    if (Math.abs(price) > 10 || price < 0) {
+      // American odds
+      return price > 0 ? `+${price}` : String(price);
+    } else {
+      // Decimal odds
+      return price.toFixed(2);
+    }
   }
-
-  const primaryBookmaker = event.bookmakers[0];
-  if (!primaryBookmaker) return <></>;
-
-  const h2hMarket = primaryBookmaker.markets.find(m => m.key === "h2h");
-  const spreadsMarket = primaryBookmaker.markets.find(m => m.key === "spreads");
-  const totalsMarket = primaryBookmaker.markets.find(m => m.key === "totals");
-
-  const awayH2h = h2hMarket?.outcomes[0];
-  const homeH2h = h2hMarket?.outcomes[1];
-  const awaySpread = spreadsMarket?.outcomes[0];
-  const homeSpread = spreadsMarket?.outcomes[1];
-  const overTotal = totalsMarket?.outcomes[0];
-  const underTotal = totalsMarket?.outcomes[1];
 
   return (
     <article className="rounded-2xl border border-white/10 bg-white/3 p-4 transition-colors hover:border-white/15 hover:bg-white/5 sm:p-5">
@@ -192,45 +186,37 @@ function ParlayEventRow({ event, sport }: { event: ParlayEvent; sport: OddsSport
         </span>
       </div>
 
-      <div className="mt-5 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="grid min-w-0 flex-1 grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="text-sm font-semibold text-white sm:text-[15px]">
-              {event.away_team}
-            </span>
-          </div>
-          <span className="px-1 text-center text-xs font-semibold uppercase tracking-widest text-zinc-600">
-            @
-          </span>
-          <div className="flex min-w-0 items-center justify-end gap-3">
-            <span className="text-right text-sm font-semibold text-white sm:text-[15px]">
-              {event.home_team}
-            </span>
-          </div>
+      <div className="mt-4">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-white">
+            {event.away_team} @ {event.home_team}
+          </h3>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/6 pt-4 sm:justify-end sm:gap-5 sm:border-t-0 sm:pt-0 lg:border-l lg:border-white/6 lg:pl-6">
-          {awaySpread && homeSpread ? (
-            <OddsCell
-              label="Spread"
-              value={`${formatAmericanOdds(awaySpread.price)} ${awaySpread.point ? `(${awaySpread.point})` : ""}`}
-              sub={`${formatAmericanOdds(homeSpread.price)} ${homeSpread.point ? `(${homeSpread.point})` : ""}`}
-            />
-          ) : null}
-          {awayH2h && homeH2h ? (
-            <OddsCell
-              label="Moneyline"
-              value={formatAmericanOdds(awayH2h.price)}
-              sub={formatAmericanOdds(homeH2h.price)}
-            />
-          ) : null}
-          {overTotal && underTotal ? (
-            <OddsCell
-              label={`Total ${overTotal.point ?? "N/A"}`}
-              value={formatAmericanOdds(overTotal.price)}
-              sub={formatAmericanOdds(underTotal.price)}
-            />
-          ) : null}
+        <div className="space-y-2">
+          {event.bookmakers.map((bookmaker) => (
+            <div key={bookmaker.key} className="rounded-lg border border-white/8 bg-white/2 p-3">
+              <div className="mb-2 text-xs font-semibold text-accent/80">{bookmaker.title}</div>
+              <div className="grid gap-2">
+                {bookmaker.markets.map((market) => (
+                  <div key={market.key} className="text-xs">
+                    <div className="mb-1 text-zinc-500 uppercase">{market.key}</div>
+                    <div className="flex flex-wrap gap-3">
+                      {market.outcomes.map((outcome, idx) => (
+                        <div key={idx} className="flex items-center gap-1">
+                          <span className="truncate text-zinc-400">{outcome.name}:</span>
+                          <span className="font-semibold text-white">
+                            {formatOdds(outcome.price)}
+                            {outcome.point ? ` (${outcome.point > 0 ? "+" : ""}${outcome.point})` : ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </article>

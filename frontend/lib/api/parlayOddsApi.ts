@@ -49,6 +49,7 @@ export async function fetchMlbOdds(): Promise<FetchOddsResponse | null> {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
     });
 
