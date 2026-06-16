@@ -9,6 +9,9 @@ const FOOTER_LINKS = [
   { label: "Experts", href: "/#meet-experts" },
   { label: "FAQ", href: "/#faq" },
   { label: "Contact Us", href: "/contact-us" },
+  { label: "Privacy Policy", href: "/legal/privacy-policy" },
+  { label: "Terms of Service", href: "/legal/terms-of-service" },
+  { label: "Refund Policy", href: "/legal/refund-policy" },
   { label: "Register", href: "/#pricing" },
   { label: "Log in", href: "/login" },
 ] as const;
