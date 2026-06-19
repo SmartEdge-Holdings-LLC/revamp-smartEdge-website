@@ -32,19 +32,25 @@ export function Navbar() {
   const { data: session, status } = useSession();
   const adminSession = readAuthSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   const { user: storeUser, setUser: setStoreUser } = useAuthStore();
 
-  // Sync session with Zustand store
+  // Sync session with Zustand store - only update when session status changes
   useEffect(() => {
+    if (status === "loading") return;
+
     if (session?.user) {
       setStoreUser(session.user);
     } else if (adminSession) {
       setStoreUser(adminSession as any);
+    } else {
+      setStoreUser(null);
     }
-  }, [session, adminSession, setStoreUser]);
+    setHasHydrated(true);
+  }, [status, session?.user?.email, adminSession?.token]);
 
-  const isLoggedIn = !!storeUser || status === "authenticated" || Boolean(adminSession?.token);
+  const isLoggedIn = hasHydrated && (!!storeUser || status === "authenticated" || Boolean(adminSession?.token));
   const dashboardHref =
     adminSession?.role === "handicapper"
       ? "/admin/picks"
