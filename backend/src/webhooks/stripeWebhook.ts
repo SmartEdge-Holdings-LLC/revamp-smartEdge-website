@@ -103,7 +103,7 @@ export const stripeWebhookController = async (req: Request, res: Response) => {
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as StripeInvoice;
         const subRef =
-          invoice.subscription ??
+          (invoice as any).subscription ??
           invoice.parent?.subscription_details?.subscription;
         const subId = typeof subRef === "string" ? subRef : subRef?.id;
         if (subId) {
@@ -129,7 +129,7 @@ export const stripeWebhookController = async (req: Request, res: Response) => {
       case "invoice.payment_failed": {
         const invoice = event.data.object as StripeInvoice;
         const subRef =
-          invoice.subscription ??
+          (invoice as any).subscription ??
           invoice.parent?.subscription_details?.subscription;
         const subId = typeof subRef === "string" ? subRef : subRef?.id;
         if (subId) {

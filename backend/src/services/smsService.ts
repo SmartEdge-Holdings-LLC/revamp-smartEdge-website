@@ -54,11 +54,11 @@ export const smsService = {
     const client = getClient();
     const text = params.text?.trim() || PICKS_LIVE_MESSAGE;
 
-    const response = await client.messages.create({
-      src: env.plivoFromNumber!,
-      dst: to,
-      text,
-    });
+    const response = await client.messages.create(
+      env.plivoFromNumber!,
+      to,
+      text
+    );
 
     return {
       to,
@@ -96,11 +96,11 @@ export const smsService = {
         continue;
       }
       try {
-        await client.messages.create({
-          src: env.plivoFromNumber!,
-          dst: phoneNumber,
-          text,
-        });
+        await client.messages.create(
+          env.plivoFromNumber!,
+          phoneNumber,
+          text
+        );
         sent += 1;
       } catch (error) {
         failed += 1;

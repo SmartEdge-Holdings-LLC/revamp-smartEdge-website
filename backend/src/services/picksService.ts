@@ -112,7 +112,7 @@ function toMemberPick(
   pick: Record<string, unknown>,
   access: "free" | "paid"
 ): PublicPickDto | PaidPickDto {
-  const hydrated = hydratePickMatchup(pick) as Record<string, unknown>;
+  const hydrated = hydratePickMatchup(pick as unknown as any) as Record<string, unknown>;
   const createdBy = parsePickAuthor(hydrated.createdBy);
 
   const base = {
@@ -224,7 +224,7 @@ function rowToHydratedPick(row: Record<string, unknown>): Record<string, unknown
       ? { name: authorDoc.name, email: "", role: authorDoc.role }
       : undefined,
   };
-  return hydratePickMatchup(withAuthor as Record<string, unknown>) as Record<string, unknown>;
+  return hydratePickMatchup(withAuthor as unknown as any) as Record<string, unknown>;
 }
 
 function mapRowsToPublicPicks(rows: Record<string, unknown>[]): PublicPickDto[] {
@@ -404,7 +404,7 @@ export const picksService = {
     });
 
     return {
-      picks: result.picks.map((p) => toPublicPick(p as Record<string, unknown>)),
+      picks: result.picks.map((p) => toPublicPick(p as unknown as Record<string, unknown>)),
       page: result.page,
       limit: result.limit,
       total: result.total,
@@ -473,7 +473,7 @@ export const picksService = {
       .populate("createdBy", CREATED_BY_FIELDS)
       .lean();
     if (!pick) throw new Error("Pick not found");
-    return toPublicPick(pick as Record<string, unknown>);
+    return toPublicPick(pick as unknown as Record<string, unknown>);
   },
 
   async findById(id: string, authorId?: string) {

@@ -41,8 +41,9 @@ const listPublicQuerySchema = z
     );
 
     const rawSource = Array.isArray(o.source) ? o.source[0] : o.source;
-    const source =
-      rawSource === "smartedge" || rawSource === "handicapper" ? rawSource : undefined;
+    const source = (
+      rawSource === "smartedge" || rawSource === "handicapper" ? rawSource : undefined
+    ) as "smartedge" | "handicapper" | undefined;
 
     return {
       page,

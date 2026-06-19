@@ -56,7 +56,7 @@ export function getProductIdFromSubscriptionItem(
   if (typeof price === "string") return null;
   const product = price.product;
   if (typeof product === "string") return product;
-  if (product && typeof product === "object" && "id" in product) return product.id;
+  if (product && typeof product === "object" && "id" in product) return product.id ?? null;
   return null;
 }
 
