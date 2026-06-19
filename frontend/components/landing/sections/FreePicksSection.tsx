@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import {
   INTRO_COPY,
@@ -16,7 +17,9 @@ import {
   type PublicPickSource,
 } from "@/lib/api/picksApi";
 import { enrichPublicPicks } from "@/lib/enrich-public-pick";
+import { PICK_LEAGUES, getSportsLeagueLogo } from "@/lib/sports-leagues";
 import { cn } from "@/lib/utils";
+import type { League } from "@/types/picks";
 
 function IntroCopy({ source }: { source: PublicPickSource }) {
   const copy = INTRO_COPY[source];
@@ -42,13 +45,27 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
   const [picks, setPicks] = React.useState<PublicPick[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [selectedLeagues, setSelectedLeagues] = React.useState<League[]>([]);
+
+  const toggleLeague = (league: League) => {
+    setSelectedLeagues((prev) =>
+      prev.includes(league)
+        ? prev.filter((l) => l !== league)
+        : [...prev, league]
+    );
+  };
 
   React.useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
 
-    listPublicFreePicks({ page: 1, limit: 12, source })
+    listPublicFreePicks({
+      page: 1,
+      limit: 12,
+      source,
+      league: selectedLeagues.length > 0 ? selectedLeagues : undefined
+    })
       .then((res) => {
         if (!cancelled) {
           setPicks(enrichPublicPicks(res.picks));
@@ -67,7 +84,7 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
     return () => {
       cancelled = true;
     };
-  }, [source]);
+  }, [source, selectedLeagues]);
 
   return (
     <section
@@ -139,6 +156,47 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
                     />
                   ) : null}
                   <span className="relative z-10">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* League Filter */}
+        <div className={cn("mt-8", standalone && "mx-auto max-w-4xl")}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-white mb-2">
+            Filter by League
+          </p>
+          <p className="text-sm text-zinc-400 mb-4">
+            We're offering free picks across {PICK_LEAGUES.length} leagues including NBA, NFL, MLB, NHL, and more.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {PICK_LEAGUES.map((league) => {
+              const isSelected = selectedLeagues.includes(league as League);
+              const logoSrc = getSportsLeagueLogo(league as League);
+
+              return (
+                <button
+                  key={league}
+                  onClick={() => toggleLeague(league as League)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all",
+                    "border text-sm font-medium",
+                    isSelected
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-white/10 bg-white/5 text-zinc-400 hover:border-white/20 hover:text-white"
+                  )}
+                >
+                  {logoSrc && (
+                    <Image
+                      src={logoSrc}
+                      alt={league}
+                      width={16}
+                      height={16}
+                      className="object-contain"
+                    />
+                  )}
+                  <span>{league}</span>
                 </button>
               );
             })}

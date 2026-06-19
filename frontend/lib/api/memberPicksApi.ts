@@ -17,9 +17,11 @@ export interface PaidPick {
   detailedAnalysis: string;
   odds: string;
   betType: string;
-  confidence: number;
+  confidence?: number;
   access: "paid";
   status: "active";
+  matchTime?: string;
+  isPickOfDay?: boolean;
   createdBy?: PublicPickAuthor;
   createdAt: string;
   updatedAt: string;

@@ -13,6 +13,7 @@ import adminRoutes from "./routes/admin";
 import videoRoutes from "./routes/videos";
 import pickRoutes from "./routes/picks";
 import parlayRoutes from "./routes/parlay";
+import oddsRoutes from "./routes/odds";
 import { stripeWebhookController } from "./webhooks/stripeWebhook";
 
 const app = express();
@@ -50,6 +51,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/videos", videoRoutes);
 app.use("/api/picks", pickRoutes);
 app.use("/api/parlay", parlayRoutes);
+app.use("/api/odds", oddsRoutes);
 
 app.use(
   "/api-docs",

@@ -8,24 +8,24 @@ const STEP_ICONS: LucideIcon[] = [Brain, UserCheck, Send];
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="relative z-10 bg-black px-5 py-20 sm:px-6 md:py-28">
+    <section id="how-it-works" className="relative z-10 bg-black px-4 py-12 sm:px-5 sm:py-20 md:px-6 md:py-28">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="mx-auto max-w-xl space-y-5 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
-            <ListOrdered className="size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
+        <div className="mx-auto max-w-xl space-y-3 sm:space-y-5 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-[13px] text-zinc-300">
+            <ListOrdered className="size-3 sm:size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
             How it works
           </p>
           <div>
-            <h2 className="font-pricing-serif text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
+            <h2 className="font-pricing-serif text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
               How SmartEdge<sup className="text-[0.55em] font-normal">®</sup> Gives You the Edge
             </h2>
-            <p className="font-pricing-serif mt-1 text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
+            <p className="font-pricing-serif mt-1 text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
               A three-step system built on data, expertise, and speed.
             </p>
           </div>
         </div>
 
-        <ol className="mt-14 grid auto-rows-fr gap-6 md:mt-16 md:grid-cols-3 md:gap-6 lg:gap-8">
+        <ol className="mt-8 sm:mt-14 grid auto-rows-fr gap-4 sm:gap-5 md:mt-16 md:grid-cols-3 md:gap-6 lg:gap-8">
           {HOW_IT_WORKS_STEPS.map((item, index) => {
             const Icon = STEP_ICONS[index];
 

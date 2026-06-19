@@ -38,9 +38,11 @@ export type PickCreateInput = {
   detailedAnalysis: string;
   odds: string;
   betType: BetType;
-  confidence: number;
+  confidence?: number;
   access: PickAccess;
   status: PickStatus;
+  matchTime?: string;
+  isPickOfDay?: boolean;
   createdBy: string;
 };
 
@@ -78,9 +80,11 @@ export type PublicPickDto = {
   detailedAnalysis: string;
   odds: string;
   betType: BetType;
-  confidence: number;
+  confidence?: number;
   access: "free";
   status: "active";
+  matchTime?: Date;
+  isPickOfDay?: boolean;
   createdBy?: PublicPickAuthor;
   createdAt: Date;
   updatedAt: Date;
@@ -125,9 +129,11 @@ function toMemberPick(
     detailedAnalysis: String(hydrated.detailedAnalysis),
     odds: String(hydrated.odds),
     betType: hydrated.betType as BetType,
-    confidence: Number(hydrated.confidence),
+    confidence: hydrated.confidence ? Number(hydrated.confidence) : undefined,
     access,
     status: "active" as const,
+    matchTime: hydrated.matchTime as Date | undefined,
+    isPickOfDay: hydrated.isPickOfDay as boolean | undefined,
     createdBy,
     createdAt: hydrated.createdAt as Date,
     updatedAt: hydrated.updatedAt as Date,
@@ -358,6 +364,8 @@ export const picksService = {
       confidence: input.confidence,
       access: input.access,
       status: input.status,
+      matchTime: input.matchTime ? new Date(input.matchTime) : undefined,
+      isPickOfDay: input.isPickOfDay,
       createdBy: input.createdBy,
     });
     return this.findById(pick._id.toString());
@@ -585,6 +593,10 @@ export const picksService = {
     if (input.confidence !== undefined) update.confidence = input.confidence;
     if (input.access !== undefined) update.access = input.access;
     if (input.status !== undefined) update.status = input.status;
+    if (input.matchTime !== undefined) {
+      update.matchTime = input.matchTime ? new Date(input.matchTime) : undefined;
+    }
+    if (input.isPickOfDay !== undefined) update.isPickOfDay = input.isPickOfDay;
 
     const pick = await Pick.findByIdAndUpdate(id, update, { new: true, runValidators: true });
     if (!pick) throw new Error("Pick not found");

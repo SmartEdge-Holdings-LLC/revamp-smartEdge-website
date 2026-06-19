@@ -5,12 +5,14 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Eye,
   Pencil,
   Plus,
   RefreshCw,
   Search,
   Trash2,
+  TrendingUp,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -47,7 +49,7 @@ import { BET_TYPE_LABELS, PICK_ACCESS_LABELS, PICK_STATUS_LABELS } from "@/types
 import type { League } from "@/types/picks";
 
 const PAGE_SIZE = 20;
-const COLUMN_COUNT = 10;
+const COLUMN_COUNT = 11;
 
 function authorName(pick: AdminPick) {
   const cb = pick.createdBy;
@@ -213,7 +215,7 @@ export default function AdminPicksPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[220px] flex-1 sm:max-w-md">
+          <div className="relative min-w-55 flex-1 sm:max-w-md">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
             <Input
               type="text"
@@ -289,6 +291,9 @@ export default function AdminPicksPage() {
                   Confidence
                 </TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                  Match time
+                </TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
                   Posted
                 </TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-right text-subtle">
@@ -325,10 +330,10 @@ export default function AdminPicksPage() {
                         <span className="typo-body-sm text-subtle">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="max-w-[240px] whitespace-normal">
+                    <TableCell className="max-w-60 whitespace-normal">
                       <MatchupDisplay pick={pick} logoSize={16} />
                     </TableCell>
-                    <TableCell className="max-w-[200px] whitespace-normal">
+                    <TableCell className="max-w-50 whitespace-normal">
                       <p className="line-clamp-2 typo-body-sm font-medium text-white">
                         {pick.pickTitle}
                       </p>
@@ -367,14 +372,28 @@ export default function AdminPicksPage() {
                       {pick.odds}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={cn(
-                          "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold tabular-nums",
-                          confidenceBadgeClass(pick.confidence)
-                        )}
-                      >
-                        {pick.confidence}%
-                      </Badge>
+                      {pick.confidence ? (
+                        <Badge
+                          className={cn(
+                            "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold tabular-nums",
+                            confidenceBadgeClass(pick.confidence)
+                          )}
+                        >
+                          {pick.confidence}%
+                        </Badge>
+                      ) : (
+                        <span className="text-subtle">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="whitespace-normal">
+                      {pick.matchTime ? (
+                        <>
+                          <p className="typo-body-sm text-white">{formatDateET(pick.matchTime)}</p>
+                          <p className="typo-caption text-subtle">{formatDateTimeET(pick.matchTime).split(',')[1]}</p>
+                        </>
+                      ) : (
+                        <p className="typo-caption text-subtle">—</p>
+                      )}
                     </TableCell>
                     <TableCell className="whitespace-normal">
                       <p className="typo-body-sm text-white">{formatDateET(pick.createdAt)}</p>
@@ -479,72 +498,128 @@ export default function AdminPicksPage() {
       />
 
       <Dialog open={Boolean(viewPick)} onOpenChange={(o) => !o && setViewPick(null)}>
-        <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto border-white/8 bg-[#0a0a0a] p-0 text-slate-100 sm:max-w-lg">
+        <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto border border-white/10 bg-linear-to-br from-[#0f0f0f] to-[#1a1a1a] p-0 text-slate-100 sm:max-w-xl">
           {viewPick ? (
             <>
-              <div className="border-b border-white/8 px-5 py-4">
-                <DialogTitle className="text-[15px] font-semibold text-white">
-                  {viewPick.pickTitle}
-                </DialogTitle>
-                <DialogDescription asChild>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge className="bg-white/5 text-slate-200 ring-1 ring-inset ring-white/10">
-                        {viewPick.league}
-                      </Badge>
-                      <Badge
-                        className={cn(
-                          "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold",
-                          accessBadgeClass(pickAccess(viewPick))
-                        )}
-                      >
-                        {PICK_ACCESS_LABELS[pickAccess(viewPick)]}
-                      </Badge>
-                      <Badge
-                        className={cn(
-                          "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold",
-                          statusBadgeClass(pickStatus(viewPick))
-                        )}
-                      >
-                        {PICK_STATUS_LABELS[pickStatus(viewPick)]}
-                      </Badge>
-                      <MatchupDisplay pick={viewPick} logoSize={20} />
+              {/* Header */}
+              <div className="border-b border-white/10 bg-linear-to-r from-accent/10 to-transparent px-6 py-6">
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <DialogTitle className="text-2xl font-bold text-white leading-tight">
+                        {viewPick.pickTitle}
+                      </DialogTitle>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <Badge className="bg-accent/20 text-accent border border-accent/40 text-sm py-1 px-3">
+                          {viewPick.league}
+                        </Badge>
+                        <Badge
+                          className={cn(
+                            "rounded-full border-transparent px-3 py-1 text-xs font-semibold",
+                            accessBadgeClass(pickAccess(viewPick))
+                          )}
+                        >
+                          {PICK_ACCESS_LABELS[pickAccess(viewPick)]}
+                        </Badge>
+                        <Badge
+                          className={cn(
+                            "rounded-full border-transparent px-3 py-1 text-xs font-semibold",
+                            statusBadgeClass(pickStatus(viewPick))
+                          )}
+                        >
+                          {PICK_STATUS_LABELS[pickStatus(viewPick)]}
+                        </Badge>
+                      </div>
                     </div>
-                    <p className="typo-caption text-subtle">
-                      {BET_TYPE_LABELS[viewPick.betType]} · {viewPick.odds} · {viewPick.confidence}% confidence
-                    </p>
                   </div>
-                </DialogDescription>
+                </div>
               </div>
-              <div className="space-y-4 px-5 py-4">
-                <div>
-                  <p className="typo-caption font-medium text-zinc-500">Analysis</p>
-                  <p className="mt-2 whitespace-pre-wrap typo-body-sm leading-relaxed text-slate-200">
+
+              {/* Matchup & Quick Info */}
+              <div className="border-b border-white/10 px-6 py-5">
+                <div className="mb-5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Matchup</p>
+                  <div className="flex items-center justify-center gap-6 py-4">
+                    <MatchupDisplay pick={viewPick} logoSize={48} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Bet Type</p>
+                    <p className="mt-2 text-sm font-medium text-white">{BET_TYPE_LABELS[viewPick.betType]}</p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Odds</p>
+                    <p className="mt-2 text-sm font-medium text-accent">{viewPick.odds}</p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-3 border border-white/5 flex flex-col">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Confidence</p>
+                    {viewPick.confidence ? (
+                      <div className="mt-2 flex items-baseline gap-1">
+                        <TrendingUp className="size-4 text-emerald-500" />
+                        <p className="text-sm font-bold text-emerald-400">{viewPick.confidence}%</p>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-sm text-zinc-400">—</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Analysis Section */}
+              <div className="border-b border-white/10 px-6 py-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Expert Analysis</p>
+                <div className="bg-white/3 rounded-lg border border-white/5 p-4">
+                  <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-wrap">
                     {viewPick.detailedAnalysis}
                   </p>
                 </div>
-                <p className="typo-caption text-zinc-600">
-                  Posted {formatDateTimeET(viewPick.createdAt)} by {authorName(viewPick)}
-                </p>
               </div>
-              <div className="flex justify-end gap-2 border-t border-white/8 px-5 py-4">
+
+              {/* Timeline Section */}
+              <div className="border-b border-white/10 px-6 py-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4">Timeline</p>
+                <div className="space-y-3">
+                  {viewPick.matchTime ? (
+                    <div className="flex items-start gap-3">
+                      <Clock className="size-5 text-blue-400 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Match Time</p>
+                        <p className="mt-1 text-sm text-white">{formatDateTimeET(viewPick.matchTime)}</p>
+                      </div>
+                    </div>
+                  ) : null}
+                  <div className="flex items-start gap-3">
+                    <Clock className="size-5 text-zinc-600 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Posted</p>
+                      <p className="mt-1 text-sm text-white">{formatDateTimeET(viewPick.createdAt)}</p>
+                      <p className="mt-0.5 text-xs text-zinc-500">by {authorName(viewPick)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 px-6 py-4 bg-white/2">
                 <Button
                   type="button"
                   variant="ghost"
-                  className="text-slate-300 hover:bg-white/10"
+                  className="text-slate-400 hover:text-slate-200 hover:bg-white/5"
                   onClick={() => setViewPick(null)}
                 >
                   Close
                 </Button>
                 <Button
                   type="button"
-                  className="bg-accent text-slate-950 hover:brightness-105"
+                  className="bg-accent text-slate-950 hover:brightness-110 font-medium"
                   onClick={() => {
                     setViewPick(null);
                     openEdit(viewPick);
                   }}
                 >
-                  Edit
+                  Edit Pick
                 </Button>
               </div>
             </>

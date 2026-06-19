@@ -23,9 +23,11 @@ export interface PublicPick {
   detailedAnalysis: string;
   odds: string;
   betType: string;
-  confidence: number;
+  confidence?: number;
   access: "free";
   status: "active";
+  matchTime?: string;
+  isPickOfDay?: boolean;
   createdBy?: PublicPickAuthor;
   createdAt: string;
   updatedAt: string;

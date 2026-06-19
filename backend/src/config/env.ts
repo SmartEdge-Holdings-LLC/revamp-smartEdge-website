@@ -55,10 +55,14 @@ export const env = {
   frontendUrl: frontendUrls[0] as string,
   /** Allowed browser origins for CORS (comma-separated FRONTEND_URL). */
   frontendUrls,
-  telnyxApiKey: process.env.TELNYX_API_KEY ?? "",
-  telnyxFromNumber: process.env.TELNYX_FROM_NUMBER ?? "",
-  telnyxMessagingProfileId: process.env.TELNYX_MESSAGING_PROFILE_ID ?? "",
+  plivoAuthId: process.env.PLIVO_AUTH_ID ?? "",
+  plivoAuthToken: process.env.PLIVO_AUTH_TOKEN ?? "",
+  plivoFromNumber: process.env.PLIVO_FROM_NUMBER ?? "",
   bulkSmsDelayMs: Number(process.env.BULK_SMS_DELAY_MS ?? 1500),
   /** Parlay API key — https://parlay-api.com (optional in dev: uses sandbox when unset). */
   parlayApiKey: (process.env.PARLAY_API_KEY ?? "").trim(),
+  /** The Odds API key — https://the-odds-api.com */
+  oddsApiKey: (process.env.ODDS_API_KEY ?? "").trim(),
+  /** The Odds API base URL */
+  oddsApiBaseUrl: (process.env.ODDS_API_BASE_URL ?? "https://api.the-odds-api.com/v4").trim(),
 };

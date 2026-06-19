@@ -9,25 +9,25 @@ export function SportsCoverageSection() {
   return (
     <section
       id="sports-coverage"
-      className="relative z-10 border-t border-white/10 bg-black px-5 py-20 sm:px-6 md:py-28"
+      className="relative z-10 border-t border-white/10 bg-black px-4 py-12 sm:px-5 sm:py-20 md:px-6 md:py-28"
     >
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mx-auto max-w-xl space-y-5 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
-            <Globe2 className="size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
+        <div className="mx-auto max-w-xl space-y-3 sm:space-y-5 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-[13px] text-zinc-300">
+            <Globe2 className="size-3 sm:size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
             Sports coverage
           </p>
           <div>
-            <h2 className="font-pricing-serif text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
+            <h2 className="font-pricing-serif text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
               Every Sport. Every Game.
             </h2>
-            <p className="font-pricing-serif mt-1 text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
+            <p className="font-pricing-serif mt-1 text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
               One platform. All the leagues.
             </p>
           </div>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-6">
+        <div className="mt-8 sm:mt-14 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:mt-16 lg:grid-cols-4 lg:gap-5">
           {SPORTS_COVERAGE.map((sport) => (
             <article
               key={sport.name}

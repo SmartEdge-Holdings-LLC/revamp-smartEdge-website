@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { BetTypeSelect } from "@/components/admin/BetTypeSelect";
 import { PickAccessSelect } from "@/components/admin/PickAccessSelect";
@@ -18,6 +18,12 @@ import {
 } from "@/components/ui/dialog";
 import { DialogOverlayContainerContext } from "@/components/ui/dialog-overlay-container";
 import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { AdminApiError, createAdminPick, listLeagueTeams, updateAdminPick } from "@/lib/api/adminApi";
 import {
   findCollegeConferenceForTeam,
@@ -45,6 +51,9 @@ const textareaClass = cn(
 type PickFormState = CreatePickPayload & {
   customAwayName: string;
   customHomeName: string;
+  matchTimeLocal: string;
+  hasConfidence: boolean;
+  isPickOfDay: boolean;
 };
 
 const emptyForm = (): PickFormState => ({
@@ -61,9 +70,16 @@ const emptyForm = (): PickFormState => ({
   confidence: 75,
   access: "paid",
   status: "active",
+  matchTimeLocal: "",
+  hasConfidence: false,
+  isPickOfDay: false,
 });
 
 function pickToForm(pick: AdminPick): PickFormState {
+  const matchTimeLocal = pick.matchTime
+    ? new Date(pick.matchTime).toISOString().slice(0, 16)
+    : "";
+
   return {
     league: pick.league ?? "NBA",
     awayTeamId: pick.awayTeamId ?? "",
@@ -75,9 +91,12 @@ function pickToForm(pick: AdminPick): PickFormState {
     detailedAnalysis: pick.detailedAnalysis,
     odds: pick.odds,
     betType: normalizeBetTypeForLeague(pick.league ?? "NBA", pick.betType),
-    confidence: pick.confidence,
+    confidence: pick.confidence ?? 75,
     access: pick.access ?? "paid",
     status: pick.status ?? "active",
+    matchTimeLocal,
+    hasConfidence: Boolean(pick.confidence),
+    isPickOfDay: Boolean((pick as any).isPickOfDay),
   };
 }
 
@@ -198,8 +217,15 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
       useCustomMatchup,
       awayTeamId,
       homeTeamId,
+      matchTimeLocal,
+      hasConfidence,
+      confidence,
+      isPickOfDay,
       ...rest
     } = form;
+
+    const matchTime = matchTimeLocal ? new Date(matchTimeLocal).toISOString() : undefined;
+    const finalConfidence = hasConfidence ? confidence : undefined;
 
     if (useCustomMatchup) {
       return {
@@ -207,6 +233,9 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
         useCustomMatchup: true,
         awayTeamName: customAwayName.trim(),
         homeTeamName: customHomeName.trim(),
+        matchTime,
+        confidence: finalConfidence,
+        isPickOfDay,
       };
     }
 
@@ -214,6 +243,9 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
       ...rest,
       awayTeamId,
       homeTeamId,
+      matchTime,
+      confidence: finalConfidence,
+      isPickOfDay,
     };
   };
 
@@ -395,21 +427,131 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
               </Field>
             </div>
 
-            <Field label={`Confidence (${form.confidence}%)`} id="pick-confidence">
-              <input
-                id="pick-confidence"
-                type="range"
-                min={1}
-                max={100}
-                value={form.confidence}
-                onChange={(e) => update("confidence", parseInt(e.target.value, 10))}
-                className="w-full accent-accent"
-              />
-              <div className="mt-1 flex justify-between typo-caption text-subtle">
-                <span>1%</span>
-                <span>100%</span>
-              </div>
+            <Field label="Match time (optional)" id="pick-match-time">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      fieldClass,
+                      "h-9 border border-white/12 bg-white/5"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 size-4" />
+                    {form.matchTimeLocal
+                      ? new Date(form.matchTimeLocal).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      : "Pick a date and time"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <div className="space-y-2 p-3">
+                    <Calendar
+                      mode="single"
+                      selected={
+                        form.matchTimeLocal ? new Date(form.matchTimeLocal) : undefined
+                      }
+                      onSelect={(date) => {
+                        if (date) {
+                          const existingTime = form.matchTimeLocal
+                            ? new Date(form.matchTimeLocal)
+                            : new Date();
+                          date.setHours(existingTime.getHours());
+                          date.setMinutes(existingTime.getMinutes());
+                          update("matchTimeLocal", date.toISOString().slice(0, 16));
+                        }
+                      }}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    />
+                    <div className="space-y-2 border-t pt-3">
+                      <label className="text-xs font-medium text-zinc-400">Time</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-1">
+                          <Clock className="size-4 text-zinc-500" />
+                          <Input
+                            type="time"
+                            value={
+                              form.matchTimeLocal
+                                ? form.matchTimeLocal.split("T")[1]
+                                : "12:00"
+                            }
+                            onChange={(e) => {
+                              if (form.matchTimeLocal) {
+                                const [date] = form.matchTimeLocal.split("T");
+                                update("matchTimeLocal", `${date}T${e.target.value}`);
+                              }
+                            }}
+                            className="h-8 rounded border border-white/20 bg-white/5 px-2 text-xs text-slate-100"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="w-full bg-accent text-slate-950 hover:brightness-105"
+                      onClick={() => {
+                        // Close popover by clicking outside or pressing escape
+                      }}
+                    >
+                      Done
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </Field>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <input
+                  id="pick-confidence-toggle"
+                  type="checkbox"
+                  checked={form.hasConfidence}
+                  onChange={(e) => update("hasConfidence", e.target.checked)}
+                  className="size-5 rounded border-white/20 bg-white/5 accent-accent cursor-pointer"
+                />
+                <label htmlFor="pick-confidence-toggle" className="text-sm font-medium text-slate-100 cursor-pointer">
+                  Add confidence rating
+                </label>
+              </div>
+
+              {form.hasConfidence && (
+                <Field label={`Confidence (${form.confidence}%)`} id="pick-confidence">
+                  <input
+                    id="pick-confidence"
+                    type="range"
+                    min={1}
+                    max={100}
+                    value={form.confidence}
+                    onChange={(e) => update("confidence", parseInt(e.target.value, 10))}
+                    className="w-full accent-accent"
+                  />
+                  <div className="mt-1 flex justify-between typo-caption text-subtle">
+                    <span>1%</span>
+                    <span>100%</span>
+                  </div>
+                </Field>
+              )}
+
+              <div className="flex items-center gap-3 pt-2">
+                <input
+                  id="pick-of-day-toggle"
+                  type="checkbox"
+                  checked={form.isPickOfDay}
+                  onChange={(e) => update("isPickOfDay", e.target.checked)}
+                  className="size-5 rounded border-white/20 bg-white/5 accent-accent cursor-pointer"
+                />
+                <label htmlFor="pick-of-day-toggle" className="text-sm font-medium text-slate-100 cursor-pointer">
+                  Mark as Pick/Lock of the Day
+                </label>
+              </div>
+            </div>
           </div>
 
           <DialogFooter className="shrink-0 border-t border-white/8 px-5 py-4 sm:justify-end">

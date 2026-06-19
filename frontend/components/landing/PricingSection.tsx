@@ -488,7 +488,7 @@ export function PricingSection() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="pricing" className="relative z-10 bg-black px-5 pb-24 pt-8 sm:px-6 md:pb-32 md:pt-12">
+    <section id="pricing" className="relative z-10 bg-black px-4 pb-16 pt-6 sm:px-5 sm:pb-24 sm:pt-8 md:px-6 md:pb-32 md:pt-12">
       <div className="mx-auto w-full max-w-6xl">
         <motion.div
           className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between"

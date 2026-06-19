@@ -22,9 +22,11 @@ const pickBodySchema = z.object({
   detailedAnalysis: z.string().min(1).max(10000),
   odds: z.string().min(1).max(64),
   betType: betTypeSchema,
-  confidence: z.coerce.number().int().min(1).max(100),
+  confidence: z.coerce.number().int().min(1).max(100).optional(),
   access: pickAccessSchema.default("paid"),
   status: pickStatusSchema.default("active"),
+  matchTime: z.string().datetime().optional(),
+  isPickOfDay: z.boolean().optional(),
 });
 
 function refinePickBody(data: z.infer<typeof pickBodySchema>, ctx: z.RefinementCtx) {

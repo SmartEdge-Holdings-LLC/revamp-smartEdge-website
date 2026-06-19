@@ -1,4 +1,4 @@
-import Telnyx from "telnyx";
+import * as plivo from "plivo";
 import { env } from "../config/env";
 import { User } from "../models/User";
 
@@ -20,44 +20,24 @@ function sleep(ms: number): Promise<void> {
 function normalizePhoneNumber(raw: string): string | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
-  // Keep + and digits only; Telnyx expects E.164.
+  // Keep + and digits only; Plivo expects E.164.
   const normalized = trimmed.replace(/[^\d+]/g, "");
   return normalized || null;
 }
 
 function getClient() {
-  if (!env.telnyxApiKey) {
-    throw new Error("TELNYX_API_KEY is not configured");
+  if (!env.plivoAuthId) {
+    throw new Error("PLIVO_AUTH_ID is not configured");
   }
-  if (!env.telnyxFromNumber) {
+  if (!env.plivoAuthToken) {
+    throw new Error("PLIVO_AUTH_TOKEN is not configured");
+  }
+  if (!env.plivoFromNumber) {
     throw new Error(
-      "TELNYX_FROM_NUMBER is not configured. Set your Telnyx SMS number in E.164 format (e.g. +15055232553)."
+      "PLIVO_FROM_NUMBER is not configured. Set your Plivo SMS number in E.164 format (e.g. +12064797227)."
     );
   }
-  if (!env.telnyxMessagingProfileId) {
-    throw new Error(
-      "TELNYX_MESSAGING_PROFILE_ID is not configured. Assign your Telnyx number to a messaging profile and paste the profile ID here."
-    );
-  }
-  return new Telnyx({ apiKey: env.telnyxApiKey });
-}
-
-function buildTelnyxMessagePayload(to: string, text: string) {
-  const payload: {
-    to: string;
-    text: string;
-    from?: string;
-    messaging_profile_id?: string;
-  } = { to, text };
-
-  if (env.telnyxFromNumber) {
-    payload.from = env.telnyxFromNumber;
-  }
-  if (env.telnyxMessagingProfileId) {
-    payload.messaging_profile_id = env.telnyxMessagingProfileId;
-  }
-
-  return payload;
+  return new plivo.Client(env.plivoAuthId, env.plivoAuthToken);
 }
 
 export const smsService = {
@@ -74,13 +54,15 @@ export const smsService = {
     const client = getClient();
     const text = params.text?.trim() || PICKS_LIVE_MESSAGE;
 
-    const response = await client.messages.send(
-      buildTelnyxMessagePayload(to, text)
-    );
+    const response = await client.messages.create({
+      src: env.plivoFromNumber!,
+      dst: to,
+      text,
+    });
 
     return {
       to,
-      messageId: response?.data?.id ?? null,
+      messageId: response.messageUuid?.[0] ?? null,
     };
   },
 
@@ -114,7 +96,11 @@ export const smsService = {
         continue;
       }
       try {
-        await client.messages.send(buildTelnyxMessagePayload(phoneNumber, text));
+        await client.messages.create({
+          src: env.plivoFromNumber!,
+          dst: phoneNumber,
+          text,
+        });
         sent += 1;
       } catch (error) {
         failed += 1;

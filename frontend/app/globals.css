@@ -98,6 +98,7 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --max-w-7-5xl: 90rem;
 }
 
 body {
@@ -304,6 +305,18 @@ body {
   color: var(--accent);
 }
 
+@keyframes gradient-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .pricing-accent-gradient {
   background: linear-gradient(
     105deg,
@@ -314,6 +327,11 @@ body {
     var(--accent) 88%,
     #e07040 100%
   );
+}
+
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradient-shimmer 3s ease-in-out infinite;
 }
 
 .stat-icon-gradient {

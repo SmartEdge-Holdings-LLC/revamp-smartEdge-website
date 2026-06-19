@@ -56,23 +56,23 @@ export function StatsBarSection() {
       aria-label="Platform statistics"
       className="relative z-10 border-y border-white/8 bg-black"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 py-14 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-xl space-y-5 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
-            <BarChart3 className="size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-5 sm:py-14 md:px-6 md:py-20">
+        <div className="mx-auto max-w-xl space-y-3 sm:space-y-5 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-[13px] text-zinc-300">
+            <BarChart3 className="size-3 sm:size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
             Platform highlights
           </p>
           <div>
-            <h2 className="font-pricing-serif text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
+            <h2 className="font-pricing-serif text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
               By the Numbers
             </h2>
-            <p className="font-pricing-serif mt-1 text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
+            <p className="font-pricing-serif mt-1 text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
               Trusted by bettors nationwide.
             </p>
           </div>
         </div>
 
-        <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-14 lg:grid-cols-4 lg:gap-6">
+        <ul className="mt-8 sm:mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-5 lg:mt-14 lg:grid-cols-4 lg:gap-6">
           {LANDING_STATS.map((stat) => (
             <StatCard key={stat.label} stat={stat} />
           ))}

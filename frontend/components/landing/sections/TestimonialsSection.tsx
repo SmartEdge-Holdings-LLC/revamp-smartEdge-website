@@ -80,19 +80,19 @@ export function TestimonialsSection() {
   return (
     <section
       id="testimonials"
-      className="relative z-10 overflow-hidden border-t border-white/10 bg-black py-20 sm:py-28"
+      className="relative z-10 overflow-hidden border-t border-white/10 bg-black py-12 sm:py-20 md:py-28"
     >
-      <div className="mx-auto w-full max-w-6xl px-5 sm:px-6">
-        <div className="mx-auto max-w-xl space-y-5 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
-            <MessageSquareQuote className="size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-5 md:px-6">
+        <div className="mx-auto max-w-xl space-y-3 sm:space-y-5 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-[13px] text-zinc-300">
+            <MessageSquareQuote className="size-3 sm:size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
             Member stories
           </p>
           <div>
-            <h2 className="font-pricing-serif text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
+            <h2 className="font-pricing-serif text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
               The Numbers Speak for Themselves
             </h2>
-            <p className="font-pricing-serif mt-1 text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
+            <p className="font-pricing-serif mt-1 text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
               What members say after joining SmartEdge<sup className="text-[0.55em] font-normal">®</sup>
             </p>
           </div>
@@ -101,7 +101,7 @@ export function TestimonialsSection() {
 
       {/* Centered horizontal slider */}
       <div
-        className="relative mx-auto mt-14 w-full max-w-[90rem] overflow-hidden px-5 sm:px-6 md:mt-16"
+        className="relative mx-auto mt-8 sm:mt-14 w-full max-w-360 overflow-hidden px-4 sm:px-5 md:px-6 md:mt-16"
         aria-label="Member testimonials"
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-linear-to-r from-black via-black/80 to-transparent sm:left-6 sm:w-16" />

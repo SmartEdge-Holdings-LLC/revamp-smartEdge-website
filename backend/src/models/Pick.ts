@@ -25,12 +25,16 @@ export interface IPick extends Document {
   detailedAnalysis: string;
   odds: string;
   betType: BetType;
-  /** 1–100 confidence score */
-  confidence: number;
+  /** 1–100 confidence score (optional, defaults to 75) */
+  confidence?: number;
   /** Whether members need a paid plan to view this pick */
   access: PickAccess;
   /** Whether the pick is published (active) or hidden (inactive) */
   status: PickStatus;
+  /** Scheduled match/game time */
+  matchTime?: Date;
+  /** Mark this pick as Pick/Lock of the Day */
+  isPickOfDay?: boolean;
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -50,9 +54,11 @@ const pickSchema = new Schema<IPick>(
     detailedAnalysis: { type: String, required: true, trim: true, maxlength: 10000 },
     odds: { type: String, required: true, trim: true, maxlength: 64 },
     betType: { type: String, enum: BET_TYPES, required: true },
-    confidence: { type: Number, required: true, min: 1, max: 100 },
+    confidence: { type: Number, min: 1, max: 100 },
     access: { type: String, enum: PICK_ACCESS, required: true, default: "paid" },
     status: { type: String, enum: PICK_STATUS, required: true, default: "active" },
+    matchTime: { type: Date },
+    isPickOfDay: { type: Boolean, default: false },
     createdBy: { type: Schema.Types.ObjectId, ref: "Admin", required: true },
   },
   { timestamps: true }

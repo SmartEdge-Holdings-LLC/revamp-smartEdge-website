@@ -5,6 +5,7 @@ import Link from "next/link";
 import { listPaidPicks } from "@/lib/api/memberPicksApi";
 import { enrichPaidPicks } from "@/lib/enrich-member-pick";
 import type { PaidPickFeed } from "@/lib/subscription-access";
+import type { League } from "@/types/picks";
 import { DashboardPickDetailCard } from "@/components/dashboard/DashboardPickDetailCard";
 import { DashboardPicksGridSkeleton } from "@/components/dashboard/DashboardPickDetailCardSkeleton";
 import { Button } from "@/components/ui/button";
@@ -29,9 +30,11 @@ type DashboardPaidPicksFeedProps = {
   feed: PaidPickFeed;
   token: string;
   hideHeader?: boolean;
+  showFullAnalysis?: boolean;
+  leagues?: League[];
 };
 
-export function DashboardPaidPicksFeed({ feed, token, hideHeader }: DashboardPaidPicksFeedProps) {
+export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalysis = true, leagues = [] }: DashboardPaidPicksFeedProps) {
   const meta = FEED_META[feed];
   const [picks, setPicks] = React.useState<ReturnType<typeof enrichPaidPicks>>([]);
   const [loading, setLoading] = React.useState(true);
@@ -42,10 +45,14 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader }: DashboardPai
     setLoading(true);
     setError(null);
 
-    void listPaidPicks(token, feed, { page: 1, limit: 20 })
+    void listPaidPicks(token, feed, {
+      page: 1,
+      limit: 20,
+      league: leagues.length > 0 ? leagues : undefined
+    })
       .then((res) => {
         if (cancelled) return;
-        setPicks(enrichPaidPicks(res.picks));
+        setPicks(enrichPaidPicks(res.picks, { stripAnalysis: !showFullAnalysis }));
       })
       .catch((err) => {
         if (cancelled) return;
@@ -59,7 +66,7 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader }: DashboardPai
     return () => {
       cancelled = true;
     };
-  }, [feed, token]);
+  }, [feed, token, leagues, showFullAnalysis]);
 
   return (
     <section className="space-y-4">
@@ -84,7 +91,7 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader }: DashboardPai
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
           {picks.map((pick) => (
             <div key={pick._id} className="flex h-full w-full min-w-0">
-              <DashboardPickDetailCard pick={pick} feed={feed} />
+              <DashboardPickDetailCard pick={pick} feed={feed} showFullAnalysis={showFullAnalysis} />
             </div>
           ))}
         </div>

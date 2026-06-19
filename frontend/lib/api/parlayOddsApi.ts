@@ -3,20 +3,30 @@ export type OddsSport = "MLB";
 export interface Bookmaker {
   key: string;
   title: string;
-  home_odds: number | null;
-  away_odds: number | null;
-  blurred: boolean;
+  last_update: string;
+  markets: Array<{
+    key: string;
+    last_update: string;
+    outcomes: Array<{
+      name: string;
+      price: number;
+      point?: number;
+    }>;
+  }>;
 }
 
 export interface Game {
+  id: string;
+  sport_key: string;
+  sport_title: string;
   home_team: string;
   away_team: string;
   commence_time: string;
-  game_date: string;
-  is_live: boolean;
   bookmakers: Bookmaker[];
-  event_id: string;
-  description: string;
+  is_live: boolean;
+  event_id?: string;
+  game_date?: string;
+  description?: string;
 }
 
 export interface OddsResponse {
@@ -25,27 +35,33 @@ export interface OddsResponse {
   games: Game[];
 }
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
 export async function fetchSportOdds(sport: OddsSport): Promise<OddsResponse | null> {
   try {
-    const response = await fetch(
-      "https://parlay-api.com/live/api/games?sport=baseball_mlb",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-      }
-    );
+    const endpoint = `${BACKEND_URL}/api/odds/baseball-mlb`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!response.ok) {
-      console.error(`Failed to fetch MLB odds: ${response.status}`);
+      console.error(`Failed to fetch ${sport} odds: ${response.status}`);
       return null;
     }
 
-    return await response.json();
+    const data = await response.json();
+
+    return {
+      sport: sport,
+      sport_title: sport,
+      games: data,
+    };
   } catch (error) {
-    console.error("Error fetching MLB odds:", error);
+    console.error(`Error fetching ${sport} odds:`, error);
     return null;
   }
 }

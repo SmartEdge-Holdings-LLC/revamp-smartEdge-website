@@ -40,7 +40,7 @@
     "resend": "^6.12.2",
     "stripe": "^22.1.0",
     "swagger-ui-express": "^5.0.1",
-    "telnyx": "^3.7.0",
+    "plivo": "^4.8.0",
     "zod": "^4.4.1"
   },
   "devDependencies": {

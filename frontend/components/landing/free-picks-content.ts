@@ -104,7 +104,7 @@ export const DEMO_PICKS: Record<PublicPickSource, PublicPick[]> = {
       game: "Yankees @ Orioles",
       pickTitle: "Yankees -1.5",
       detailedAnalysis:
-        "New York opens with their ace in a spot where Baltimore has struggled against right-handed pitching over the last two weeks. The Orioles bullpen has been used heavily in this homestand, and our model flags a run-line edge after line movement favored the visitor.\n\nKey situational angle: Yankees starter profiles with strong xERA lately; Orioles rank bottom-third in wRC+ vs RHP. Market opened -1.5 (+120) and was steamed toward the favorite.",
+        "New York opens with their ace in a spot where Baltimore has struggled against right-handed pitching over the last two weeks. The Orioles bullpen has been used heavily in this homestand, and our model flags a run-line edge after line movement favored the visitor.\n\nExpert Analysis: Yankees starter profiles with strong xERA lately; Orioles rank bottom-third in wRC+ vs RHP. Market opened -1.5 (+120) and was steamed toward the favorite.",
       odds: "-135",
       betType: "spread",
       confidence: 74,
@@ -128,7 +128,7 @@ export const DEMO_PICKS: Record<PublicPickSource, PublicPick[]> = {
       game: "Bills @ Chiefs",
       pickTitle: "Chiefs -2.5",
       detailedAnalysis:
-        "Kansas City at home in a playoff-form split spot where they have covered as favorites of three or fewer. Buffalo’s road red-zone rate has dipped, and pressure rate trends favor the Chiefs’ front.\n\nKey situational angle: line opened -3 and was bought back to -2.5 with sharp money on KC. Weather clear — no total distortion expected.",
+        "Kansas City at home in a playoff-form split spot where they have covered as favorites of three or fewer. Buffalo’s road red-zone rate has dipped, and pressure rate trends favor the Chiefs’ front.\n\nExpert Analysis: line opened -3 and was bought back to -2.5 with sharp money on KC. Weather clear — no total distortion expected.",
       odds: "-108",
       betType: "spread",
       confidence: 72,

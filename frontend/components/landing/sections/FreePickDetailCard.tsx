@@ -9,7 +9,6 @@ import type { PublicPick, PublicPickSource } from "@/lib/api/picksApi";
 import { BET_TYPE_LABELS, type BetType } from "@/types/picks";
 import { teamLogoPath } from "@/types/picks";
 import { formatDateET, formatDateTimeLongET } from "@/lib/datetime";
-import { cn } from "@/lib/utils";
 
 function betTypeLabel(betType: string) {
   return betType in BET_TYPE_LABELS ? BET_TYPE_LABELS[betType as BetType] : betType;
@@ -114,14 +113,16 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
   const odds = pick.odds.trim();
 
   return (
-    <article
-      className={cn(
-        "overflow-hidden rounded-2xl border border-white/10 bg-black",
-       
+    <article className="flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40">
+      {pick.isPickOfDay && (
+        <div className="pricing-accent-gradient gradient-animate border-b border-orange-500/50 px-5 py-3 text-center shadow-[0_4px_16px_rgb(212_98_56/0.3)]">
+          <span className="text-base font-black uppercase tracking-widest text-white sm:text-lg">
+            Lock of the Day
+          </span>
+        </div>
       )}
-    >
       {/* Author */}
-      <header className="flex flex-col gap-4 border-b border-white/8 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
+      <header className="flex flex-col gap-4 border-b border-green-500/40 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
         <div className="flex min-w-0 items-start gap-4">
           <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent/15 text-lg font-bold text-accent ring-2 ring-accent/25 sm:size-16 sm:text-xl">
             {source === "handicapper" ? (
@@ -169,12 +170,12 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
           </div>
         </div>
         <span className="pricing-accent-gradient inline-flex w-fit shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]">
-          Free pick · {pick.confidence}% confidence
+          Free pick{pick.confidence ? ` · ${pick.confidence}% confidence` : ""}
         </span>
       </header>
 
       {/* Matchup hero */}
-      <section className="border-b border-white/8 px-5 py-8 sm:px-7 sm:py-10">
+      <section className="border-b border-green-500/40 px-5 py-8 sm:px-7 sm:py-10">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-2 sm:gap-4">
           <TeamSide name={awayName} logoSrc={awayLogo} />
           <div className="flex shrink-0 flex-col items-center gap-2 px-1">
@@ -190,16 +191,16 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
       </section>
 
       {/* Date & play */}
-      <section className="grid gap-px border-b border-white/8 bg-white/5 sm:grid-cols-2">
+      <section className="grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2">
         <div className="bg-black/40 px-5 py-4 sm:px-7 sm:py-5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            Date / time
+            {pick.matchTime ? "Match time" : "Date / time"}
           </p>
           <p className="mt-1.5 text-sm leading-snug text-white sm:text-[15px]">
-            {formatDateTimeLongET(pick.createdAt)}
+            {pick.matchTime ? formatDateTimeLongET(pick.matchTime) : formatDateTimeLongET(pick.createdAt)}
           </p>
         </div>
-        <div className="bg-black/40 px-5 py-4 sm:border-l sm:border-white/8 sm:px-7 sm:py-5">
+        <div className="bg-black/40 px-5 py-4 sm:border-l sm:border-green-500/40 sm:px-7 sm:py-5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
           <p className="mt-1.5 text-sm leading-snug text-white sm:text-[15px]">
             <span className="font-semibold text-accent">{pickTitle}</span>
@@ -214,9 +215,9 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
       </section>
 
       {/* Analysis */}
-      <section className="space-y-4 px-5 py-6 sm:px-7 sm:py-8">
-        <h4 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
-          Key situational angle
+      <section className="relative flex flex-1 flex-col space-y-4 px-5 py-6 sm:px-7 sm:py-8">
+        <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+          Expert Analysis
         </h4>
         <div className="space-y-4">
           {angleParagraphs.length > 0 ? (
@@ -229,12 +230,14 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
             <p className="text-[15px] italic text-zinc-500">No analysis provided.</p>
           )}
         </div>
-        <p className="border-t border-white/8 pt-4 text-sm leading-relaxed text-zinc-500">
-          {TRACK_RECORD_LINE[source]}
-        </p>
-        <p className="text-right text-xs text-zinc-600">
-          {formatReleased(pick.createdAt, pick.updatedAt)}
-        </p>
+        <div className="mt-auto shrink-0 space-y-4 border-t border-green-500/40 pt-4">
+          <p className="text-sm leading-relaxed text-zinc-500">
+            {TRACK_RECORD_LINE[source]}
+          </p>
+          <p className="text-right text-xs text-zinc-600">
+            {formatReleased(pick.createdAt, pick.updatedAt)}
+          </p>
+        </div>
       </section>
     </article>
   );

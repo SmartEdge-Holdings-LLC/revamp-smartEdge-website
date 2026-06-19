@@ -31,6 +31,15 @@ export function enrichPaidPick(pick: PaidPick): PaidPick {
   };
 }
 
-export function enrichPaidPicks(picks: PaidPick[]): PaidPick[] {
-  return picks.map(enrichPaidPick);
+export function enrichPaidPicks(picks: PaidPick[], options?: { stripAnalysis?: boolean }): PaidPick[] {
+  return picks.map((pick) => {
+    const enriched = enrichPaidPick(pick);
+    if (options?.stripAnalysis) {
+      return {
+        ...enriched,
+        detailedAnalysis: "", // Strip analysis to prevent it from showing in network tab
+      };
+    }
+    return enriched;
+  });
 }

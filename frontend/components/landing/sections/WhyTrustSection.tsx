@@ -28,25 +28,25 @@ export function WhyTrustSection() {
   return (
     <section
       id="why-trust"
-      className="relative z-10 border-t border-white/10 bg-black px-5 py-20 sm:px-6 md:py-28"
+      className="relative z-10 border-t border-white/10 bg-black px-4 py-12 sm:px-5 sm:py-20 md:px-6 md:py-28"
     >
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mx-auto max-w-xl space-y-5 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
-            <ShieldCheck className="size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
+        <div className="mx-auto max-w-xl space-y-3 sm:space-y-5 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-[13px] text-zinc-300">
+            <ShieldCheck className="size-3 sm:size-3.5 text-accent" strokeWidth={1.75} aria-hidden />
             Why trust us
           </p>
           <div>
-            <h2 className="font-pricing-serif text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
+            <h2 className="font-pricing-serif text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.1] tracking-tight text-white">
               The Minds Behind the Machine
             </h2>
-            <p className="font-pricing-serif mt-1 text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
+            <p className="font-pricing-serif mt-1 text-xl sm:text-2xl md:text-[clamp(2.25rem,5vw,3.25rem)] italic leading-[1.1] tracking-tight pricing-accent-text">
               They helped build SmartEdge<sup className="text-[0.55em] font-normal">®</sup> — not just use it.
             </p>
           </div>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 md:mt-16">
+        <div className="mt-8 sm:mt-14 grid gap-3 sm:gap-4 sm:grid-cols-2 md:mt-16 md:gap-5">
           {WHY_TRUST_CARDS.map((card) => {
             const Icon = ICONS[card.icon];
             return (

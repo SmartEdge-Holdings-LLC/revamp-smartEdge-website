@@ -9,13 +9,13 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="relative z-10 bg-black px-5 py-20 sm:px-6 md:py-28">
+    <section id="faq" className="relative z-10 bg-black px-4 py-12 sm:px-5 sm:py-20 md:px-6 md:py-28">
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-[13px] text-zinc-300">
             FAQ
           </p>
-          <h2 className="font-pricing-serif mt-5 text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.12] tracking-tight text-white">
+          <h2 className="font-pricing-serif mt-3 sm:mt-5 text-lg sm:text-xl md:text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.12] tracking-tight text-white">
             Frequently Asked Questions
           </h2>
         </div>

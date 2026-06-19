@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardPaidPicksFeed } from "@/components/dashboard/DashboardPaidPicksFeed";
@@ -11,10 +11,10 @@ import {
   hasSmartedgePaidAccess,
   type PaidPickFeed,
 } from "@/lib/subscription-access";
+import { PICK_LEAGUES, getSportsLeagueLogo } from "@/lib/sports-leagues";
+import { cn } from "@/lib/utils";
 import type { SessionMemberUser } from "@/types/member-session";
-
-const viewPlansButtonClass =
-  "inline-flex w-fit rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50";
+import type { League } from "@/types/picks";
 
 const PICK_TABS: { id: PaidPickFeed; label: string }[] = [
   { id: "admin", label: "Smartedge picks" },
@@ -26,28 +26,12 @@ type DashboardHomeProps = {
 };
 
 function FeedAccessGate({
-  feed,
-  hasAccess,
   children,
 }: {
-  feed: PaidPickFeed;
-  hasAccess: boolean;
   children: ReactNode;
 }) {
-  if (hasAccess) return <>{children}</>;
-
-  const brand = feed === "admin" ? "SmartEdge®" : "Jonah";
-  return (
-    <div className="rounded-xl border border-white/10 bg-[#0c0c0c] p-6 text-center">
-      <h2 className="text-lg font-semibold text-white">{brand} VIP picks</h2>
-      <p className="mt-2 text-sm text-subtle">
-        Subscribe to {brand} to unlock this feed on your dashboard.
-      </p>
-      <Link href="/#pricing" className={`mt-4 ${viewPlansButtonClass}`}>
-        View plans
-      </Link>
-    </div>
-  );
+  // Always show picks - blurring is handled by DashboardPickDetailCard based on hasAccess
+  return <>{children}</>;
 }
 
 export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
@@ -55,18 +39,26 @@ export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
   const user = session?.user ?? initialUser;
   const token = user.backendToken;
   const [activeFeed, setActiveFeed] = useState<PaidPickFeed>("admin");
+  const [selectedLeagues, setSelectedLeagues] = useState<League[]>([]);
 
   const hasSmartedge = hasSmartedgePaidAccess(user);
   const hasJonah = hasJonahPaidAccess(user);
   const hasAccess = activeFeed === "admin" ? hasSmartedge : hasJonah;
 
+  const toggleLeague = (league: League) => {
+    setSelectedLeagues((prev) =>
+      prev.includes(league)
+        ? prev.filter((l) => l !== league)
+        : [...prev, league]
+    );
+  };
+
   return (
     <>
       <DashboardHeader />
-
-      <div className="min-w-0 flex-1 overflow-x-hidden px-4 py-8 md:px-8 lg:px-12">
-        <div className="w-full">
-          <div className="max-w-4xl text-left">
+      <div className="min-h-screen w-full overflow-x-hidden px-4 py-8 md:px-8 lg:px-12">
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="text-left">
             <h1 className="text-3xl font-semibold tracking-tight text-white">Premium picks</h1>
             <DashboardSectionTabs
               tabs={PICK_TABS}
@@ -74,6 +66,47 @@ export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
               onChange={setActiveFeed}
               ariaLabel="Premium pick feeds"
             />
+
+            {/* League Filter */}
+            <div className="mt-8">
+              <p className="text-xs font-semibold uppercase tracking-wider text-white mb-2">
+                Filter by League
+              </p>
+              <p className="text-sm text-subtle mb-4">
+                We're offering expert picks across {PICK_LEAGUES.length} leagues including NBA, NFL, MLB, NHL, and more.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {PICK_LEAGUES.map((league) => {
+                  const isSelected = selectedLeagues.includes(league as League);
+                  const logoSrc = getSportsLeagueLogo(league as League);
+
+                  return (
+                    <button
+                      key={league}
+                      onClick={() => toggleLeague(league as League)}
+                      className={cn(
+                        "flex items-center gap-2 rounded-lg px-4 py-2.5 transition-all",
+                        "border text-sm font-medium",
+                        isSelected
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-white/10 bg-white/5 text-subtle hover:border-white/20 hover:text-white"
+                      )}
+                    >
+                      {logoSrc && (
+                        <Image
+                          src={logoSrc}
+                          alt={league}
+                          width={16}
+                          height={16}
+                          className="object-contain"
+                        />
+                      )}
+                      <span>{league}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div className="mt-16 w-full">
@@ -82,8 +115,14 @@ export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
                 <p className="text-sm text-subtle">Sign in again to load picks.</p>
               </div>
             ) : (
-              <FeedAccessGate feed={activeFeed} hasAccess={hasAccess}>
-                <DashboardPaidPicksFeed feed={activeFeed} token={token} hideHeader />
+              <FeedAccessGate>
+                <DashboardPaidPicksFeed
+                  feed={activeFeed}
+                  token={token}
+                  hideHeader
+                  showFullAnalysis={hasAccess}
+                  leagues={selectedLeagues}
+                />
               </FeedAccessGate>
             )}
           </div>

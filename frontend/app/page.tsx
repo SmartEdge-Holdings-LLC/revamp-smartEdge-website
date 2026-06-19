@@ -2,6 +2,7 @@ import { BackgroundPattern } from "@/components/landing/BackgroundPattern";
 import { Hero } from "@/components/landing/Hero";
 import { LandingBackdrop } from "@/components/landing/LandingBackdrop";
 import { Navbar } from "@/components/landing/Navbar";
+import { PromoBanner } from "@/components/landing/PromoBanner";
 import { PricingSection } from "@/components/landing/PricingSection";
 import {
   FaqSection,
@@ -23,6 +24,7 @@ export default function HomePage() {
 
         <div className="relative z-10 flex min-h-screen flex-col">
           <Navbar />
+          <PromoBanner />
           <Hero />
         </div>
       </div>

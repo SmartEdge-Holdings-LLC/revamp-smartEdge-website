@@ -101,9 +101,11 @@ export interface AdminPick {
   detailedAnalysis: string;
   odds: string;
   betType: BetType;
-  confidence: number;
+  confidence?: number;
   access: PickAccess;
   status: PickStatus;
+  matchTime?: string;
+  isPickOfDay?: boolean;
   createdBy: string | PickAuthor;
   createdAt: string;
   updatedAt: string;
@@ -137,9 +139,11 @@ export interface CreatePickPayload {
   detailedAnalysis: string;
   odds: string;
   betType: BetType;
-  confidence: number;
+  confidence?: number;
   access: PickAccess;
   status: PickStatus;
+  matchTime?: string;
+  isPickOfDay?: boolean;
 }
 
 export type UpdatePickPayload = Partial<CreatePickPayload>;

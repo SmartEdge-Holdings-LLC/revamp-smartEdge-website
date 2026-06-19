@@ -50,15 +50,11 @@ const listPaidQuerySchema = z
   });
 
 export const memberPicksController = {
-  /** Paid picks from SmartEdge admin desk (`admin` / `subadmin` authors). Requires member JWT + SmartEdge plan. */
+  /** Paid picks from SmartEdge admin desk (`admin` / `subadmin` authors). Requires member JWT. Full analysis only with SmartEdge plan. */
   async listAdminPaid(req: Request, res: Response) {
     try {
       const user = req.user!;
-      if (!(await hasSmartedgePaidAccess(user))) {
-        return res.status(403).json({
-          error: "Active SmartEdge subscription required to view these picks",
-        });
-      }
+      const hasSmartedgeAccess = await hasSmartedgePaidAccess(user);
 
       const { page, limit, search, league } = listPaidQuerySchema.parse(req.query);
       const result = await picksService.findPaidPagedBySource({
@@ -68,21 +64,29 @@ export const memberPicksController = {
         league,
         source: "admin",
       });
+
+      // If user doesn't have SmartEdge access, strip analysis for preview mode
+      if (!hasSmartedgeAccess) {
+        return res.json({
+          ...result,
+          picks: result.picks.map((pick) => ({
+            ...pick,
+            detailedAnalysis: "", // Strip analysis - user sees blurred preview only
+          })),
+        });
+      }
+
       return res.json(result);
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
     }
   },
 
-  /** Paid picks from Jonah handicapper. Requires member JWT + Jonah plan. */
+  /** Paid picks from Jonah handicapper. Requires member JWT. Full analysis only with Jonah plan. */
   async listJonahPaid(req: Request, res: Response) {
     try {
       const user = req.user!;
-      if (!(await hasJonahPaidAccess(user))) {
-        return res.status(403).json({
-          error: "Active Jonah subscription required to view these picks",
-        });
-      }
+      const hasJonahAccess = await hasJonahPaidAccess(user);
 
       const { page, limit, search, league } = listPaidQuerySchema.parse(req.query);
       const result = await picksService.findPaidPagedBySource({
@@ -92,6 +96,18 @@ export const memberPicksController = {
         league,
         source: "jonah",
       });
+
+      // If user doesn't have Jonah access, strip analysis for preview mode
+      if (!hasJonahAccess) {
+        return res.json({
+          ...result,
+          picks: result.picks.map((pick) => ({
+            ...pick,
+            detailedAnalysis: "", // Strip analysis - user sees blurred preview only
+          })),
+        });
+      }
+
       return res.json(result);
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
