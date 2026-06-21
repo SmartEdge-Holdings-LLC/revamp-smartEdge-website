@@ -6,6 +6,10 @@
 */
 @custom-variant dark (&:is(.dark *));
 
+html {
+  scroll-behavior: smooth;
+}
+
 /*
   Typography catalogue (Revolut-style scale).
   Display / headings → Inter Tight (Aeonik Pro substitute).

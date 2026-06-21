@@ -65,3 +65,49 @@ export async function fetchSportOdds(sport: OddsSport): Promise<OddsResponse | n
     return null;
   }
 }
+
+export async function fetchGameDetailsById(gameId: string): Promise<Game> {
+  try {
+    const endpoint = `${BACKEND_URL}/api/odds/game/${gameId}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch game details: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error fetching game details for ${gameId}:`, error);
+    throw error;
+  }
+}
+
+export async function fetchEventOddsById(eventId: string): Promise<Game> {
+  try {
+    const endpoint = `${BACKEND_URL}/api/odds/event/${eventId}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch event odds: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error fetching event odds for ${eventId}:`, error);
+    throw error;
+  }
+}

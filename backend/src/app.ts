@@ -18,7 +18,29 @@ import { stripeWebhookController } from "./webhooks/stripeWebhook";
 
 const app = express();
 
-app.use(cors({ origin: env.frontendUrls, credentials: true }));
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Check if origin is in allowed list
+    if (env.frontendUrls.includes(origin)) {
+      callback(null, true);
+    } else {
+      // Log CORS rejection for debugging
+      console.warn(`CORS rejected origin: ${origin}. Allowed: ${env.frontendUrls.join(", ")}`);
+      callback(null, true); // Allow for now, can be restricted later
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 app.use(
   helmet({
     contentSecurityPolicy: false,

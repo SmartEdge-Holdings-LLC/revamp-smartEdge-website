@@ -125,40 +125,40 @@ export default function GlossaryPage() {
       <Navbar />
       <main className="flex-1 bg-black">
         {/* Back Button */}
-        <div className="fixed top-20 left-4 z-10">
+        <div className="fixed top-16 sm:top-20 left-3 sm:left-4 z-10">
           <Link
             href="/betting-resources"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black hover:bg-white/5 px-3 py-2 text-xs font-medium text-slate-300 transition-all duration-300 hover:border-white/20 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black hover:bg-white/5 px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium text-slate-300 transition-all duration-300 hover:border-white/20 hover:text-white"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back
+            <ArrowLeft className="h-3 sm:h-3.5 w-3 sm:w-3.5" />
+            <span className="hidden sm:inline">Back</span>
           </Link>
         </div>
 
         {/* Header */}
-        <div className="border-b border-white/5 bg-linear-to-b from-white/2 to-transparent px-4 py-16 sm:px-5 sm:py-20 md:px-6 md:py-24">
+        <div className="border-b border-white/5 bg-linear-to-b from-white/2 to-transparent px-4 sm:px-5 md:px-6 py-12 sm:py-16 md:py-24">
           <div className="mx-auto max-w-4xl">
-            <p className="mb-3 text-sm font-medium uppercase tracking-wide text-subtle">Betting Glossary</p>
-            <h1 className="mb-6 text-4xl font-bold leading-tight text-white sm:text-5xl">
+            <p className="mb-2 sm:mb-3 text-xs sm:text-sm font-medium uppercase tracking-wide text-subtle">Betting Glossary</p>
+            <h1 className="mb-4 sm:mb-6 text-2xl sm:text-4xl md:text-5xl font-bold leading-tight text-white">
               Sports Betting Terms Glossary
             </h1>
-            <p className="max-w-2xl text-base leading-relaxed text-subtle sm:text-lg">
+            <p className="max-w-2xl text-xs sm:text-base md:text-lg leading-relaxed text-subtle">
               Master the essential terminology of sports betting. Learn key terms and concepts to make informed betting decisions.
             </p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-5 sm:py-16 md:px-6 md:py-20">
+        <div className="mx-auto max-w-4xl px-4 sm:px-5 md:px-6 py-8 sm:py-12 md:py-20">
           {/* Intro Card */}
-          <div className="mb-12 space-y-4 rounded-lg border border-white/5 bg-[#161616] p-6 sm:p-8 md:p-10">
-            <p className="text-base leading-relaxed text-slate-300 sm:text-lg">
+          <div className="mb-8 sm:mb-12 space-y-4 rounded-lg border border-white/5 bg-[#161616] p-4 sm:p-6 md:p-8 lg:p-10">
+            <p className="text-xs sm:text-base md:text-lg leading-relaxed text-slate-300">
               Diving into sports betting without knowing the lingo is like trying to navigate a ship in foggy waters. Our comprehensive glossary turns the complex world of sports wagering into clear sailing, offering you a treasure trove of terms to speak the language of professional bettors.
             </p>
           </div>
 
           {/* Glossary Categories */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {Object.entries(glossaryTerms).map(([categoryId, category]) => (
               <div key={categoryId} className="overflow-hidden rounded-lg border border-white/5 bg-[#161616]">
                 {/* Category Header */}
@@ -168,9 +168,9 @@ export default function GlossaryPage() {
                       expandedCategory === categoryId ? '' : categoryId
                     )
                   }
-                  className="w-full flex items-center justify-between px-6 py-5 transition-colors hover:bg-white/2 sm:px-8 sm:py-6"
+                  className="w-full flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 transition-colors hover:bg-white/2"
                 >
-                  <h2 className="text-lg font-bold text-white sm:text-xl md:text-2xl">
+                  <h2 className="text-base sm:text-lg md:text-2xl font-bold text-white">
                     {category.title}
                   </h2>
                   <div
@@ -178,24 +178,24 @@ export default function GlossaryPage() {
                       expandedCategory === categoryId ? 'rotate-180' : ''
                     }`}
                   >
-                    <ChevronDown className="h-5 w-5 text-white/60 sm:h-6 sm:w-6" />
+                    <ChevronDown className="h-4 sm:h-5 md:h-6 w-4 sm:w-5 md:w-6 text-white/60" />
                   </div>
                 </button>
 
                 {/* Category Content */}
                 {expandedCategory === categoryId && (
-                  <div className="border-t border-white/5 px-6 pb-6 sm:px-8 sm:pb-8">
-                    <div className="space-y-6">
+                  <div className="border-t border-white/5 px-4 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8">
+                    <div className="space-y-4 sm:space-y-6">
                       {category.terms.map((item, idx) => (
-                        <div key={idx} className="space-y-3">
-                          <h3 className="font-semibold text-white text-base sm:text-lg">
+                        <div key={idx} className="space-y-2 sm:space-y-3">
+                          <h3 className="font-semibold text-white text-sm sm:text-base md:text-lg">
                             {item.term}
                           </h3>
-                          <p className="leading-relaxed text-slate-300 text-sm sm:text-base">
+                          <p className="leading-relaxed text-slate-300 text-xs sm:text-sm md:text-base">
                             {item.definition}
                           </p>
                           {idx < category.terms.length - 1 && (
-                            <div className="h-px bg-white/5 mt-6" />
+                            <div className="h-px bg-white/5 mt-4 sm:mt-6" />
                           )}
                         </div>
                       ))}
@@ -207,17 +207,17 @@ export default function GlossaryPage() {
           </div>
 
           {/* Final Section */}
-          <div className="mt-16 overflow-hidden rounded-lg border border-white/5 bg-linear-to-r from-white/2 to-white/1 p-8 sm:p-10 md:p-12">
+          <div className="mt-12 sm:mt-16 overflow-hidden rounded-lg border border-white/5 bg-linear-to-r from-white/2 to-white/1 p-4 sm:p-6 md:p-8 lg:p-12">
             <div className="max-w-2xl">
-              <h3 className="mb-4 text-2xl font-bold text-white sm:text-3xl">
+              <h3 className="mb-3 sm:mb-4 text-lg sm:text-2xl md:text-3xl font-bold text-white">
                 Master the Terminology
               </h3>
-              <p className="mb-8 leading-relaxed text-subtle text-sm sm:text-base">
+              <p className="mb-4 sm:mb-6 md:mb-8 leading-relaxed text-subtle text-xs sm:text-sm md:text-base">
                 By familiarizing yourself with these terms and their meanings, you're not just betting; you're strategically investing in sports events. Understanding the language of sports betting empowers you to make more educated decisions and enhance your overall betting experience.
               </p>
               <Link
                 href="/betting-resources"
-                className="pricing-accent-gradient inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)] transition-[filter,transform] duration-200 hover:brightness-110 active:scale-[0.99]"
+                className="pricing-accent-gradient inline-flex items-center justify-center rounded-lg px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)] transition-[filter,transform] duration-200 hover:brightness-110 active:scale-[0.99]"
               >
                 Back to Resources
               </Link>

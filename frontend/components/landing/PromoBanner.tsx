@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import { fetchSportOdds, type Game } from "@/lib/api/parlayOddsApi";
+import { useLiveOdds, type Game } from "@/lib/hooks/useOdds";
 
 const MLB_TEAM_LOGOS: Record<string, string> = {
   "Arizona Diamondbacks": "Arizona Diamondba.png",
@@ -61,41 +60,41 @@ function OddsCard({ game }: { game: Game }) {
   const homeOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.home_team)?.price;
 
   return (
-    <div className="flex items-center gap-12 bg-white border-5 border-green-500 rounded-xl px-10 py-8 shrink-0 min-w-fit hover:shadow-lg transition-shadow">
+    <div className="flex items-center gap-4 sm:gap-6 md:gap-12 bg-white border-5 border-green-500 rounded-lg sm:rounded-xl px-4 sm:px-6 md:px-10 py-4 sm:py-6 md:py-8 shrink-0 min-w-fit hover:shadow-lg transition-shadow">
       {/* Away Team */}
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
         {awayLogo && (
           <Image
             src={awayLogo}
             alt={game.away_team}
             width={80}
             height={80}
-            className="h-20 w-20 object-contain"
+            className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 object-contain"
           />
         )}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-base font-medium text-gray-600">{game.away_team}</span>
-          <span className="text-2xl font-bold text-gray-900">{formatOdds(awayOdds)}</span>
+        <div className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5">
+          <span className="text-xs sm:text-sm md:text-base font-medium text-gray-600 line-clamp-1">{game.away_team}</span>
+          <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{formatOdds(awayOdds)}</span>
         </div>
       </div>
 
       {/* VS */}
-      <span className="text-lg font-light text-gray-300 px-3">vs</span>
+      <span className="text-sm sm:text-base md:text-lg font-light text-gray-300 px-1 sm:px-2 md:px-3">vs</span>
 
       {/* Home Team */}
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
         {homeLogo && (
           <Image
             src={homeLogo}
             alt={game.home_team}
             width={80}
             height={80}
-            className="h-20 w-20 object-contain"
+            className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 object-contain"
           />
         )}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-base font-medium text-gray-600">{game.home_team}</span>
-          <span className="text-2xl font-bold text-gray-900">{formatOdds(homeOdds)}</span>
+        <div className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5">
+          <span className="text-xs sm:text-sm md:text-base font-medium text-gray-600 line-clamp-1">{game.home_team}</span>
+          <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{formatOdds(homeOdds)}</span>
         </div>
       </div>
     </div>
@@ -103,34 +102,14 @@ function OddsCard({ game }: { game: Game }) {
 }
 
 export function PromoBanner() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadOdds = async () => {
-      setIsLoading(true);
-      try {
-        const data = await fetchSportOdds("MLB");
-        if (data?.games) {
-          setGames(data.games);
-        }
-      } catch (error) {
-        console.error("Error fetching live odds:", error);
-        setGames([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadOdds();
-  }, []);
+  const { data: games = [], isLoading } = useLiveOdds("MLB");
 
   if (isLoading || games.length === 0) {
     return null;
   }
 
   return (
-    <div className="bg-linear-to-r from-gray-50 to-white border-y border-gray-100 overflow-hidden py-3">
+    <div className="bg-linear-to-r from-gray-50 to-white border-y border-gray-100 overflow-hidden py-2 sm:py-3">
       <style>{`
         @keyframes slideMarquee {
           0% {
@@ -148,7 +127,7 @@ export function PromoBanner() {
         }
       `}</style>
       <div className="marquee-container overflow-hidden">
-        <div className="marquee-content flex gap-3 px-4">
+        <div className="marquee-content flex gap-2 sm:gap-3 px-2 sm:px-4">
           {/* Double the items for seamless loop */}
           {[...games, ...games].map((game, i) => (
             <OddsCard key={`${game.id}-${i}`} game={game} />

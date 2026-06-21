@@ -1,5 +1,6 @@
 import { LandingSubpageLayout } from "@/components/landing/LandingSubpageLayout";
 import { GameDetailsShell } from "@/components/landing/GameDetailsShell";
+import { EventOddsContent } from "@/components/landing/EventOddsContent";
 
 export const metadata = {
   title: "Game Details | SmartEdgePicks",
@@ -12,6 +13,7 @@ export default async function GameDetailsPage({ params }: { params: Promise<{ ga
   return (
     <LandingSubpageLayout>
       <GameDetailsShell gameId={gameId} />
+      <EventOddsContent eventId={gameId} />
     </LandingSubpageLayout>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, Calendar } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGameDetails } from "@/lib/hooks/useGameDetails";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
 interface Outcome {
   name: string;
@@ -29,6 +31,52 @@ interface GameData {
   away_team: string;
   commence_time: string;
   bookmakers: Bookmaker[];
+}
+
+const SPORTSBOOK_LOGO_FILES: Record<string, string> = {
+  fanduel: "fanduel.webp",
+  draftkings: "DraftKings.png",
+  betmgm: "BetMGM.png",
+  caesars: "caesars.jpg",
+  williamhill_us: "caesars.jpg",
+  fanatics: "Fanatics.png",
+  mybookie: "MyBookie.ag.jpg",
+  "mybookie.ag": "MyBookie.ag.jpg",
+  betus: "BetUS.png",
+  lowvig: "LowVig.ag.jpg",
+  bovada: "Bovada.png",
+};
+
+function getSportsbookLogo(bookmakerKey: string): string {
+  if (!bookmakerKey) return "";
+
+  // Normalize the key to lowercase
+  const normalizedKey = bookmakerKey.toLowerCase().trim();
+  console.log(`getSportsbookLogo called with: "${bookmakerKey}" (normalized: "${normalizedKey}")`);
+
+  // Try exact match
+  if (SPORTSBOOK_LOGO_FILES[normalizedKey]) {
+    console.log(`✓ Found exact match: ${normalizedKey}`);
+    return `/sportsbooks/${SPORTSBOOK_LOGO_FILES[normalizedKey]}`;
+  }
+
+  // Try matching by domain base (e.g., "mybookie.ag" -> "mybookie")
+  const baseName = normalizedKey.split(".")[0];
+  if (SPORTSBOOK_LOGO_FILES[baseName]) {
+    console.log(`✓ Found base name match: ${baseName}`);
+    return `/sportsbooks/${SPORTSBOOK_LOGO_FILES[baseName]}`;
+  }
+
+  // Try partial matching for common variations
+  for (const [key, file] of Object.entries(SPORTSBOOK_LOGO_FILES)) {
+    if (normalizedKey.includes(key) || key.includes(baseName)) {
+      console.log(`✓ Found partial match: ${key} -> ${file}`);
+      return `/sportsbooks/${file}`;
+    }
+  }
+
+  console.log(`✗ No match found for: "${normalizedKey}"`);
+  return "";
 }
 
 const MLB_TEAM_LOGOS: Record<string, string> = {
@@ -67,7 +115,7 @@ const MLB_TEAM_LOGOS: Record<string, string> = {
 function getTeamLogo(teamName: string): string {
   const logoFile = MLB_TEAM_LOGOS[teamName];
   if (logoFile) {
-    return `/leagues/mlb/${encodeURIComponent(logoFile)}`;
+    return `/leagues/mlb/${logoFile}`;
   }
   return "";
 }
@@ -90,40 +138,104 @@ function formatCommenceTime(iso: string): string {
 }
 
 export function GameDetailsShell({ gameId }: { gameId: string }) {
-  const [selectedMarket, setSelectedMarket] = useState<"spreads" | "totals" | "h2h" | "all">("all");
-  const [game, setGame] = useState<GameData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedMarket, setSelectedMarket] = useState<"spreads" | "totals" | "h2h" | "all">("all" as const);
+  const { data: game, isLoading, isPending, error } = useGameDetails(gameId);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const gameDataStr = localStorage.getItem("selectedGame");
-      if (gameDataStr) {
-        try {
-          const gameData = JSON.parse(gameDataStr);
-          setGame(gameData);
-        } catch (error) {
-          console.error("Error parsing game data:", error);
-        }
-      }
-      setIsLoading(false);
+  const getMarketLabel = (value: string) => {
+    switch (value) {
+      case "all":
+        return "All Markets";
+      case "spreads":
+        return "Spread";
+      case "totals":
+        return "Over/Under";
+      case "h2h":
+        return "Moneyline";
+      default:
+        return "Select market type";
     }
-  }, [gameId]);
+  };
 
-  if (isLoading) {
+  if (isLoading || isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-white">Loading...</p>
+      <div className="relative z-10 flex flex-1 flex-col">
+        <div className="mx-auto w-full max-w-8xl px-4 pb-20 pt-4 sm:px-5 sm:pb-24 sm:pt-6 md:px-6 md:pb-32 md:pt-8">
+          {/* Back button skeleton */}
+          <Skeleton className="h-5 w-32 bg-white/10 mb-6 sm:mb-8" />
+
+          {/* Title skeleton */}
+          <Skeleton className="h-8 w-full max-w-2xl bg-white/10 mb-8" />
+
+          {/* Game matchup card skeleton */}
+          <div className="bg-[#050505] rounded-lg border-5 border-[#FBFBFB] p-6 sm:p-8 mb-8">
+            <Skeleton className="h-6 w-64 bg-white/10 mx-auto mb-6" />
+            <div className="flex items-center justify-between gap-4 sm:gap-6 md:gap-8">
+              <div className="flex-1 flex flex-col items-center gap-3">
+                <Skeleton className="h-20 w-20 bg-white/10 rounded-lg" />
+                <Skeleton className="h-4 w-32 bg-white/10" />
+              </div>
+              <Skeleton className="h-8 w-12 bg-white/10" />
+              <div className="flex-1 flex flex-col items-center gap-3">
+                <Skeleton className="h-20 w-20 bg-white/10 rounded-lg" />
+                <Skeleton className="h-4 w-32 bg-white/10" />
+              </div>
+            </div>
+          </div>
+
+          {/* Market buttons skeleton */}
+          <div className="flex gap-2 mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-10 w-24 bg-white/10 rounded-md" />
+            ))}
+          </div>
+
+          {/* Table skeleton */}
+          <div className="bg-black/60 rounded-lg border-5 border-[#FBFBFB] overflow-x-auto mb-8 sm:mb-12">
+            <div className="w-full">
+              {/* Header */}
+              <div className="flex bg-[#ED723C] border-b-5 border-[#FBFBFB]">
+                <div className="px-4 sm:px-5 md:px-6 py-3 sm:py-4 flex-none w-40">
+                  <Skeleton className="h-4 w-20 bg-white/20" />
+                </div>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="min-w-40 px-2 sm:px-3 py-3 sm:py-4 border-r-5 border-[#FBFBFB]">
+                    <Skeleton className="h-4 w-24 bg-white/20 mx-auto" />
+                  </div>
+                ))}
+              </div>
+              {/* Rows */}
+              {[1, 2].map((row) => (
+                <div key={row} className="flex bg-black/60 border-b-5 border-[#FBFBFB] hover:bg-black/80">
+                  <div className="px-4 sm:px-5 md:px-6 py-4 sm:py-6 flex-none w-40">
+                    <Skeleton className="h-4 w-28 bg-white/10 mb-2" />
+                    <Skeleton className="h-3 w-16 bg-white/5" />
+                  </div>
+                  {[1, 2, 3, 4, 5].map((col) => (
+                    <div key={col} className="min-w-40 px-2 sm:px-3 py-2 sm:py-4 border-r-5 border-[#FBFBFB]">
+                      <Skeleton className="h-6 w-20 bg-white/10 mx-auto" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Info card skeleton */}
+          <div className="bg-black/60 rounded-lg border-5 border-[#FBFBFB] p-4 sm:p-6">
+            <Skeleton className="h-6 w-64 bg-white/10" />
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!game) {
+  if (error || !game || !game.bookmakers) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-white mb-4">Game data not found</p>
+          <p className="text-white mb-4">
+            {error ? "Failed to load game details" : "Game data not found"}
+          </p>
           <Link href="/odds" className="text-accent hover:underline">
             Back to Odds
           </Link>
@@ -132,9 +244,13 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
     );
   }
 
+  const filteredBookmakers = game.bookmakers.filter(
+    (bm) => bm.key !== "betonlineag" && bm.key !== "betrivers"
+  );
+
   return (
     <div className="relative z-10 flex flex-1 flex-col">
-      <div className="mx-auto w-full max-w-7xl px-4 pb-20 pt-4 sm:px-5 sm:pb-24 sm:pt-6 md:px-6 md:pb-32 md:pt-8">
+      <div className="mx-auto w-full max-w-8xl px-4 pb-20 pt-4 sm:px-5 sm:pb-24 sm:pt-6 md:px-6 md:pb-32 md:pt-8">
         {/* Back button */}
         <Link
           href="/odds"
@@ -150,322 +266,513 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
         </h1>
 
         {/* Game Matchup Card */}
-        <div className="bg-[#050505] rounded-lg border-5 border-[#FBFBFB] p-6 sm:p-8 mb-8">
-          <div className="text-center mb-6">
-            <p className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-              {game.away_team} at {game.home_team}
-            </p>
-            <p className="text-sm sm:text-base text-zinc-400 mt-2">
-              {formatCommenceTime(game.commence_time)} • CINR
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 sm:gap-6 md:gap-8">
-            {/* Away Team */}
-            <div className="flex-1 flex flex-col items-center gap-3">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center bg-none rounded-lg">
-                {getTeamLogo(game.away_team) && (
-                  <Image
-                    src={getTeamLogo(game.away_team)}
-                    alt={game.away_team}
-                    width={60}
-                    height={60}
-                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
-                  />
-                )}
+        <div className="rounded-xl overflow-hidden shadow-2xl mb-10">
+          {/* Gradient Background - Dark red to dark green */}
+          <div className="bg-linear-to-r from-red-950 via-black to-green-950 p-8 sm:p-12 md:p-16">
+            <div className="flex items-center justify-between">
+              {/* Away Team */}
+              <div className="flex-1 flex flex-col items-center gap-4">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                  {getTeamLogo(game.away_team) && (
+                    <Image
+                      src={getTeamLogo(game.away_team)}
+                      alt={game.away_team}
+                      width={100}
+                      height={100}
+                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl"
+                    />
+                  )}
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-white text-base sm:text-lg uppercase tracking-wide">
+                    {game.away_team}
+                  </p>
+                </div>
               </div>
-              <div className="text-center">
-                <p className="font-bold text-white text-sm sm:text-base">{game.away_team}</p>
+
+              {/* Center - VS */}
+              <div className="flex flex-col items-center gap-6 px-4 sm:px-8">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-green-400 drop-shadow-lg italic">
+                  VS
+                </div>
+                <p className="text-xs sm:text-sm text-zinc-400 tracking-widest">
+                  {formatCommenceTime(game.commence_time).split(" at ")[0]}
+                </p>
+              </div>
+
+              {/* Home Team */}
+              <div className="flex-1 flex flex-col items-center gap-4">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                  {getTeamLogo(game.home_team) && (
+                    <Image
+                      src={getTeamLogo(game.home_team)}
+                      alt={game.home_team}
+                      width={100}
+                      height={100}
+                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl"
+                    />
+                  )}
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-white text-base sm:text-lg uppercase tracking-wide">
+                    {game.home_team}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Center Column */}
-            <div className="flex flex-col items-center gap-4">
-              {/* @ Symbol */}
-              <div className="text-3xl sm:text-4xl font-bold text-zinc-400">VS</div>
-
-              
-            </div>
-
-            {/* Home Team */}
-            <div className="flex-1 flex flex-col items-center gap-3">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center bg-none rounded-lg">
-                {getTeamLogo(game.home_team) && (
-                  <Image
-                    src={getTeamLogo(game.home_team)}
-                    alt={game.home_team}
-                    width={60}
-                    height={60}
-                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
-                  />
-                )}
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-white text-sm sm:text-base">{game.home_team}</p>
-              </div>
-            </div>
+         
           </div>
         </div>
 
-              {/* Market Switcher */}
-              <div className="flex gap-2 mb-8">
-                <button
-                  onClick={() => setSelectedMarket("all")}
-                  className={`px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all ${
-                    selectedMarket === "all"
-                      ? "bg-[#ED723C] text-white border border-[#ED723C]"
-                      : "border border-[#FBFBFB] text-zinc-400 hover:text-white hover:border-[#ED723C]"
-                  }`}
-                >
-                  Details
-                </button>
-                <button
-                  onClick={() => setSelectedMarket("spreads")}
-                  className={`px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all ${
-                    selectedMarket === "spreads"
-                      ? "bg-[#ED723C] text-white border border-[#ED723C]"
-                      : "border border-[#FBFBFB] text-zinc-400 hover:text-white hover:border-[#ED723C]"
-                  }`}
-                >
-                  Spread
-                </button>
-                <button
-                  onClick={() => setSelectedMarket("totals")}
-                  className={`px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all ${
-                    selectedMarket === "totals"
-                      ? "bg-[#ED723C] text-white border border-[#ED723C]"
-                      : "border border-[#FBFBFB] text-zinc-400 hover:text-white hover:border-[#ED723C]"
-                  }`}
-                >
-                  Over/Under
-                </button>
-                <button
-                  onClick={() => setSelectedMarket("h2h")}
-                  className={`px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all ${
-                    selectedMarket === "h2h"
-                      ? "bg-[#ED723C] text-white border border-[#ED723C]"
-                      : "border border-[#FBFBFB] text-zinc-400 hover:text-white hover:border-[#ED723C]"
-                  }`}
-                >
-                  Moneyline
-                </button>
-              </div>
+        {/* Odds Section Container */}
+        <div className="bg-black rounded-xl border border-white/10 overflow-hidden mb-8 sm:mb-12">
+          {/* Market Switcher Header */}
+          <div className="border-b border-white/10 px-6 sm:px-8 py-4 sm:py-5 flex items-center justify-between gap-6">
+            {/* Left Side - Descriptive Text */}
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-white mb-1">
+                {game.away_team} at {game.home_team} Odds
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-400">
+                Spread, Total, Moneyline
+              </p>
+            </div>
 
-        {/* Scrollable Odds Table */}
-        <div className="bg-black/60 rounded-lg border-5 border-[#FBFBFB] overflow-x-auto mb-8 sm:mb-12">
-          <table className="w-full border-collapse text-sm sm:text-base">
-            <thead>
-              <tr className="border-b-5 border-[#FBFBFB] bg-[#ED723C]">
-                <th className="sticky left-0 px-4 sm:px-5 md:px-6 py-3 sm:py-4 text-left font-semibold text-white bg-[#ED723C] border-r-5 border-[#FBFBFB] text-sm sm:text-base">
-                  Matchup
-                </th>
-                {game.bookmakers.map((bookmaker) => (
-                  <th
-                    key={bookmaker.key}
-                    className="min-w-32 sm:min-w-40 md:min-w-48 px-2 sm:px-3 py-3 sm:py-4 text-center font-semibold text-white border-r-5 border-[#FBFBFB] last:border-r-0 text-xs"
-                  >
-                    {bookmaker.title}
-                  </th>
-                ))}
-              </tr>
-              <tr className="border-b-5 border-[#FBFBFB] bg-black/40">
-                <th className="sticky left-0 px-4 sm:px-5 md:px-6 py-2 sm:py-3 bg-black/40"></th>
-                {game.bookmakers.map((bookmaker) => (
-                  <th
-                    key={`${bookmaker.key}-markets`}
-                    className={`px-2 sm:px-3 py-2 sm:py-3 border-r-5 border-[#FBFBFB] last:border-r-0 text-center ${
-                      selectedMarket === "all" ? "min-w-40 sm:min-w-48 md:min-w-56" : "min-w-32 sm:min-w-40 md:min-w-48"
-                    }`}
-                  >
-                    {selectedMarket === "all" ? (
-                      <div className="grid grid-cols-3 gap-1 text-xs text-zinc-300 font-medium">
-                        <div>Spread</div>
-                        <div>Total</div>
-                        <div>ML</div>
+            {/* Right Side - Dropdown Selector */}
+            <div className="min-w-40">
+              <Select value={selectedMarket} onValueChange={(value) => setSelectedMarket(value as any)}>
+                <SelectTrigger className="bg-white/5 border-white/10 hover:border-[#ED723C]/50">
+                  <span className="text-white font-medium">{getMarketLabel(selectedMarket)}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Markets</SelectItem>
+                  <SelectItem value="spreads">Spread</SelectItem>
+                  <SelectItem value="totals">Over/Under</SelectItem>
+                  <SelectItem value="h2h">Moneyline</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Sports Betting Odds Table */}
+          <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
+            {/* Header */}
+            <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-4 sm:px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-40 sm:w-48"></div>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-white opacity-90">Sportsbooks</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Sportsbook Column Headers */}
+            <div className="bg-white/5 border-b border-white/10 px-4 sm:px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-40 sm:w-48 shrink-0"></div>
+                <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                  {filteredBookmakers.map((bookmaker) => {
+                    const logoUrl = getSportsbookLogo(bookmaker.key);
+                    console.log(`Bookmaker: ${bookmaker.key} (${bookmaker.title}) -> Logo: ${logoUrl}`);
+                    return (
+                      <div key={bookmaker.key} className="flex-1 text-center flex items-center justify-center min-h-12">
+                        {logoUrl ? (
+                          <Image
+                            src={logoUrl}
+                            alt={bookmaker.title}
+                            width={80}
+                            height={40}
+                            className="h-8 sm:h-10 w-auto object-contain rounded-md"
+                            onError={(e) => {
+                              console.error(`Failed to load image: ${logoUrl}`);
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <p className="text-xs font-semibold text-zinc-300 truncate">{bookmaker.title}</p>
+                        )}
                       </div>
-                    ) : (
-                      <div className="text-xs text-zinc-300 font-medium">
-                        {selectedMarket === "spreads" && "Spread"}
-                        {selectedMarket === "totals" && "Total"}
-                        {selectedMarket === "h2h" && "Moneyline"}
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Away Team Row(s) */}
+            {selectedMarket === "all" ? (
+              // Show three rows for all market types
+              <>
+                {/* Moneyline Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                      {game.away_team && getTeamLogo(game.away_team) ? (
+                        <Image
+                          src={getTeamLogo(game.away_team)}
+                          alt={game.away_team}
+                          width={36}
+                          height={36}
+                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      <div className="flex flex-col">
+                        <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
+                        <p className="text-xs text-zinc-400">Moneyline</p>
                       </div>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {/* Away team */}
-              <tr className="border-b-5 border-[#FBFBFB] hover:bg-black/80 bg-black/60">
-                <td className="sticky left-0 px-4 sm:px-5 md:px-6 py-4 sm:py-6 bg-black hover:bg-black/90 border-r-5 border-[#FBFBFB] z-10">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    {getTeamLogo(game.away_team) && (
+                    </div>
+                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                      {filteredBookmakers.map((bookmaker) => {
+                        const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
+                        const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
+                        return (
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                              {h2hOdds?.price !== null && h2hOdds?.price !== undefined ? formatOdds(h2hOdds?.price) : "—"}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Spread Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                      {game.away_team && getTeamLogo(game.away_team) ? (
+                        <Image
+                          src={getTeamLogo(game.away_team)}
+                          alt={game.away_team}
+                          width={36}
+                          height={36}
+                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      <div className="flex flex-col">
+                        <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
+                        <p className="text-xs text-zinc-400">Spread</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                      {filteredBookmakers.map((bookmaker) => {
+                        const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
+                        const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
+                        return (
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                              {spreadOdds?.price !== null && spreadOdds?.price !== undefined ? formatOdds(spreadOdds?.price) : "—"}
+                            </p>
+                            {spreadOdds?.point !== undefined && (
+                              <p className="text-xs text-[#ED723C] font-semibold">{spreadOdds?.point}</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Over/Under Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                      {game.away_team && getTeamLogo(game.away_team) ? (
+                        <Image
+                          src={getTeamLogo(game.away_team)}
+                          alt={game.away_team}
+                          width={36}
+                          height={36}
+                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      <div className="flex flex-col">
+                        <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
+                        <p className="text-xs text-zinc-400">Over/Under</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                      {filteredBookmakers.map((bookmaker) => {
+                        const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
+                        const totalOver = totalMarket?.outcomes?.[0];
+                        return (
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                              {totalOver?.price !== null && totalOver?.price !== undefined ? formatOdds(totalOver?.price) : "—"}
+                            </p>
+                            {totalOver?.point !== undefined && (
+                              <p className="text-xs text-[#ED723C] font-semibold">
+                                {totalOver.point > 0 ? "O" : "U"}{totalOver?.point}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Single row for specific market type
+              <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                <div className="flex items-center gap-3">
+                  {/* Team Info */}
+                  <div className="w-40 sm:w-48 flex items-center gap-2">
+                    {game.away_team && getTeamLogo(game.away_team) ? (
                       <Image
                         src={getTeamLogo(game.away_team)}
                         alt={game.away_team}
-                        width={40}
-                        height={40}
-                        className="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0"
+                        width={36}
+                        height={36}
+                        className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
-                    )}
+                    ) : null}
                     <div className="min-w-0">
-                      <p className="font-bold text-white text-sm sm:text-base truncate">{game.away_team}</p>
-                      <p className="text-xs text-zinc-500">0-0</p>
+                      <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
                     </div>
                   </div>
-                </td>
-                {game.bookmakers.map((bookmaker) => {
-                  const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
-                  const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
-                  const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
 
-                  const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
-                  const totalOver = totalMarket?.outcomes?.[0];
-                  const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
+                  {/* Odds */}
+                  <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                  {filteredBookmakers.map((bookmaker) => {
+                    const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
+                    const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
+                    const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
 
-                  if (selectedMarket === "all") {
+                    const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
+                    const totalOver = totalMarket?.outcomes?.[0];
+                    const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
+
+                    let displayOdds: { price?: number; point?: number } | undefined;
+                    if (selectedMarket === "spreads") {
+                      displayOdds = spreadOdds;
+                    } else if (selectedMarket === "totals") {
+                      displayOdds = totalOver;
+                    } else if (selectedMarket === "h2h") {
+                      displayOdds = h2hOdds;
+                    }
+
                     return (
-                      <td
-                        key={bookmaker.key}
-                        className="min-w-40 sm:min-w-48 md:min-w-56 px-2 sm:px-3 py-2 sm:py-4 border-r-5 border-[#FBFBFB] last:border-r-0"
-                      >
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-[#1d1c1c] rounded px-2 py-2 text-center">
-                            <p className="text-white font-bold text-sm">{formatOdds(spreadOdds?.price)}</p>
-                            <p className="text-xs text-zinc-400">{spreadOdds?.point}</p>
-                          </div>
-                          <div className="bg-[#1d1c1c] rounded px-2 py-2 text-center">
-                            <p className="text-white font-bold text-sm">{formatOdds(totalOver?.price)}</p>
-                            <p className="text-xs text-zinc-400">O{totalOver?.point}</p>
-                          </div>
-                          <div className="bg-[#1d1c1c] rounded px-2 py-2 text-center">
-                            <p className="text-white font-bold text-sm">{formatOdds(h2hOdds?.price)}</p>
-                          </div>
-                        </div>
-                      </td>
-                    );
-                  }
-
-                  let displayOdds: { price?: number; point?: number } | undefined;
-                  if (selectedMarket === "spreads") {
-                    displayOdds = spreadOdds;
-                  } else if (selectedMarket === "totals") {
-                    displayOdds = totalOver;
-                  } else if (selectedMarket === "h2h") {
-                    displayOdds = h2hOdds;
-                  }
-
-                  return (
-                    <td
-                      key={bookmaker.key}
-                      className="min-w-24 sm:min-w-28 md:min-w-32 px-1.5 sm:px-2 py-2 sm:py-4 border-r-5 border-[#FBFBFB] last:border-r-0 text-center"
-                    >
-                      <div className="bg-[#1d1c1c] rounded px-2 py-1.5 sm:py-2">
-                        <p className="text-white font-bold text-xs sm:text-sm">
-                          {formatOdds(displayOdds?.price)}
+                      <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                        <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                          {displayOdds?.price !== null && displayOdds?.price !== undefined
+                            ? formatOdds(displayOdds?.price)
+                            : "—"}
                         </p>
                         {displayOdds?.point !== undefined && (
-                          <p className="text-xs text-zinc-400">
+                          <p className="text-xs text-[#ED723C] font-semibold">
                             {selectedMarket === "totals" ? (displayOdds.point > 0 ? "O" : "U") : ""}{displayOdds.point}
                           </p>
                         )}
                       </div>
-                    </td>
-                  );
-                })}
-              </tr>
+                    );
+                  })}
+                  </div>
+                </div>
+              </div>
+            )}
 
-              {/* Home team */}
-              <tr className="hover:bg-black/80 bg-black/60">
-                <td className="sticky left-0 px-4 sm:px-5 md:px-6 py-4 sm:py-6 bg-black hover:bg-black/90 border-r-5 border-[#FBFBFB] z-10">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    {getTeamLogo(game.home_team) && (
+            {/* Home Team Row(s) */}
+            {selectedMarket === "all" ? (
+              // Show three rows for all market types
+              <>
+                {/* Moneyline Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                      {game.home_team && getTeamLogo(game.home_team) ? (
+                        <Image
+                          src={getTeamLogo(game.home_team)}
+                          alt={game.home_team}
+                          width={36}
+                          height={36}
+                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      <div className="flex flex-col">
+                        <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
+                        <p className="text-xs text-zinc-400">Moneyline</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                      {filteredBookmakers.map((bookmaker) => {
+                        const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
+                        const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
+                        return (
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                              {h2hOdds?.price !== null && h2hOdds?.price !== undefined ? formatOdds(h2hOdds?.price) : "—"}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Spread Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                      {game.home_team && getTeamLogo(game.home_team) ? (
+                        <Image
+                          src={getTeamLogo(game.home_team)}
+                          alt={game.home_team}
+                          width={36}
+                          height={36}
+                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      <div className="flex flex-col">
+                        <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
+                        <p className="text-xs text-zinc-400">Spread</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                      {filteredBookmakers.map((bookmaker) => {
+                        const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
+                        const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
+                        return (
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                              {spreadOdds?.price !== null && spreadOdds?.price !== undefined ? formatOdds(spreadOdds?.price) : "—"}
+                            </p>
+                            {spreadOdds?.point !== undefined && (
+                              <p className="text-xs text-[#ED723C] font-semibold">{spreadOdds?.point}</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Over/Under Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                      {game.home_team && getTeamLogo(game.home_team) ? (
+                        <Image
+                          src={getTeamLogo(game.home_team)}
+                          alt={game.home_team}
+                          width={36}
+                          height={36}
+                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      <div className="flex flex-col">
+                        <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
+                        <p className="text-xs text-zinc-400">Over/Under</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                      {filteredBookmakers.map((bookmaker) => {
+                        const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
+                        const totalUnder = totalMarket?.outcomes?.[1];
+                        return (
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                              {totalUnder?.price !== null && totalUnder?.price !== undefined ? formatOdds(totalUnder?.price) : "—"}
+                            </p>
+                            {totalUnder?.point !== undefined && (
+                              <p className="text-xs text-[#ED723C] font-semibold">
+                                {totalUnder.point > 0 ? "O" : "U"}{totalUnder?.point}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Single row for specific market type
+              <div className="hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
+                <div className="flex items-center gap-3">
+                  {/* Team Info */}
+                  <div className="w-40 sm:w-48 flex items-center gap-2">
+                    {game.home_team && getTeamLogo(game.home_team) ? (
                       <Image
                         src={getTeamLogo(game.home_team)}
                         alt={game.home_team}
-                        width={40}
-                        height={40}
-                        className="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0"
+                        width={36}
+                        height={36}
+                        className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
-                    )}
+                    ) : null}
                     <div className="min-w-0">
-                      <p className="font-bold text-white text-sm sm:text-base truncate">{game.home_team}</p>
-                      <p className="text-xs text-zinc-500">0-0</p>
+                      <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
                     </div>
                   </div>
-                </td>
-                {game.bookmakers.map((bookmaker) => {
-                  const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
-                  const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
-                  const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
 
-                  const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
-                  const totalUnder = totalMarket?.outcomes?.[1];
-                  const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
+                  {/* Odds */}
+                  <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    {filteredBookmakers.map((bookmaker) => {
+                      const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
+                      const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
+                      const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
 
-                  if (selectedMarket === "all") {
-                    return (
-                      <td
-                        key={bookmaker.key}
-                        className="min-w-40 sm:min-w-48 md:min-w-56 px-2 sm:px-3 py-2 sm:py-4 border-r-5 border-[#FBFBFB] last:border-r-0"
-                      >
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-[#1d1c1c] rounded px-2 py-2 text-center">
-                            <p className="text-white font-bold text-sm">{formatOdds(spreadOdds?.price)}</p>
-                            <p className="text-xs text-zinc-400">{spreadOdds?.point}</p>
-                          </div>
-                          <div className="bg-[#1d1c1c] rounded px-2 py-2 text-center">
-                            <p className="text-white font-bold text-sm">{formatOdds(totalUnder?.price)}</p>
-                            <p className="text-xs text-zinc-400">U{totalUnder?.point}</p>
-                          </div>
-                          <div className="bg-[#1d1c1c] rounded px-2 py-2 text-center">
-                            <p className="text-white font-bold text-sm">{formatOdds(h2hOdds?.price)}</p>
-                          </div>
-                        </div>
-                      </td>
-                    );
-                  }
+                      const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
+                      const totalUnder = totalMarket?.outcomes?.[1];
+                      const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
 
-                  let displayOdds: { price?: number; point?: number } | undefined;
-                  if (selectedMarket === "spreads") {
-                    displayOdds = spreadOdds;
-                  } else if (selectedMarket === "totals") {
-                    displayOdds = totalUnder;
-                  } else if (selectedMarket === "h2h") {
-                    displayOdds = h2hOdds;
-                  }
+                      let displayOdds: { price?: number; point?: number } | undefined;
+                      if (selectedMarket === "spreads") {
+                        displayOdds = spreadOdds;
+                      } else if (selectedMarket === "totals") {
+                        displayOdds = totalUnder;
+                      } else if (selectedMarket === "h2h") {
+                        displayOdds = h2hOdds;
+                      }
 
-                  return (
-                    <td
-                      key={bookmaker.key}
-                      className="min-w-24 sm:min-w-28 md:min-w-32 px-1.5 sm:px-2 py-2 sm:py-4 border-r-5 border-[#FBFBFB] last:border-r-0 text-center"
-                    >
-                      <div className="bg-[#1d1c1c] rounded px-2 py-1.5 sm:py-2">
-                        <p className="text-white font-bold text-xs sm:text-sm">
-                          {formatOdds(displayOdds?.price)}
-                        </p>
-                        {displayOdds?.point !== undefined && (
-                          <p className="text-xs text-zinc-400">
-                            {selectedMarket === "totals" ? (displayOdds.point > 0 ? "O" : "U") : ""}{displayOdds.point}
+                      return (
+                        <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
+                          <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                            {displayOdds?.price !== null && displayOdds?.price !== undefined
+                              ? formatOdds(displayOdds?.price)
+                              : "—"}
                           </p>
-                        )}
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-          </tbody>
-          </table>
+                          {displayOdds?.point !== undefined && (
+                            <p className="text-xs text-[#ED723C] font-semibold">
+                              {selectedMarket === "totals" ? (displayOdds.point > 0 ? "O" : "U") : ""}{displayOdds.point}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Game info */}
-        <div className="bg-black/60 rounded-lg border-5 border-[#FBFBFB] p-4 sm:p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#ED723C]" />
-            <p className="text-white font-bold text-sm sm:text-base">{formatCommenceTime(game.commence_time)}</p>
-          </div>
-          <p className="text-zinc-400 text-xs sm:text-sm">Venue and additional details coming soon</p>
-        </div>
       </div>
     </div>
   );

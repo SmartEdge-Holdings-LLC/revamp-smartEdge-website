@@ -8,18 +8,18 @@ export const LANDING_STATS = [
 export const HOW_IT_WORKS_STEPS = [
   {
     step: 1,
-    title: "AI-Powered Analysis",
-    body: "AI scans lines, injuries, and trends in seconds — pure data, no bias.",
+    title: "Expert Handicapper Analysis",
+    body: "Our specialists dive deep into lines, injuries, and game trends. Decades of professional experience distilled into every pick.",
   },
   {
     step: 2,
-    title: "Handicapper Verification",
-    body: "Pros review every AI pick and cut the noise before picks go live.",
+    title: "Verification & Confirmation",
+    body: "Every pick gets verified against market movement and data. SmartEdge® confirms the analytical edge — expertise meets data.",
   },
   {
     step: 3,
     title: "Picks Delivered to You",
-    body: "Inbox and SMS alerts before game time with play, edge, and confidence.",
+    body: "Inbox and SMS alerts before game time with play, edge, and confidence scores from pros who've been doing this for years.",
   },
 ] as const;
 
@@ -66,28 +66,6 @@ export const SPORTS_COVERAGE = [
   },
 ] as const;
 
-export const WHY_TRUST_CARDS = [
-  {
-    title: "Combined Experience",
-    body: "Decades of professional sports betting experience across NFL, NBA, MLB, and combat sports — our team has seen every line move, every trap game, every public fade scenario.",
-    icon: "experience" as const,
-  },
-  {
-    title: "They Trained the AI",
-    body: "Our handicappers didn't just adopt AI — they fed it years of their own documented betting records, trends, and methodologies to train SmartEdge® AI from the ground up.",
-    icon: "ai" as const,
-  },
-  {
-    title: "Track Record Transparency",
-    body: "We publish our picks history. Win rates, unit returns, and sport-by-sport breakdowns are available to all members so you can see exactly how we've performed over time.",
-    icon: "chart" as const,
-  },
-  {
-    title: "Multiple Specialists",
-    body: "No single handicapper covers every sport. We have dedicated specialists — one for NFL, one for MLB, one for combat sports, and more — so you get expert analysis, not generalist guesses.",
-    icon: "users" as const,
-  },
-] as const;
 
 export const FEATURED_HANDICAPPERS = [
   {

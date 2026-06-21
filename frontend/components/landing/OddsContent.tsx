@@ -409,7 +409,7 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
 
   // React Query hooks for smart caching
   const { data: apiGames = [], isLoading: isLoadingLive, error: liveError } = useLiveOdds(sport);
-  const { data: historicalGames = [], isLoading: isLoadingHistorical } = useHistoricalOdds(selectedDate);
+  const { data: historicalGames = [], isLoading: isLoadingHistorical } = useHistoricalOdds(selectedDate, viewMode === "historical");
 
   const isLoading = viewMode === "live" ? isLoadingLive : isLoadingHistorical;
 

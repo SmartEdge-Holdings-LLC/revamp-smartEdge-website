@@ -129,9 +129,11 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
             {leagueDisplayName(pick.league)}
           </span>
         </div>
-        <span className="pricing-accent-gradient absolute right-5 top-1/2 inline-flex w-fit -translate-y-1/2 shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)] sm:right-6">
-          {feedLabel(feed)}{pick.confidence ? ` · ${pick.confidence}%` : ""}
-        </span>
+        {pick.confidence != null && pick.confidence > 0 && (
+          <span className="pricing-accent-gradient absolute right-5 top-1/2 inline-flex w-fit -translate-y-1/2 shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)] sm:right-6">
+            {feedLabel(feed)} · {pick.confidence}%
+          </span>
+        )}
       </header>
 
       <section className="border-b border-green-500/40 px-5 py-6 sm:px-6 sm:py-8">
@@ -145,27 +147,35 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
             {betLabel}
           </span>
         </p>
+        <div className="mt-4 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            Match Time
+          </p>
+          <p className="mt-1.5 text-sm text-white">
+            {pick.matchTime ? formatDateTimeLongET(pick.matchTime) : "TBD"}
+          </p>
+        </div>
       </section>
 
       <section className="grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2">
         <div className="bg-black/40 px-5 py-4 sm:px-6">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            {pick.matchTime ? "Match time" : "Date / time"}
-          </p>
-          <p className="mt-1.5 text-sm text-white">
-            {pick.matchTime ? formatDateTimeLongET(pick.matchTime) : formatDateTimeLongET(pick.createdAt)}
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
+          <p className="mt-1.5 space-y-2">
+            <div className="text-sm text-white">
+              <span className="font-semibold text-accent">{pick.pickTitle}</span>
+            </div>
+            {pick.odds.trim() ? (
+              <div className="inline-flex items-center gap-2 rounded-lg bg-accent/10 px-3 py-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Odds:</span>
+                <span className="text-base font-bold text-accent">{pick.odds.trim()}</span>
+              </div>
+            ) : null}
           </p>
         </div>
         <div className="bg-black/40 px-5 py-4 sm:border-l sm:border-green-500/40 sm:px-6">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Pick Posted Time</p>
           <p className="mt-1.5 text-sm text-white">
-            <span className="font-semibold text-accent">{pick.pickTitle}</span>
-            {pick.odds.trim() ? (
-              <span className="text-zinc-400">
-                {" "}
-                <span className="text-zinc-600">·</span> {pick.odds.trim()}
-              </span>
-            ) : null}
+            {formatDateTimeLongET(pick.createdAt)}
           </p>
         </div>
       </section>

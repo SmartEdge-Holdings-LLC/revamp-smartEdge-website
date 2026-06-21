@@ -25,12 +25,12 @@ export function Hero() {
           <PricingAccentButton
             href="/#pricing"
             fullWidth={true}
-            className="typo-button-lg w-full px-6 py-3 sm:w-auto sm:px-8 md:px-10"
+            className="typo-button-lg w-full px-6 py-3 sm:w-auto sm:px-8 md:px-10 cursor-pointer"
           >
             Start Winning Today
           </PricingAccentButton>
           <Link href="#pricing" className="w-full sm:w-auto">
-            <Button className="typo-button-lg h-auto w-full min-h-12 items-center rounded-full border-0 bg-linear-to-r from-[#B3B3B3] via-[#F6F6F6] to-[#F6F6F6] px-6 py-3 font-semibold tracking-normal text-black transition-opacity duration-300 hover:opacity-90 sm:min-h-15 sm:px-8 sm:py-3.5 md:px-10">
+            <Button className="typo-button-lg h-auto w-full min-h-12 items-center rounded-full border-0 bg-linear-to-r from-[#B3B3B3] via-[#F6F6F6] to-[#F6F6F6] px-6 py-3 font-semibold tracking-normal text-black transition-opacity duration-300 hover:opacity-90 sm:min-h-15 sm:px-8 sm:py-3.5 md:px-10 cursor-pointer">
               View Pricing
             </Button>
           </Link>

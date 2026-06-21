@@ -88,9 +88,9 @@ function LockedPremiumCard({ source, pick }: { source: PublicPickSource; pick: P
         <FreePickDetailCard pick={pick} source={source} />
       </div>
       <div className="absolute inset-0 flex items-center justify-center bg-black/45">
-        <div className="rounded-xl border border-white/15 bg-black/75 px-5 py-4 text-center backdrop-blur-sm">
-          <p className="inline-flex items-center gap-2 text-sm font-semibold text-white">
-            <Lock className="size-4 text-accent" />
+        <div className="rounded-lg sm:rounded-xl border border-white/15 bg-black/75 px-4 sm:px-5 py-3 sm:py-4 text-center backdrop-blur-sm max-w-xs mx-2">
+          <p className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-white">
+            <Lock className="size-3 sm:size-4 text-accent" />
             {brand} premium pick locked
           </p>
           <p className="mt-1 text-xs text-zinc-300">
@@ -98,7 +98,7 @@ function LockedPremiumCard({ source, pick }: { source: PublicPickSource; pick: P
           </p>
           <Link
             href={pricingHref}
-            className="mt-3 inline-flex cursor-pointer items-center justify-center rounded-md bg-accent px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-accent/90"
+            className="mt-2 sm:mt-3 inline-flex cursor-pointer items-center justify-center rounded-md bg-accent px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold text-white transition hover:bg-accent/90"
           >
             Buy now
           </Link>
@@ -165,19 +165,19 @@ export function ExpertPicksSection() {
 
   return (
     <section className="relative z-10 flex flex-1 flex-col">
-      <div className="mx-auto w-full max-w-6xl px-5 pb-24 pt-6 sm:px-6 md:pb-32 md:pt-8">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-5 md:px-6 pb-16 sm:pb-24 md:pb-32 pt-4 sm:pt-6 md:pt-8">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 sm:px-3.5 py-1 sm:py-1.5 text-xs sm:text-[13px] text-zinc-300">
             Premium picks · SmartEdge® + Jonah
           </div>
-          <h1 className="typo-hero-title mt-6 text-white">Expert Picks</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-subtle md:text-xl">
+          <h1 className="typo-hero-title mt-4 sm:mt-6 text-2xl sm:text-4xl md:text-5xl text-white">Expert Picks</h1>
+          <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed text-subtle">
             View our premium cards from SmartEdge and Jonah. Odds and deeper analysis are locked
             until you purchase a plan.
           </p>
         </div>
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-6 sm:mt-8 md:mt-10 flex justify-center">
           <div
             className="relative inline-flex w-full max-w-none flex-nowrap overflow-x-auto rounded-full border border-white/10 bg-white/3 p-1 sm:w-auto"
             role="tablist"
@@ -193,7 +193,7 @@ export function ExpertPicksSection() {
                   aria-selected={isActive}
                   onClick={() => setSource(tab.value)}
                   className={cn(
-                    "relative shrink-0 cursor-pointer whitespace-nowrap rounded-full px-4 py-3 text-center text-[13px] font-medium leading-none transition-colors sm:px-6 sm:text-sm",
+                    "relative shrink-0 cursor-pointer whitespace-nowrap rounded-full px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-center text-xs sm:text-[13px] md:text-sm font-medium leading-none transition-colors",
                     isActive ? "text-white" : "text-zinc-500 hover:text-zinc-300"
                   )}
                 >
@@ -210,20 +210,20 @@ export function ExpertPicksSection() {
           </div>
         </div>
 
-        <div className="mx-auto mt-10 max-w-4xl space-y-8">
+        <div className="mx-auto mt-6 sm:mt-8 md:mt-10 max-w-4xl space-y-4 sm:space-y-6 md:space-y-8">
           {status === "loading" ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="size-8 animate-spin text-accent" aria-label="Loading session" />
+            <div className="flex justify-center py-12 sm:py-20">
+              <Loader2 className="size-6 sm:size-8 animate-spin text-accent" aria-label="Loading session" />
             </div>
           ) : canLoadPaidPicks ? (
             loading ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="size-8 animate-spin text-accent" aria-label="Loading picks" />
+              <div className="flex justify-center py-12 sm:py-20">
+                <Loader2 className="size-6 sm:size-8 animate-spin text-accent" aria-label="Loading picks" />
               </div>
             ) : error ? (
-              <p className="text-center text-sm text-red-400/90">{error}</p>
+              <p className="text-center text-xs sm:text-sm text-red-400/90 px-4">{error}</p>
             ) : paidPicks.length === 0 ? (
-              <p className="rounded-lg border border-white/10 bg-white/3 px-6 py-12 text-center text-sm text-zinc-400">
+              <p className="rounded-lg border border-white/10 bg-white/3 px-4 sm:px-6 py-8 sm:py-12 text-center text-xs sm:text-sm text-zinc-400">
                 No active premium picks in this feed right now.
               </p>
             ) : (
@@ -231,7 +231,7 @@ export function ExpertPicksSection() {
             )
           ) : (
             <>
-              <p className="text-center text-sm text-zinc-400">
+              <p className="text-center text-xs sm:text-sm text-zinc-400 px-4">
                 {source === "smartedge"
                   ? "SmartEdge premium picks are locked. Subscribe to view full odds and analysis."
                   : "Jonah premium picks are locked. Subscribe to view full odds and analysis."}

@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchSportOdds, type Game } from "@/lib/api/parlayOddsApi";
 import { type OddsSport } from "@/components/landing/odds-data";
 
-const STALE_TIME = 5 * 60 * 1000; // 5 minutes
-const CACHE_TIME = 30 * 60 * 1000; // 30 minutes
+const STALE_TIME = 10 * 60 * 1000; // 10 minutes - keep data fresh without hammering API
+const CACHE_TIME = 60 * 60 * 1000; // 1 hour - long cache to minimize API calls
 
 export function useLiveOdds(sport: OddsSport) {
   return useQuery({
@@ -12,13 +12,13 @@ export function useLiveOdds(sport: OddsSport) {
       const data = await fetchSportOdds(sport);
       return data?.games || [];
     },
-    staleTime: STALE_TIME, // Data is considered fresh for 5 minutes
-    gcTime: CACHE_TIME, // Keep in cache for 30 minutes
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-    refetchOnReconnect: true, // Refetch when reconnecting
-    refetchInterval: 30 * 1000, // Auto refetch every 30 seconds for real-time updates
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: STALE_TIME, // Only refetch after 10 minutes
+    gcTime: CACHE_TIME, // Keep in cache for 1 hour
+    refetchOnWindowFocus: false, // Don't refetch on every tab switch
+    refetchOnReconnect: true, // Only refetch when reconnecting after offline
+    refetchInterval: false, // No automatic refetch - save API quota
+    retry: 1, // Reduce retry attempts
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 }
 

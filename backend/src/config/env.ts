@@ -55,9 +55,9 @@ export const env = {
   frontendUrl: frontendUrls[0] as string,
   /** Allowed browser origins for CORS (comma-separated FRONTEND_URL). */
   frontendUrls,
-  plivoAuthId: process.env.PLIVO_AUTH_ID ?? "",
-  plivoAuthToken: process.env.PLIVO_AUTH_TOKEN ?? "",
-  plivoFromNumber: process.env.PLIVO_FROM_NUMBER ?? "",
+  twilioAccountSid: process.env.TWILIO_ACCOUNT_SID ?? "",
+  twilioAuthToken: process.env.TWILIO_AUTH_TOKEN ?? "",
+  twilioFromNumber: process.env.TWILIO_FROM_NUMBER ?? "",
   bulkSmsDelayMs: Number(process.env.BULK_SMS_DELAY_MS ?? 1500),
   /** Parlay API key — https://parlay-api.com (optional in dev: uses sandbox when unset). */
   parlayApiKey: (process.env.PARLAY_API_KEY ?? "").trim(),

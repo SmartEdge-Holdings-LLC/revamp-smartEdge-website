@@ -12,7 +12,6 @@ import {
   SportsCoverageSection,
   StatsBarSection,
   TestimonialsSection,
-  WhyTrustSection,
 } from "@/components/landing/sections";
 
 export default function HomePage() {
@@ -34,7 +33,6 @@ export default function HomePage() {
       <SportsCoverageSection />
       {/* <HandicappersSection /> */}
       <TestimonialsSection />
-      <WhyTrustSection />
       <PricingSection />
       <FaqSection />
       <LandingFooter />

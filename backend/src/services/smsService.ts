@@ -1,4 +1,4 @@
-import * as plivo from "plivo";
+import twilio from "twilio";
 import { env } from "../config/env";
 import { User } from "../models/User";
 
@@ -20,24 +20,24 @@ function sleep(ms: number): Promise<void> {
 function normalizePhoneNumber(raw: string): string | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
-  // Keep + and digits only; Plivo expects E.164.
+  // Keep + and digits only; Twilio expects E.164.
   const normalized = trimmed.replace(/[^\d+]/g, "");
   return normalized || null;
 }
 
 function getClient() {
-  if (!env.plivoAuthId) {
-    throw new Error("PLIVO_AUTH_ID is not configured");
+  if (!env.twilioAccountSid) {
+    throw new Error("TWILIO_ACCOUNT_SID is not configured");
   }
-  if (!env.plivoAuthToken) {
-    throw new Error("PLIVO_AUTH_TOKEN is not configured");
+  if (!env.twilioAuthToken) {
+    throw new Error("TWILIO_AUTH_TOKEN is not configured");
   }
-  if (!env.plivoFromNumber) {
+  if (!env.twilioFromNumber) {
     throw new Error(
-      "PLIVO_FROM_NUMBER is not configured. Set your Plivo SMS number in E.164 format (e.g. +12064797227)."
+      "TWILIO_FROM_NUMBER is not configured. Set your Twilio SMS number in E.164 format (e.g. +12064797227)."
     );
   }
-  return new plivo.Client(env.plivoAuthId, env.plivoAuthToken);
+  return twilio(env.twilioAccountSid, env.twilioAuthToken);
 }
 
 export const smsService = {
@@ -54,15 +54,15 @@ export const smsService = {
     const client = getClient();
     const text = params.text?.trim() || PICKS_LIVE_MESSAGE;
 
-    const response = await client.messages.create(
-      env.plivoFromNumber!,
+    const response = await client.messages.create({
       to,
-      text
-    );
+      from: env.twilioFromNumber!,
+      body: text,
+    });
 
     return {
       to,
-      messageId: response.messageUuid?.[0] ?? null,
+      messageId: response.sid,
     };
   },
 
@@ -96,11 +96,11 @@ export const smsService = {
         continue;
       }
       try {
-        await client.messages.create(
-          env.plivoFromNumber!,
-          phoneNumber,
-          text
-        );
+        await client.messages.create({
+          to: phoneNumber,
+          from: env.twilioFromNumber!,
+          body: text,
+        });
         sent += 1;
       } catch (error) {
         failed += 1;

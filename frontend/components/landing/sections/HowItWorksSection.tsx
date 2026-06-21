@@ -43,7 +43,7 @@ export function HowItWorksSection() {
                       <h3 className="line-clamp-2 min-h-9 text-base font-semibold leading-tight text-white sm:text-[17px]">
                         {item.title}
                       </h3>
-                      <p className="line-clamp-2 min-h-9 flex-1 text-sm leading-tight text-subtle">
+                      <p className="flex-1 text-sm leading-tight text-subtle">
                         {item.body}
                       </p>
                     </div>

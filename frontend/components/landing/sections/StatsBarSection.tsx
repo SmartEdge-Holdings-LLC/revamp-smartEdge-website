@@ -18,7 +18,7 @@ function StatCard({ stat }: { stat: (typeof LANDING_STATS)[number] }) {
     <li className="relative list-none">
       <article
         className={cn(
-          "relative flex h-full min-h-44 flex-col overflow-hidden rounded-3xl p-6 text-left sm:min-h-48 sm:p-7",
+          "relative flex h-full min-h-64 flex-col overflow-hidden rounded-3xl p-6 text-left sm:min-h-48 sm:p-7",
           "border border-white/8 bg-zinc-950/55 shadow-[0_12px_40px_rgb(0_0_0/0.6),inset_0_1px_0_rgb(255_255_255/0.04)]",
           "backdrop-blur-2xl",
           "transition-[background-color,border-color,box-shadow] duration-300",

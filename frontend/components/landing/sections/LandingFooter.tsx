@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { XIcon, InstagramIcon, FacebookIcon, YouTubeIcon } from "@/components/icons/SocialIcons";
 
 const FOOTER_LINKS = [
   { label: "Pricing", href: "/#pricing" },
@@ -16,6 +17,13 @@ const FOOTER_LINKS = [
   { label: "Register", href: "/#pricing" },
   { label: "Log in", href: "/login" },
 ] as const;
+
+const SOCIAL_LINKS = [
+  { label: "Twitter", href: "https://twitter.com/smartedgepicks", Icon: XIcon },
+  { label: "Instagram", href: "https://instagram.com/smartedgepicks", Icon: InstagramIcon },
+  { label: "Facebook", href: "https://facebook.com/smartedgepicks", Icon: FacebookIcon },
+  { label: "YouTube", href: "https://youtube.com/@smartedgepicks", Icon: YouTubeIcon },
+];
 
 const linkClassName =
   "text-sm text-zinc-400 transition-colors hover:text-white";
@@ -55,8 +63,28 @@ export function LandingFooter() {
           </nav>
         </div>
 
-        <div className="mt-8 sm:mt-12 border-t border-white/10 pt-6 sm:pt-8 text-center md:mt-14">
-          <p className="mx-auto max-w-3xl text-xs leading-relaxed text-zinc-500 sm:text-[13px] sm:leading-relaxed">
+        <div className="mt-8 sm:mt-12 border-t border-white/10 pt-6 sm:pt-8 md:mt-14">
+          <div className="text-center mb-8 sm:mb-10">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-300 mb-4">
+              Follow Us on Socials
+            </h3>
+            <div className="flex items-center justify-center gap-2 sm:gap-3">
+              {SOCIAL_LINKS.map((social) => (
+                <Link
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-zinc-400 transition-all duration-200 hover:border-accent  hover:text-accent"
+                  title={social.label}
+                >
+                  <social.Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <p className="mx-auto max-w-3xl text-xs leading-relaxed text-zinc-500 sm:text-[13px] sm:leading-relaxed text-center">
             SmartEdge<sup className="text-[0.9em]">®</sup> provides sports analysis and information only — we do
             not accept wagers or operate as a sportsbook. All picks are for informational purposes. Must be 21+ to
             participate. If you or someone you know has a gambling problem, call{" "}
@@ -78,7 +106,7 @@ export function LandingFooter() {
             .
           </p>
 
-          <p className="mt-4 sm:mt-6 text-[10px] sm:text-xs leading-relaxed text-zinc-600">
+          <p className="mt-4 sm:mt-6 text-[10px] sm:text-xs leading-relaxed text-zinc-600 text-center mx-auto">
             © {year} SmartEdge Holdings LLC · SmartEdge Picks · All Rights Reserved · SmartEdge
             <sup className="text-[0.9em]">®</sup> is a trademark of SmartEdge Holdings LLC · Made in USA
           </p>
