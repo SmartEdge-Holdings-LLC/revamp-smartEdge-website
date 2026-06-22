@@ -143,3 +143,26 @@ export const TESTIMONIALS = [
     avatar: "/avatars/google-3.jpg",
   },
 ] as const;
+
+export const WHY_TRUST_CARDS = [
+  {
+    icon: "experience" as const,
+    title: "20+ Years of Combined Experience",
+    body: "Our handicapping team has decades of experience across major sports leagues, with proven track records in NFL, NBA, and MLB betting markets.",
+  },
+  {
+    icon: "ai" as const,
+    title: "AI-Powered Analysis",
+    body: "SmartEdge® combines proprietary machine learning models with expert human insight to deliver picks that outperform the market consistently.",
+  },
+  {
+    icon: "chart" as const,
+    title: "Transparent Track Record",
+    body: "Every pick is logged, verified, and tracked. No hidden losses, no cherry-picked results — just honest, auditable performance data.",
+  },
+  {
+    icon: "users" as const,
+    title: "Trusted by Thousands",
+    body: "Join a growing community of serious bettors who rely on SmartEdge® for data-driven picks and real-time line movement alerts.",
+  },
+] as const;
