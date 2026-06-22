@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Calendar, TrendingUp } from "lucide-react";
+import { Calendar, TrendingUp, ChevronDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEventOdds } from "@/lib/hooks/useEventOdds";
@@ -126,6 +126,7 @@ const MARKET_TABS = [
 
 export function EventOddsContent({ eventId }: { eventId: string }) {
   const [selectedMarket, setSelectedMarket] = useState<"alternate_spreads" | "alternate_totals" | "team_totals" | "alternate_team_totals" | "all">("all");
+  const [isExpanded, setIsExpanded] = useState(false);
   const { data: game, isLoading, isPending, error } = useEventOdds(eventId);
 
   if (isLoading || isPending) {
@@ -152,98 +153,112 @@ export function EventOddsContent({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="relative z-10">
-      <div className="mx-auto w-full max-w-8xl px-4 pb-20 pt-12 sm:px-5 sm:pb-24 md:px-6 md:pb-32">
-        {/* Header Section */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between gap-4 mb-3">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-[#ED723C]" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                Advanced Betting Lines
-              </h2>
+    <div className="relative z-10 px-4 sm:px-5 md:px-6 mb-32">
+      <div className="mx-auto w-full max-w-8xl px-6 py-4 sm:px-8 sm:py-5 md:px-10 md:py-6 border border-[#ED723C]/30 rounded-xl">
+        {/* View Line Movement Toggle */}
+        <div
+          className="flex items-center justify-between cursor-pointer group"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-white rounded-full p-1.5">
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-[#ED723C]" />
             </div>
-            {/* Filter Dropdown */}
-            <Select value={selectedMarket} onValueChange={(value) => setSelectedMarket(value as any)}>
-              <SelectTrigger className="w-full sm:w-64 bg-white/5 border border-white/10 text-white">
-                <SelectValue placeholder={MARKET_TABS.find((tab) => tab.key === selectedMarket)?.label || "Select market"} />
-              </SelectTrigger>
-              <SelectContent className="bg-black/80 border border-white/10">
-                {MARKET_TABS.map((tab) => (
-                  <SelectItem key={tab.key} value={tab.key} className="text-white hover:bg-white/10">
-                    <span className="flex items-center gap-2">
-                      <span>{tab.icon}</span>
-                      {tab.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white group-hover:text-[#ED723C] transition-colors">
+              View More Line Movements
+            </h2>
           </div>
-          <p className="text-zinc-400 text-sm sm:text-base ml-9">
-            Real-time odds from major sportsbooks
-          </p>
+          <ChevronDown
+            className={`w-5 h-5 sm:w-6 sm:h-6 text-[#ED723C] transition-transform duration-300 ${
+              isExpanded ? "rotate-180" : ""
+            }`}
+          />
         </div>
 
-        {/* Tables Container */}
-        <div className="space-y-8">
-          {/* Alternate Spreads Table */}
-          {(selectedMarket === "all" || selectedMarket === "alternate_spreads") && (
-            <OddsTable
-              title="Alternate Spreads"
-              marketKey="alternate_spreads"
-              bookmakers={filteredBookmakers}
-              game={game}
-              type="spreads"
-            />
-          )}
+        {isExpanded && (
+          <div className="mt-8">
+            {/* Header Section */}
+            <div className="mb-12">
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <p className="text-zinc-400 text-sm sm:text-base">
+                  Real-time odds from major sportsbooks
+                </p>
+                {/* Filter Dropdown */}
+                <Select value={selectedMarket} onValueChange={(value) => setSelectedMarket(value as any)}>
+                  <SelectTrigger className="w-full sm:w-64 bg-white/5 border border-white/10 text-white">
+                    <SelectValue placeholder={MARKET_TABS.find((tab) => tab.key === selectedMarket)?.label || "Select market"} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black/80 border border-white/10">
+                    {MARKET_TABS.map((tab) => (
+                      <SelectItem key={tab.key} value={tab.key} className="text-white hover:bg-white/10">
+                        <span className="flex items-center gap-2">
+                          <span>{tab.icon}</span>
+                          {tab.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-          {/* Alternate Totals Table */}
-          {(selectedMarket === "all" || selectedMarket === "alternate_totals") && (
-            <OddsTable
-              title="Alternate Totals"
-              marketKey="alternate_totals"
-              bookmakers={filteredBookmakers}
-              game={game}
-              type="totals"
-            />
-          )}
+            {/* Tables Container */}
+            <div className="space-y-8">
+              {(selectedMarket === "all" || selectedMarket === "alternate_spreads") && (
+                <OddsTable
+                  title="Alternate Spreads"
+                  marketKey="alternate_spreads"
+                  bookmakers={filteredBookmakers}
+                  game={game}
+                  type="spreads"
+                />
+              )}
 
-          {/* Team Totals Table */}
-          {(selectedMarket === "all" || selectedMarket === "team_totals") && (
-            <OddsTable
-              title="Team Totals"
-              marketKey="team_totals"
-              bookmakers={filteredBookmakers}
-              game={game}
-              type="team_totals"
-            />
-          )}
+              {(selectedMarket === "all" || selectedMarket === "alternate_totals") && (
+                <OddsTable
+                  title="Alternate Totals"
+                  marketKey="alternate_totals"
+                  bookmakers={filteredBookmakers}
+                  game={game}
+                  type="totals"
+                />
+              )}
 
-          {/* Alternate Team Totals Table */}
-          {(selectedMarket === "all" || selectedMarket === "alternate_team_totals") && (
-            <OddsTable
-              title="Alternate Team Totals"
-              marketKey="alternate_team_totals"
-              bookmakers={filteredBookmakers}
-              game={game}
-              type="team_totals"
-            />
-          )}
-        </div>
+              {(selectedMarket === "all" || selectedMarket === "team_totals") && (
+                <OddsTable
+                  title="Team Totals"
+                  marketKey="team_totals"
+                  bookmakers={filteredBookmakers}
+                  game={game}
+                  type="team_totals"
+                />
+              )}
 
-        {/* Game Info Card */}
-        <div className="mt-12 rounded-xl bg-linear-to-br from-[#ED723C]/10 to-transparent border border-[#ED723C]/30 p-6 sm:p-8">
-          <div className="flex items-center gap-3 mb-3">
-            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#ED723C]" />
-            <p className="text-white font-bold text-base sm:text-lg">
-              {formatCommenceTime(game.commence_time)}
-            </p>
+              {(selectedMarket === "all" || selectedMarket === "alternate_team_totals") && (
+                <OddsTable
+                  title="Alternate Team Totals"
+                  marketKey="alternate_team_totals"
+                  bookmakers={filteredBookmakers}
+                  game={game}
+                  type="team_totals"
+                />
+              )}
+            </div>
+
+            {/* Game Info Card */}
+            <div className="mt-12 rounded-xl bg-linear-to-br from-[#ED723C]/10 to-transparent border border-[#ED723C]/30 p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-3">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#ED723C]" />
+                <p className="text-white font-bold text-base sm:text-lg">
+                  {formatCommenceTime(game.commence_time)}
+                </p>
+              </div>
+              <p className="text-zinc-400 text-xs sm:text-sm">
+                Venue and additional details coming soon
+              </p>
+            </div>
           </div>
-          <p className="text-zinc-400 text-xs sm:text-sm">
-            Venue and additional details coming soon
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -360,6 +375,9 @@ function SpreadsTableBody({ marketKey, bookmakers, game }: any) {
                 />
               ) : null}
               <div className="flex flex-col">
+                <p className="text-[10px] sm:text-xs text-white mb-1">
+                  {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                </p>
                 <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
                 <p className="text-xs text-zinc-400">{awayOutcome.point}</p>
               </div>
@@ -399,6 +417,9 @@ function SpreadsTableBody({ marketKey, bookmakers, game }: any) {
                 />
               ) : null}
               <div className="flex flex-col">
+                <p className="text-[10px] sm:text-xs text-white mb-1">
+                  {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                </p>
                 <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
                 <p className="text-xs text-zinc-400">{homeOutcome.point}</p>
               </div>
@@ -549,20 +570,84 @@ function TeamTotalsTableBody({ marketKey, bookmakers, game }: any) {
 
 function LoadingSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-8xl px-4 pb-20 pt-12 sm:px-5 md:px-6">
-      <Skeleton className="h-10 w-72 bg-white/10 mb-4 rounded-lg" />
-      <Skeleton className="h-5 w-96 bg-white/5 mb-10 rounded-lg" />
+    <div className="relative z-10 px-4 sm:px-5 md:px-6 mb-32">
+      <div className="mx-auto w-full max-w-8xl px-6 py-4 sm:px-8 sm:py-5 md:px-10 md:py-6 border border-[#ED723C]/30 rounded-xl">
+        {/* Toggle Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10" />
+            <Skeleton className="h-7 sm:h-9 w-48 sm:w-72 bg-white/10 rounded-lg" />
+          </div>
+          <Skeleton className="w-5 h-5 sm:w-6 sm:h-6 bg-white/10 rounded" />
+        </div>
 
-      <div className="flex gap-2 mb-10 flex-wrap">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-10 w-28 bg-white/10 rounded-lg" />
-        ))}
-      </div>
+        {/* Expanded Content Skeleton */}
+        <div className="mt-8">
+          {/* Filter Row */}
+          <div className="flex items-center justify-between gap-4 mb-12">
+            <Skeleton className="h-4 w-48 bg-white/10 rounded" />
+            <Skeleton className="h-10 w-48 sm:w-64 bg-white/10 rounded-lg" />
+          </div>
 
-      <div className="space-y-8">
-        {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-96 bg-white/5 rounded-xl" />
-        ))}
+          {/* Table Skeletons */}
+          <div className="space-y-8">
+            {[1, 2].map((tableIdx) => (
+              <div key={tableIdx} className="bg-black/60 rounded-lg overflow-hidden">
+                {/* Orange Header */}
+                <div className="bg-[#ED723C] px-4 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-40 sm:w-48"></div>
+                    <Skeleton className="h-4 w-32 bg-white/20 rounded" />
+                  </div>
+                </div>
+
+                {/* Sportsbook Logos */}
+                <div className="flex px-4 sm:px-6 py-4">
+                  <div className="w-40 sm:w-48 shrink-0"></div>
+                  <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="flex-1 flex items-center justify-center min-h-12">
+                        <Skeleton className="h-8 sm:h-10 w-16 sm:w-20 bg-white/10 rounded-md" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Data Rows */}
+                {Array.from({ length: 4 }).map((_, rowIdx) => (
+                  <div key={rowIdx} className="border-b border-white/10 px-4 sm:px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-40 sm:w-48 flex items-start gap-2">
+                        <Skeleton className="w-8 h-8 sm:w-9 sm:h-9 bg-white/10 rounded shrink-0" />
+                        <div className="flex flex-col gap-1.5">
+                          <Skeleton className="h-2.5 w-14 bg-white/10 rounded" />
+                          <Skeleton className="h-3.5 w-28 bg-white/10 rounded" />
+                          <Skeleton className="h-2.5 w-10 bg-white/10 rounded" />
+                        </div>
+                      </div>
+                      <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div key={i} className="flex-1 bg-white/8 rounded px-2 py-2 flex items-center justify-center min-h-12">
+                            <Skeleton className="h-4 w-10 bg-white/10 rounded" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Game Info Card Skeleton */}
+          <div className="mt-12 rounded-xl bg-[#ED723C]/10 border border-[#ED723C]/30 p-6 sm:p-8">
+            <div className="flex items-center gap-3 mb-3">
+              <Skeleton className="w-5 h-5 sm:w-6 sm:h-6 bg-white/10 rounded" />
+              <Skeleton className="h-5 w-56 bg-white/10 rounded" />
+            </div>
+            <Skeleton className="h-3.5 w-64 bg-white/10 rounded" />
+          </div>
+        </div>
       </div>
     </div>
   );

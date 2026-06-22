@@ -159,70 +159,99 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
   if (isLoading || isPending) {
     return (
       <div className="relative z-10 flex flex-1 flex-col">
-        <div className="mx-auto w-full max-w-8xl px-4 pb-20 pt-4 sm:px-5 sm:pb-24 sm:pt-6 md:px-6 md:pb-32 md:pt-8">
+        <div className="mx-auto w-full max-w-8xl px-4 pb-6 pt-4 sm:px-5 sm:pb-8 sm:pt-6 md:px-6 md:pb-10 md:pt-8">
           {/* Back button skeleton */}
-          <Skeleton className="h-5 w-32 bg-white/10 mb-6 sm:mb-8" />
+          <Skeleton className="h-4 sm:h-5 w-24 sm:w-32 bg-white/10 mb-6 sm:mb-8 rounded" />
 
           {/* Title skeleton */}
-          <Skeleton className="h-8 w-full max-w-2xl bg-white/10 mb-8" />
+          <Skeleton className="h-5 sm:h-7 md:h-8 w-full max-w-lg sm:max-w-2xl bg-white/10 mb-4 sm:mb-8 rounded" />
 
-          {/* Game matchup card skeleton */}
-          <div className="bg-[#050505] rounded-lg border-5 border-[#FBFBFB] p-6 sm:p-8 mb-8">
-            <Skeleton className="h-6 w-64 bg-white/10 mx-auto mb-6" />
-            <div className="flex items-center justify-between gap-4 sm:gap-6 md:gap-8">
-              <div className="flex-1 flex flex-col items-center gap-3">
-                <Skeleton className="h-20 w-20 bg-white/10 rounded-lg" />
-                <Skeleton className="h-4 w-32 bg-white/10" />
-              </div>
-              <Skeleton className="h-8 w-12 bg-white/10" />
-              <div className="flex-1 flex flex-col items-center gap-3">
-                <Skeleton className="h-20 w-20 bg-white/10 rounded-lg" />
-                <Skeleton className="h-4 w-32 bg-white/10" />
+          {/* Game Matchup Card skeleton */}
+          <div className="rounded-xl overflow-hidden shadow-2xl mb-6 sm:mb-10">
+            <div className="bg-linear-to-r from-red-950 via-black to-green-950 p-4 sm:p-8 md:p-12 lg:p-16">
+              <div className="flex items-center justify-between">
+                {/* Away Team */}
+                <div className="flex-1 flex flex-col items-center gap-2 sm:gap-4">
+                  <Skeleton className="w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/10 rounded-lg" />
+                  <Skeleton className="h-3 sm:h-4 w-20 sm:w-32 bg-white/10 rounded" />
+                </div>
+                {/* VS */}
+                <div className="flex flex-col items-center gap-2 sm:gap-6 px-2 sm:px-4 md:px-8">
+                  <Skeleton className="h-6 sm:h-10 md:h-12 w-10 sm:w-14 bg-white/10 rounded" />
+                  <Skeleton className="h-3 sm:h-4 w-24 sm:w-40 bg-white/10 rounded" />
+                  <Skeleton className="h-3 sm:h-4 w-16 sm:w-24 bg-white/10 rounded" />
+                </div>
+                {/* Home Team */}
+                <div className="flex-1 flex flex-col items-center gap-2 sm:gap-4">
+                  <Skeleton className="w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/10 rounded-lg" />
+                  <Skeleton className="h-3 sm:h-4 w-20 sm:w-32 bg-white/10 rounded" />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Market buttons skeleton */}
-          <div className="flex gap-2 mb-8">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-10 w-24 bg-white/10 rounded-md" />
-            ))}
-          </div>
-
-          {/* Table skeleton */}
-          <div className="bg-black/60 rounded-lg border-5 border-[#FBFBFB] overflow-x-auto mb-8 sm:mb-12">
-            <div className="w-full">
-              {/* Header */}
-              <div className="flex bg-[#ED723C] border-b-5 border-[#FBFBFB]">
-                <div className="px-4 sm:px-5 md:px-6 py-3 sm:py-4 flex-none w-40">
-                  <Skeleton className="h-4 w-20 bg-white/20" />
-                </div>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="min-w-40 px-2 sm:px-3 py-3 sm:py-4 border-r-5 border-[#FBFBFB]">
-                    <Skeleton className="h-4 w-24 bg-white/20 mx-auto" />
-                  </div>
-                ))}
+          {/* Odds Section Container skeleton */}
+          <div className="bg-black rounded-xl border border-white/10 overflow-hidden mb-8 sm:mb-12">
+            {/* Market Switcher Header */}
+            <div className="border-b border-white/10 px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
+              <div>
+                <Skeleton className="h-4 sm:h-5 w-40 sm:w-56 bg-white/10 rounded mb-1.5" />
+                <Skeleton className="h-3 w-28 sm:w-36 bg-white/10 rounded" />
               </div>
-              {/* Rows */}
-              {[1, 2].map((row) => (
-                <div key={row} className="flex bg-black/60 border-b-5 border-[#FBFBFB] hover:bg-black/80">
-                  <div className="px-4 sm:px-5 md:px-6 py-4 sm:py-6 flex-none w-40">
-                    <Skeleton className="h-4 w-28 bg-white/10 mb-2" />
-                    <Skeleton className="h-3 w-16 bg-white/5" />
+              <Skeleton className="h-9 sm:h-10 w-full sm:w-40 bg-white/10 rounded-lg" />
+            </div>
+
+            {/* Table skeleton */}
+            <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
+              <div className="overflow-x-auto">
+                <div className="min-w-[600px]">
+                  {/* Orange Header */}
+                  <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-3 sm:px-6 py-3 sm:py-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-28 sm:w-40 md:w-48 shrink-0"></div>
+                      <Skeleton className="h-3 sm:h-4 w-20 bg-white/20 rounded" />
+                    </div>
                   </div>
-                  {[1, 2, 3, 4, 5].map((col) => (
-                    <div key={col} className="min-w-40 px-2 sm:px-3 py-2 sm:py-4 border-r-5 border-[#FBFBFB]">
-                      <Skeleton className="h-6 w-20 bg-white/10 mx-auto" />
+
+                  {/* Sportsbook Logos */}
+                  <div className="bg-white/5 border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-28 sm:w-40 md:w-48 shrink-0"></div>
+                      <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div key={i} className="flex-1 flex items-center justify-center min-h-10 sm:min-h-12">
+                            <Skeleton className="h-6 sm:h-8 md:h-10 w-14 sm:w-20 bg-white/10 rounded-md" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Data Rows */}
+                  {Array.from({ length: 6 }).map((_, idx) => (
+                    <div key={idx} className="border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
+                          <Skeleton className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-white/10 rounded shrink-0" />
+                          <div className="flex flex-col gap-1">
+                            <Skeleton className="h-2 sm:h-2.5 w-12 sm:w-14 bg-white/10 rounded" />
+                            <Skeleton className="h-2.5 sm:h-3.5 w-20 sm:w-28 bg-white/10 rounded" />
+                            <Skeleton className="h-2 sm:h-2.5 w-12 sm:w-16 bg-white/10 rounded" />
+                          </div>
+                        </div>
+                        <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 flex items-center justify-center min-h-10 sm:min-h-12">
+                              <Skeleton className="h-3.5 sm:h-4 w-8 sm:w-12 bg-white/10 rounded" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-
-          {/* Info card skeleton */}
-          <div className="bg-black/60 rounded-lg border-5 border-[#FBFBFB] p-4 sm:p-6">
-            <Skeleton className="h-6 w-64 bg-white/10" />
           </div>
         </div>
       </div>
@@ -250,7 +279,7 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
 
   return (
     <div className="relative z-10 flex flex-1 flex-col">
-      <div className="mx-auto w-full max-w-8xl px-4 pb-20 pt-4 sm:px-5 sm:pb-24 sm:pt-6 md:px-6 md:pb-32 md:pt-8">
+      <div className="mx-auto w-full max-w-8xl px-4 pb-6 pt-4 sm:px-5 sm:pb-8 sm:pt-6 md:px-6 md:pb-10 md:pt-8">
         {/* Back button */}
         <Link
           href="/odds"
@@ -261,89 +290,90 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
         </Link>
 
         {/* Page Title */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8">
-          {game.away_team} vs. {game.home_team} Odds & Betting Predictions - {formatCommenceTime(game.commence_time).split(" at ")[0]}
+        <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-8 leading-tight">
+          {game.away_team} vs. {game.home_team} Odds & Betting Predictions - {formatCommenceTime(game.commence_time)} ET
         </h1>
 
         {/* Game Matchup Card */}
-        <div className="rounded-xl overflow-hidden shadow-2xl mb-10">
+        <div className="rounded-xl overflow-hidden shadow-2xl mb-6 sm:mb-10">
           {/* Gradient Background - Dark red to dark green */}
-          <div className="bg-linear-to-r from-red-950 via-black to-green-950 p-8 sm:p-12 md:p-16">
+          <div className="bg-linear-to-r from-red-950 via-black to-green-950 p-4 sm:p-8 md:p-12 lg:p-16">
             <div className="flex items-center justify-between">
               {/* Away Team */}
-              <div className="flex-1 flex flex-col items-center gap-4">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+              <div className="flex-1 flex flex-col items-center gap-2 sm:gap-4">
+                <div className="w-14 h-14 sm:w-24 sm:h-24 md:w-28 md:h-28 flex items-center justify-center">
                   {getTeamLogo(game.away_team) && (
                     <Image
                       src={getTeamLogo(game.away_team)}
                       alt={game.away_team}
                       width={100}
                       height={100}
-                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl"
+                      className="w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain drop-shadow-xl"
                     />
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-white text-base sm:text-lg uppercase tracking-wide">
+                  <p className="font-bold text-white text-[11px] sm:text-base md:text-lg uppercase tracking-wide">
                     {game.away_team}
                   </p>
                 </div>
               </div>
 
               {/* Center - VS */}
-              <div className="flex flex-col items-center gap-6 px-4 sm:px-8">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-green-400 drop-shadow-lg italic">
+              <div className="flex flex-col items-center gap-2 sm:gap-6 px-2 sm:px-4 md:px-8">
+                <div className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-green-400 drop-shadow-lg italic">
                   VS
                 </div>
-                <p className="text-xs sm:text-sm text-zinc-400 tracking-widest">
+                <p className="text-[10px] sm:text-sm md:text-lg text-white tracking-widest text-center">
                   {formatCommenceTime(game.commence_time).split(" at ")[0]}
+                </p>
+                <p className="text-[10px] sm:text-sm md:text-lg text-green-400 tracking-widest text-center">
+                  {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
                 </p>
               </div>
 
               {/* Home Team */}
-              <div className="flex-1 flex flex-col items-center gap-4">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+              <div className="flex-1 flex flex-col items-center gap-2 sm:gap-4">
+                <div className="w-14 h-14 sm:w-24 sm:h-24 md:w-28 md:h-28 flex items-center justify-center">
                   {getTeamLogo(game.home_team) && (
                     <Image
                       src={getTeamLogo(game.home_team)}
                       alt={game.home_team}
                       width={100}
                       height={100}
-                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl"
+                      className="w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain drop-shadow-xl"
                     />
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-white text-base sm:text-lg uppercase tracking-wide">
+                  <p className="font-bold text-white text-[11px] sm:text-base md:text-lg uppercase tracking-wide">
                     {game.home_team}
                   </p>
                 </div>
               </div>
             </div>
-
-         
           </div>
         </div>
 
         {/* Odds Section Container */}
         <div className="bg-black rounded-xl border border-white/10 overflow-hidden mb-8 sm:mb-12">
           {/* Market Switcher Header */}
-          <div className="border-b border-white/10 px-6 sm:px-8 py-4 sm:py-5 flex items-center justify-between gap-6">
+          <div className="border-b border-white/10 px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
             {/* Left Side - Descriptive Text */}
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-white mb-1">
+              <h3 className="text-sm sm:text-base md:text-lg font-bold text-white mb-0.5 sm:mb-1">
                 {game.away_team} at {game.home_team} Odds
               </h3>
-              <p className="text-xs sm:text-sm text-zinc-400">
+              <p className="text-[10px] sm:text-xs md:text-sm text-zinc-400">
                 Spread, Total, Moneyline
               </p>
             </div>
 
             {/* Right Side - Dropdown Selector */}
-            <div className="min-w-40">
+            <div className="min-w-0 sm:min-w-40">
               <Select value={selectedMarket} onValueChange={(value) => setSelectedMarket(value as any)}>
                 <SelectTrigger className="bg-white/5 border-white/10 hover:border-[#ED723C]/50">
-                  <span className="text-white font-medium">{getMarketLabel(selectedMarket)}</span>
+                  <span className="text-sm sm:text-base text-white font-medium">{getMarketLabel(selectedMarket)}</span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Markets</SelectItem>
@@ -357,40 +387,40 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
 
           {/* Sports Betting Odds Table */}
           <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
+           <div className="overflow-x-auto">
+            <div className="min-w-[600px]">
             {/* Header */}
-            <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-4 sm:px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-40 sm:w-48"></div>
+            <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-3 sm:px-6 py-3 sm:py-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-28 sm:w-40 md:w-48 shrink-0"></div>
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-white opacity-90">Sportsbooks</p>
+                  <p className="text-[10px] sm:text-xs font-bold text-white opacity-90">Sportsbooks</p>
                 </div>
               </div>
             </div>
 
             {/* Sportsbook Column Headers */}
-            <div className="bg-white/5 border-b border-white/10 px-4 sm:px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-40 sm:w-48 shrink-0"></div>
-                <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+            <div className="bg-white/5 border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-28 sm:w-40 md:w-48 shrink-0"></div>
+                <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                   {filteredBookmakers.map((bookmaker) => {
                     const logoUrl = getSportsbookLogo(bookmaker.key);
-                    console.log(`Bookmaker: ${bookmaker.key} (${bookmaker.title}) -> Logo: ${logoUrl}`);
                     return (
-                      <div key={bookmaker.key} className="flex-1 text-center flex items-center justify-center min-h-12">
+                      <div key={bookmaker.key} className="flex-1 text-center flex items-center justify-center min-h-10 sm:min-h-12">
                         {logoUrl ? (
                           <Image
                             src={logoUrl}
                             alt={bookmaker.title}
                             width={80}
                             height={40}
-                            className="h-8 sm:h-10 w-auto object-contain rounded-md"
+                            className="h-6 sm:h-8 md:h-10 w-auto object-contain rounded-md"
                             onError={(e) => {
-                              console.error(`Failed to load image: ${logoUrl}`);
                               e.currentTarget.style.display = 'none';
                             }}
                           />
                         ) : (
-                          <p className="text-xs font-semibold text-zinc-300 truncate">{bookmaker.title}</p>
+                          <p className="text-[10px] sm:text-xs font-semibold text-zinc-300 truncate">{bookmaker.title}</p>
                         )}
                       </div>
                     );
@@ -404,33 +434,36 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
               // Show three rows for all market types
               <>
                 {/* Moneyline Row */}
-                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
                       {game.away_team && getTeamLogo(game.away_team) ? (
                         <Image
                           src={getTeamLogo(game.away_team)}
                           alt={game.away_team}
                           width={36}
                           height={36}
-                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
                         />
                       ) : null}
                       <div className="flex flex-col">
-                        <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
-                        <p className="text-xs text-zinc-400">Moneyline</p>
+                        <p className="text-[10px] sm:text-xs text-white mb-1">
+                          {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.away_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Moneyline</p>
                       </div>
                     </div>
-                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                       {filteredBookmakers.map((bookmaker) => {
                         const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
                         const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
                         return (
-                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                               {h2hOdds?.price !== null && h2hOdds?.price !== undefined ? formatOdds(h2hOdds?.price) : "—"}
                             </p>
                           </div>
@@ -441,33 +474,36 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
                 </div>
 
                 {/* Spread Row */}
-                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
                       {game.away_team && getTeamLogo(game.away_team) ? (
                         <Image
                           src={getTeamLogo(game.away_team)}
                           alt={game.away_team}
                           width={36}
                           height={36}
-                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
                         />
                       ) : null}
                       <div className="flex flex-col">
-                        <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
-                        <p className="text-xs text-zinc-400">Spread</p>
+                        <p className="text-[10px] sm:text-xs text-white mb-1">
+                          {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.away_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Spread</p>
                       </div>
                     </div>
-                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                       {filteredBookmakers.map((bookmaker) => {
                         const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
                         const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.away_team);
                         return (
-                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                               {spreadOdds?.price !== null && spreadOdds?.price !== undefined ? formatOdds(spreadOdds?.price) : "—"}
                             </p>
                             {spreadOdds?.point !== undefined && (
@@ -481,33 +517,36 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
                 </div>
 
                 {/* Over/Under Row */}
-                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
                       {game.away_team && getTeamLogo(game.away_team) ? (
                         <Image
                           src={getTeamLogo(game.away_team)}
                           alt={game.away_team}
                           width={36}
                           height={36}
-                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
                         />
                       ) : null}
                       <div className="flex flex-col">
-                        <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
-                        <p className="text-xs text-zinc-400">Over/Under</p>
+                        <p className="text-[10px] sm:text-xs text-white mb-1">
+                          {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.away_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Over/Under</p>
                       </div>
                     </div>
-                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                       {filteredBookmakers.map((bookmaker) => {
                         const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
                         const totalOver = totalMarket?.outcomes?.[0];
                         return (
-                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                               {totalOver?.price !== null && totalOver?.price !== undefined ? formatOdds(totalOver?.price) : "—"}
                             </p>
                             {totalOver?.point !== undefined && (
@@ -524,29 +563,32 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
               </>
             ) : (
               // Single row for specific market type
-              <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                <div className="flex items-center gap-3">
+              <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                <div className="flex items-center gap-2 sm:gap-3">
                   {/* Team Info */}
-                  <div className="w-40 sm:w-48 flex items-center gap-2">
+                  <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-center gap-1.5 sm:gap-2">
                     {game.away_team && getTeamLogo(game.away_team) ? (
                       <Image
                         src={getTeamLogo(game.away_team)}
                         alt={game.away_team}
                         width={36}
                         height={36}
-                        className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                        className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }}
                       />
                     ) : null}
                     <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
+                      <p className="text-[10px] sm:text-xs text-white mb-1">
+                        {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                      </p>
+                      <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.away_team}</p>
                     </div>
                   </div>
 
                   {/* Odds */}
-                  <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                  <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                   {filteredBookmakers.map((bookmaker) => {
                     const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
                     const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
@@ -566,8 +608,8 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
                     }
 
                     return (
-                      <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                        <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                      <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                        <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                           {displayOdds?.price !== null && displayOdds?.price !== undefined
                             ? formatOdds(displayOdds?.price)
                             : "—"}
@@ -590,33 +632,36 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
               // Show three rows for all market types
               <>
                 {/* Moneyline Row */}
-                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
                       {game.home_team && getTeamLogo(game.home_team) ? (
                         <Image
                           src={getTeamLogo(game.home_team)}
                           alt={game.home_team}
                           width={36}
                           height={36}
-                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
                         />
                       ) : null}
                       <div className="flex flex-col">
-                        <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
-                        <p className="text-xs text-zinc-400">Moneyline</p>
+                        <p className="text-[10px] sm:text-xs text-white mb-1">
+                          {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.home_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Moneyline</p>
                       </div>
                     </div>
-                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                       {filteredBookmakers.map((bookmaker) => {
                         const h2hMarket = bookmaker.markets?.find((m: Market) => m.key === "h2h");
                         const h2hOdds = h2hMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
                         return (
-                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                               {h2hOdds?.price !== null && h2hOdds?.price !== undefined ? formatOdds(h2hOdds?.price) : "—"}
                             </p>
                           </div>
@@ -627,33 +672,36 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
                 </div>
 
                 {/* Spread Row */}
-                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
                       {game.home_team && getTeamLogo(game.home_team) ? (
                         <Image
                           src={getTeamLogo(game.home_team)}
                           alt={game.home_team}
                           width={36}
                           height={36}
-                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
                         />
                       ) : null}
                       <div className="flex flex-col">
-                        <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
-                        <p className="text-xs text-zinc-400">Spread</p>
+                        <p className="text-[10px] sm:text-xs text-white mb-1">
+                          {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.home_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Spread</p>
                       </div>
                     </div>
-                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                       {filteredBookmakers.map((bookmaker) => {
                         const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === "spreads");
                         const spreadOdds = spreadMarket?.outcomes?.find((o: Outcome) => o.name === game.home_team);
                         return (
-                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                               {spreadOdds?.price !== null && spreadOdds?.price !== undefined ? formatOdds(spreadOdds?.price) : "—"}
                             </p>
                             {spreadOdds?.point !== undefined && (
@@ -667,33 +715,36 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
                 </div>
 
                 {/* Over/Under Row */}
-                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-40 sm:w-48 flex items-start gap-2">
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
                       {game.home_team && getTeamLogo(game.home_team) ? (
                         <Image
                           src={getTeamLogo(game.home_team)}
                           alt={game.home_team}
                           width={36}
                           height={36}
-                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
                         />
                       ) : null}
                       <div className="flex flex-col">
-                        <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
-                        <p className="text-xs text-zinc-400">Over/Under</p>
+                        <p className="text-[10px] sm:text-xs text-white mb-1">
+                          {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.home_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Over/Under</p>
                       </div>
                     </div>
-                    <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                       {filteredBookmakers.map((bookmaker) => {
                         const totalMarket = bookmaker.markets?.find((m: Market) => m.key === "totals");
                         const totalUnder = totalMarket?.outcomes?.[1];
                         return (
-                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                            <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                          <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                               {totalUnder?.price !== null && totalUnder?.price !== undefined ? formatOdds(totalUnder?.price) : "—"}
                             </p>
                             {totalUnder?.point !== undefined && (
@@ -711,23 +762,26 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
             ) : (
               // Single row for specific market type
               <div className="hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   {/* Team Info */}
-                  <div className="w-40 sm:w-48 flex items-center gap-2">
+                  <div className="w-28 sm:w-40 md:w-48 shrink-0 flex items-center gap-1.5 sm:gap-2">
                     {game.home_team && getTeamLogo(game.home_team) ? (
                       <Image
                         src={getTeamLogo(game.home_team)}
                         alt={game.home_team}
                         width={36}
                         height={36}
-                        className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                        className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }}
                       />
                     ) : null}
                     <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
+                      <p className="text-[10px] sm:text-xs text-white mb-1">
+                        {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
+                      </p>
+                      <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.home_team}</p>
                     </div>
                   </div>
 
@@ -752,8 +806,8 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
                       }
 
                       return (
-                        <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                          <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                        <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                          <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                             {displayOdds?.price !== null && displayOdds?.price !== undefined
                               ? formatOdds(displayOdds?.price)
                               : "—"}
@@ -770,6 +824,8 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
                 </div>
               </div>
             )}
+            </div>
+           </div>
           </div>
         </div>
 

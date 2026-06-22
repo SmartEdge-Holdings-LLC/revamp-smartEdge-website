@@ -54,13 +54,70 @@ function getTeamLogo(teamName: string): string {
   return "";
 }
 
+const SPORTSBOOK_LOGO_FILES: Record<string, string> = {
+  fanduel: "fanduel.webp",
+  draftkings: "DraftKings.png",
+  betmgm: "BetMGM.png",
+  caesars: "caesars.jpg",
+  williamhill_us: "caesars.jpg",
+  fanatics: "Fanatics.png",
+  mybookie: "MyBookie.ag.jpg",
+  "mybookie.ag": "MyBookie.ag.jpg",
+  betus: "BetUS.png",
+  lowvig: "LowVig.ag.jpg",
+  bovada: "Bovada.png",
+};
+
+function getSportsbookLogo(bookmakerKey: string): string {
+  if (!bookmakerKey) return "";
+  const normalizedKey = bookmakerKey.toLowerCase().trim();
+  if (SPORTSBOOK_LOGO_FILES[normalizedKey]) {
+    return `/sportsbooks/${SPORTSBOOK_LOGO_FILES[normalizedKey]}`;
+  }
+  const baseName = normalizedKey.split(".")[0];
+  if (SPORTSBOOK_LOGO_FILES[baseName]) {
+    return `/sportsbooks/${SPORTSBOOK_LOGO_FILES[baseName]}`;
+  }
+  for (const [key, file] of Object.entries(SPORTSBOOK_LOGO_FILES)) {
+    if (normalizedKey.includes(key) || key.includes(baseName)) {
+      return `/sportsbooks/${file}`;
+    }
+  }
+  return "";
+}
+
+function formatCommenceTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function formatCommenceTimeOnly(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function formatOdds(price: number | null): string {
+  if (price === null) return "—";
+  return price > 0 ? `+${price}` : String(price);
+}
+
 interface OddsContentProps {
   sport: OddsSport;
   onSportChange: (sport: OddsSport) => void;
 }
 
 function OddsTable({ games, sport }: { games: Game[]; sport: OddsSport }) {
-  // Extract unique sportsbooks
   const sportsbooks = Array.from(
     new Map(
       games
@@ -75,142 +132,145 @@ function OddsTable({ games, sport }: { games: Game[]; sport: OddsSport }) {
     }
   };
 
-  function formatCommenceTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleString("en-US", {
-      timeZone: "America/New_York",
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  }
-
-  function formatOdds(price: number | null): string {
-    if (price === null) return "—";
-    return price > 0 ? `+${price}` : String(price);
-  }
-
   return (
-    <div className="w-full bg-black/30 overflow-hidden rounded-2xl border-5 border-[#FBFBFB] shadow-2xl">
+    <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-[#ED723C] border-b-5 border-[#FBFBFB]">
-              <th className="sticky left-0 z-10 bg-[#ED723C] px-8 py-5 text-left font-semibold text-sm text-white uppercase tracking-wide">
-                Games
-              </th>
-              {sportsbooks.map(([key, title]) => (
-                <th
-                  key={key}
-                  className="min-w-40 px-6 py-5 text-center font-semibold text-sm text-white uppercase tracking-wide border-l-5 border-[#FBFBFB]"
-                >
-                  {title}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-5 divide-[#FBFBFB]">
-            {games.map((game) => {
-              const detailLink = `/odds/${game.id}`;
+        <div className="min-w-[600px]">
+          {/* Header */}
+          <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-3 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-32 sm:w-40 md:w-48 shrink-0"></div>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-white opacity-90">Sportsbooks</p>
+              </div>
+            </div>
+          </div>
 
-              return (
-                <tr
-                  key={game.id}
-                  className="transition-colors hover:bg-white/5 cursor-pointer group"
-                >
-                  <td className="sticky left-0 z-10 bg-black group-hover:bg-black/90 px-8 py-5 border-r-5 border-[#FBFBFB]">
-                    <Link href={detailLink} onClick={() => handleGameClick(game)} className="block">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-slate-400 font-medium">
-                          {formatCommenceTime(game.commence_time)}
-                        </div>
-                        {game.is_live && (
-                          <div className="inline-flex text-[11px] font-bold text-white bg-red-500/80 px-2.5 py-1 rounded-full">
-                            🔴 LIVE
-                          </div>
-                        )}
-                      </div>
-                      <div className="space-y-2.5">
-                        <div className="flex items-center gap-3">
-                          {getTeamLogo(game.away_team) && (
-                            <Image
-                              src={getTeamLogo(game.away_team)}
-                              alt={game.away_team}
-                              width={24}
-                              height={24}
-                              className="h-6 w-6 object-contain shrink-0"
-                            />
-                          )}
-                          <div className="text-sm font-semibold text-white truncate">
-                            {game.away_team}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {getTeamLogo(game.home_team) && (
-                            <Image
-                              src={getTeamLogo(game.home_team)}
-                              alt={game.home_team}
-                              width={24}
-                              height={24}
-                              className="h-6 w-6 object-contain shrink-0"
-                            />
-                          )}
-                          <div className="text-sm font-semibold text-white truncate">
-                            {game.home_team}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </td>
-
-                {sportsbooks.map(([bookmakerId]) => {
-                  const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
-                  const h2hMarket = bookmaker?.markets?.find((m: any) => m.key === "h2h");
-                  const awayOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.away_team)?.price || null;
-                  const homeOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.home_team)?.price || null;
-
+          {/* Sportsbook Column Headers */}
+          <div className="bg-white/5 border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-32 sm:w-40 md:w-48 shrink-0"></div>
+              <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                {sportsbooks.map(([key, title]) => {
+                  const logoUrl = getSportsbookLogo(key);
                   return (
-                    <td
-                      key={bookmakerId}
-                      className="min-w-40 px-6 py-5 text-center border-l-5 border-[#FBFBFB] bg-black/20 group-hover:bg-white/3 transition-colors"
-                    >
-                      {bookmaker && h2hMarket ? (
-                        <div className="space-y-3">
-                          <div className="space-y-2">
-                            <div className="text-xs text-slate-400 font-medium">{game.away_team}</div>
-                            <div className="text-base font-bold text-white px-3 py-2 rounded-lg bg-black/40 group-hover:bg-white/10 transition-colors">
-                              {formatOdds(awayOdds)}
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="text-xs text-slate-400 font-medium">{game.home_team}</div>
-                            <div className="text-base font-bold text-white px-3 py-2 rounded-lg bg-black/40 group-hover:bg-white/10 transition-colors">
-                              {formatOdds(homeOdds)}
-                            </div>
-                          </div>
-                        </div>
+                    <div key={key} className="flex-1 text-center flex items-center justify-center min-h-10 sm:min-h-12">
+                      {logoUrl ? (
+                        <Image
+                          src={logoUrl}
+                          alt={title}
+                          width={80}
+                          height={40}
+                          className="h-6 sm:h-8 md:h-10 w-auto object-contain rounded-md"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
                       ) : (
-                        <div className="text-slate-500 text-sm font-medium py-2">No odds</div>
+                        <p className="text-[10px] sm:text-xs font-semibold text-zinc-300 truncate">{title}</p>
                       )}
-                    </td>
+                    </div>
                   );
                 })}
-              </tr>
+              </div>
+            </div>
+          </div>
+
+          {/* Game Rows */}
+          {games.map((game) => {
+            const detailLink = `/odds/${game.id}`;
+            return (
+              <Link key={game.id} href={detailLink} onClick={() => handleGameClick(game)} className="block">
+                {/* Away Team Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-32 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
+                      {getTeamLogo(game.away_team) ? (
+                        <Image
+                          src={getTeamLogo(game.away_team)}
+                          alt={game.away_team}
+                          width={36}
+                          height={36}
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
+                        />
+                      ) : null}
+                      <div className="flex flex-col min-w-0">
+                        <p className="text-[9px] sm:text-[10px] md:text-xs text-white mb-0.5 sm:mb-1">
+                          {formatCommenceTimeOnly(game.commence_time)} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.away_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Moneyline</p>
+                        {game.is_live && (
+                          <span className="inline-flex text-[9px] sm:text-[10px] font-bold text-white bg-red-500/80 px-1.5 sm:px-2 py-0.5 rounded-full w-fit mt-0.5">
+                            LIVE
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                      {sportsbooks.map(([bookmakerId]) => {
+                        const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
+                        const h2hMarket = bookmaker?.markets?.find((m: any) => m.key === "h2h");
+                        const awayOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.away_team)?.price ?? null;
+                        return (
+                          <div key={bookmakerId} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
+                              {formatOdds(awayOdds)}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Home Team Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-32 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
+                      {getTeamLogo(game.home_team) ? (
+                        <Image
+                          src={getTeamLogo(game.home_team)}
+                          alt={game.home_team}
+                          width={36}
+                          height={36}
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
+                        />
+                      ) : null}
+                      <div className="flex flex-col min-w-0">
+                        <p className="text-[9px] sm:text-[10px] md:text-xs text-white mb-0.5 sm:mb-1">
+                          {formatCommenceTimeOnly(game.commence_time)} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.home_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Moneyline</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                      {sportsbooks.map(([bookmakerId]) => {
+                        const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
+                        const h2hMarket = bookmaker?.markets?.find((m: any) => m.key === "h2h");
+                        const homeOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.home_team)?.price ?? null;
+                        return (
+                          <div key={bookmakerId} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
+                              {formatOdds(homeOdds)}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </Link>
             );
-            })}
-          </tbody>
-        </table>
+          })}
+        </div>
       </div>
     </div>
   );
 }
 
 function HistoricalOddsTable({ games }: { games: HistoricalGame[] }) {
-  // Extract unique sportsbooks
   const sportsbooks = Array.from(
     new Map(
       games
@@ -225,128 +285,134 @@ function HistoricalOddsTable({ games }: { games: HistoricalGame[] }) {
     }
   };
 
-  function formatCommenceTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleString("en-US", {
-      timeZone: "America/New_York",
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  }
-
-  function formatOdds(price: number | null): string {
-    if (price === null) return "—";
-    return price > 0 ? `+${price}` : String(price);
-  }
-
   return (
-    <div className="w-full bg-black/30 overflow-hidden rounded-2xl border-5 border-[#FBFBFB] shadow-2xl">
+    <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-[#ED723C] border-b-5 border-[#FBFBFB]">
-              <th className="sticky left-0 z-10 bg-[#ED723C] px-8 py-5 text-left font-semibold text-sm text-white uppercase tracking-wide">
-                Games
-              </th>
-              {sportsbooks.map(([key, title]) => (
-                <th
-                  key={key}
-                  className="min-w-40 px-6 py-5 text-center font-semibold text-sm text-white uppercase tracking-wide border-l-5 border-[#FBFBFB]"
-                >
-                  {title}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-5 divide-[#FBFBFB]">
-            {games.map((game) => {
-              const detailLink = `/odds/${game.id}`;
+        <div className="min-w-[600px]">
+          {/* Header */}
+          <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-3 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-32 sm:w-40 md:w-48 shrink-0"></div>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-white opacity-90">Sportsbooks</p>
+              </div>
+            </div>
+          </div>
 
-              return (
-                <tr
-                  key={game.id}
-                  className="transition-colors hover:bg-white/5 cursor-pointer group"
-                >
-                  <td className="sticky left-0 z-10 bg-black group-hover:bg-black/90 px-8 py-5 border-r-5 border-[#FBFBFB]">
-                    <Link href={detailLink} onClick={() => handleGameClick(game)} className="block">
-                      <div className="space-y-3">
-                        <div className="text-xs text-slate-400 font-medium">
-                          {formatCommenceTime(game.commence_time)}
-                        </div>
-                        <div className="space-y-2.5">
-                          <div className="flex items-center gap-3">
-                            {getTeamLogo(game.away_team) && (
-                              <Image
-                                src={getTeamLogo(game.away_team)}
-                                alt={game.away_team}
-                                width={24}
-                                height={24}
-                                className="h-6 w-6 object-contain shrink-0"
-                              />
-                            )}
-                            <div className="text-sm font-semibold text-white truncate">
-                              {game.away_team}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {getTeamLogo(game.home_team) && (
-                              <Image
-                                src={getTeamLogo(game.home_team)}
-                                alt={game.home_team}
-                                width={24}
-                                height={24}
-                                className="h-6 w-6 object-contain shrink-0"
-                              />
-                            )}
-                            <div className="text-sm font-semibold text-white truncate">
-                              {game.home_team}
-                            </div>
-                          </div>
-                        </div>
+          {/* Sportsbook Column Headers */}
+          <div className="bg-white/5 border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-32 sm:w-40 md:w-48 shrink-0"></div>
+              <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                {sportsbooks.map(([key, title]) => {
+                  const logoUrl = getSportsbookLogo(key);
+                  return (
+                    <div key={key} className="flex-1 text-center flex items-center justify-center min-h-10 sm:min-h-12">
+                      {logoUrl ? (
+                        <Image
+                          src={logoUrl}
+                          alt={title}
+                          width={80}
+                          height={40}
+                          className="h-6 sm:h-8 md:h-10 w-auto object-contain rounded-md"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <p className="text-[10px] sm:text-xs font-semibold text-zinc-300 truncate">{title}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Game Rows */}
+          {games.map((game) => {
+            const detailLink = `/odds/${game.id}`;
+            return (
+              <Link key={game.id} href={detailLink} onClick={() => handleGameClick(game)} className="block">
+                {/* Away Team Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-32 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
+                      {getTeamLogo(game.away_team) ? (
+                        <Image
+                          src={getTeamLogo(game.away_team)}
+                          alt={game.away_team}
+                          width={36}
+                          height={36}
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
+                        />
+                      ) : null}
+                      <div className="flex flex-col min-w-0">
+                        <p className="text-[9px] sm:text-[10px] md:text-xs text-white mb-0.5 sm:mb-1">
+                          {formatCommenceTimeOnly(game.commence_time)} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.away_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Moneyline</p>
                       </div>
-                    </Link>
-                  </td>
-
-                  {sportsbooks.map(([bookmakerId]) => {
-                    const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
-                    const h2hMarket = bookmaker?.markets?.find((m: any) => m.key === "h2h");
-                    const awayOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.away_team)?.price || null;
-                    const homeOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.home_team)?.price || null;
-
-                    return (
-                      <td
-                        key={bookmakerId}
-                        className="min-w-40 px-6 py-5 text-center border-l-5 border-[#FBFBFB] bg-black/20 group-hover:bg-white/3 transition-colors"
-                      >
-                        {bookmaker && h2hMarket ? (
-                          <div className="space-y-3">
-                            <div className="space-y-2">
-                              <div className="text-xs text-slate-400 font-medium">{game.away_team}</div>
-                              <div className="text-base font-bold text-white px-3 py-2 rounded-lg bg-black/40 group-hover:bg-white/10 transition-colors">
-                                {formatOdds(awayOdds)}
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="text-xs text-slate-400 font-medium">{game.home_team}</div>
-                              <div className="text-base font-bold text-white px-3 py-2 rounded-lg bg-black/40 group-hover:bg-white/10 transition-colors">
-                                {formatOdds(homeOdds)}
-                              </div>
-                            </div>
+                    </div>
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                      {sportsbooks.map(([bookmakerId]) => {
+                        const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
+                        const h2hMarket = bookmaker?.markets?.find((m: any) => m.key === "h2h");
+                        const awayOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.away_team)?.price ?? null;
+                        return (
+                          <div key={bookmakerId} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
+                              {formatOdds(awayOdds)}
+                            </p>
                           </div>
-                        ) : (
-                          <div className="text-slate-500 text-sm font-medium py-2">No odds</div>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Home Team Row */}
+                <div className="border-b border-white/10 hover:bg-white/5 transition-colors px-3 sm:px-6 py-3 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-32 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
+                      {getTeamLogo(game.home_team) ? (
+                        <Image
+                          src={getTeamLogo(game.home_team)}
+                          alt={game.home_team}
+                          width={36}
+                          height={36}
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
+                        />
+                      ) : null}
+                      <div className="flex flex-col min-w-0">
+                        <p className="text-[9px] sm:text-[10px] md:text-xs text-white mb-0.5 sm:mb-1">
+                          {formatCommenceTimeOnly(game.commence_time)} ET
+                        </p>
+                        <p className="text-[11px] sm:text-xs md:text-sm font-bold text-white truncate">{game.home_team}</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400">Moneyline</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                      {sportsbooks.map(([bookmakerId]) => {
+                        const bookmaker = game.bookmakers.find((b) => b.key === bookmakerId);
+                        const h2hMarket = bookmaker?.markets?.find((m: any) => m.key === "h2h");
+                        const homeOdds = h2hMarket?.outcomes?.find((o: any) => o.name === game.home_team)?.price ?? null;
+                        return (
+                          <div key={bookmakerId} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                            <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
+                              {formatOdds(homeOdds)}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -354,49 +420,56 @@ function HistoricalOddsTable({ games }: { games: HistoricalGame[] }) {
 
 function OddsTableSkeleton() {
   return (
-    <div className="w-full overflow-hidden rounded-2xl border-5 border-[#FBFBFB] shadow-2xl bg-black/30">
+    <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-[#ED723C] border-b-5 border-[#FBFBFB]">
-              <th className="sticky left-0 z-10 bg-[#ED723C] px-8 py-5 text-left font-semibold text-sm text-white uppercase tracking-wide">
-                <Skeleton className="h-4 w-16 bg-white/20" />
-              </th>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <th
-                  key={i}
-                  className="min-w-40 px-6 py-5 text-center font-semibold text-sm text-white uppercase tracking-wide border-l-5 border-[#FBFBFB]"
-                >
-                  <Skeleton className="h-4 w-20 mx-auto bg-white/20" />
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-5 divide-[#FBFBFB]">
-            {Array.from({ length: 6 }).map((_, idx) => (
-              <tr key={idx} className="bg-black/60 hover:bg-black/80 group">
-                <td className="sticky left-0 z-10 bg-black px-8 py-5 border-r-5 border-[#FBFBFB]">
-                  <div className="space-y-3">
-                    <Skeleton className="h-3 w-24 bg-slate-700" />
-                    <Skeleton className="h-3 w-28 bg-slate-700" />
-                    <Skeleton className="h-3 w-20 bg-slate-700" />
-                  </div>
-                </td>
+        <div className="min-w-[600px]">
+          {/* Header */}
+          <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-3 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-32 sm:w-40 md:w-48 shrink-0"></div>
+              <div className="flex-1">
+                <Skeleton className="h-4 w-24 bg-white/20" />
+              </div>
+            </div>
+          </div>
+
+          {/* Sportsbook Header */}
+          <div className="bg-white/5 border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-32 sm:w-40 md:w-48 shrink-0"></div>
+              <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <td
-                    key={i}
-                    className="min-w-40 px-6 py-5 text-center border-l-5 border-[#FBFBFB] bg-black/20 group-hover:bg-white/3 transition-colors"
-                  >
-                    <div className="space-y-2">
-                      <Skeleton className="h-3 w-12 mx-auto bg-slate-700" />
-                      <Skeleton className="h-4 w-16 mx-auto bg-slate-700" />
-                    </div>
-                  </td>
+                  <div key={i} className="flex-1 flex items-center justify-center min-h-10 sm:min-h-12">
+                    <Skeleton className="h-6 sm:h-8 w-16 sm:w-20 bg-white/10 rounded-md" />
+                  </div>
                 ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </div>
+            </div>
+          </div>
+
+          {/* Row Skeletons */}
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <div key={idx} className="border-b border-white/10 px-3 sm:px-6 py-3 sm:py-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-32 sm:w-40 md:w-48 shrink-0 flex items-start gap-1.5 sm:gap-2">
+                  <Skeleton className="w-6 h-6 sm:w-8 sm:h-8 bg-white/10 rounded shrink-0" />
+                  <div className="flex flex-col gap-1">
+                    <Skeleton className="h-2.5 sm:h-3 w-14 sm:w-16 bg-white/10" />
+                    <Skeleton className="h-3 sm:h-3.5 w-24 sm:w-28 bg-white/10" />
+                    <Skeleton className="h-2.5 sm:h-3 w-14 sm:w-16 bg-white/10" />
+                  </div>
+                </div>
+                <div className="flex-1 flex gap-1.5 sm:gap-3 justify-between">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex-1 bg-white/8 rounded px-1.5 sm:px-2 py-1.5 sm:py-2 flex items-center justify-center min-h-10 sm:min-h-12">
+                      <Skeleton className="h-3.5 sm:h-4 w-10 sm:w-12 bg-white/10" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -428,9 +501,9 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
     <div className="relative z-10 flex flex-1 flex-col">
       <OddsSportSubNav sport={sport} onSportChange={onSportChange} />
 
-      <div className="mx-auto w-full max-w-7-5xl px-5 pb-24 pt-6 sm:px-6 md:pb-32 md:pt-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3.5 py-1.5 text-[13px] text-zinc-300">
+      <div className="mx-auto w-full max-w-7-5xl px-3 pb-16 pt-4 sm:px-5 sm:pb-24 sm:pt-6 md:px-6 md:pb-32 md:pt-8">
+        <div className="mx-auto max-w-3xl text-center px-2 sm:px-0">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-[11px] sm:text-[13px] text-zinc-300">
             {sportLogo ? (
               <span className="flex size-5 items-center justify-center overflow-hidden">
                 <BrandImage
@@ -457,10 +530,10 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
         </div>
 
         {/* Filter Tabs */}
-        <div className="mt-8 flex items-center justify-center gap-4">
+        <div className="mt-6 sm:mt-8 flex items-center justify-center gap-2 sm:gap-4">
           <button
             onClick={() => setViewMode("live")}
-            className={`px-6 py-2 rounded-lg font-medium transition-all ${
+            className={`px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base font-medium transition-all ${
               viewMode === "live"
                 ? "bg-[#ED723C] text-white"
                 : "bg-white/10 text-zinc-400 hover:bg-white/20"
@@ -470,7 +543,7 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
           </button>
           <button
             onClick={() => setViewMode("historical")}
-            className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+            className={`px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base font-medium transition-all flex items-center gap-2 ${
               viewMode === "historical"
                 ? "bg-[#ED723C] text-white"
                 : "bg-white/10 text-zinc-400 hover:bg-white/20"
@@ -487,33 +560,33 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
             <p className="text-center text-sm text-zinc-500">
               Select a date to view the historical odds
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
               <label className="text-sm font-medium text-zinc-400">Select Date:</label>
               <div className="relative">
-              <button
-                onClick={() => setShowCalendar(!showCalendar)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors"
-              >
-                <Calendar className="size-4" />
-                <span className="text-sm font-medium">{selectedDate}</span>
-              </button>
-              {showCalendar && (
-                <div className="absolute top-full mt-2 z-50 bg-black border border-white/20 rounded-lg shadow-xl p-4">
-                  <CalendarComponent
-                    mode="single"
-                    selected={new Date(selectedDate)}
-                    onSelect={handleDateChange}
-                    disabled={(date) => date > new Date()}
-                    className="rounded-md border border-white/10"
-                  />
-                </div>
-              )}
-            </div>
+                <button
+                  onClick={() => setShowCalendar(!showCalendar)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors"
+                >
+                  <Calendar className="size-4" />
+                  <span className="text-sm font-medium">{selectedDate}</span>
+                </button>
+                {showCalendar && (
+                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 z-50 bg-black border border-white/20 rounded-lg shadow-xl p-4">
+                    <CalendarComponent
+                      mode="single"
+                      selected={new Date(selectedDate)}
+                      onSelect={handleDateChange}
+                      disabled={(date) => date > new Date()}
+                      className="rounded-md border border-white/10"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        <div className="mt-10 flex items-center justify-center gap-2 text-[13px] text-zinc-500">
+        <div className="mt-6 sm:mt-10 flex items-center justify-center gap-2 text-[11px] sm:text-[13px] text-zinc-500">
           <TrendingUp className="size-3.5 text-white" />
           <span>
             Showing{" "}
@@ -560,7 +633,7 @@ export function OddsContent({ sport, onSportChange }: OddsContentProps) {
             : "Historical odds data is updated daily with past game information."}
         </p>
 
-        <div className="mx-auto mt-12 flex max-w-md flex-col items-center gap-4 text-center">
+        <div className="mx-auto mt-8 sm:mt-12 flex max-w-md flex-col items-center gap-3 sm:gap-4 text-center px-4 sm:px-0">
           <p className="text-sm text-zinc-400">
             Want model-backed picks with confidence scores on these matchups?
           </p>
