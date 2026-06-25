@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { XIcon, InstagramIcon, FacebookIcon, YouTubeIcon } from "@/components/icons/SocialIcons";
+import { FREE_PICKS_SOCIAL_LINKS, type FreePicksSocialPlatform } from "@/components/landing/free-picks-content";
+import { getSocialPlatformLogo } from "@/lib/social-platform-logos";
+import { cn } from "@/lib/utils";
 
 const FOOTER_LINKS = [
   { label: "Pricing", href: "/#pricing" },
@@ -18,12 +20,17 @@ const FOOTER_LINKS = [
   { label: "Log in", href: "/login" },
 ] as const;
 
-const SOCIAL_LINKS = [
-  { label: "Twitter", href: "https://twitter.com/smartedgepicks", Icon: XIcon },
-  { label: "Instagram", href: "https://instagram.com/smartedgepicks", Icon: InstagramIcon },
-  { label: "Facebook", href: "https://facebook.com/smartedgepicks", Icon: FacebookIcon },
-  { label: "YouTube", href: "https://youtube.com/@smartedgepicks", Icon: YouTubeIcon },
-];
+function SocialLinkIcon({ platform }: { platform: FreePicksSocialPlatform }) {
+  return (
+    <Image
+      src={getSocialPlatformLogo(platform)}
+      alt=""
+      width={24}
+      height={24}
+      className="size-6 object-contain"
+    />
+  );
+}
 
 const linkClassName =
   "text-sm text-zinc-400 transition-colors hover:text-white";
@@ -65,21 +72,27 @@ export function LandingFooter() {
 
         <div className="mt-8 sm:mt-12 border-t border-white/10 pt-6 sm:pt-8 md:mt-14">
           <div className="text-center mb-8 sm:mb-10">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-300 mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-300 mb-5">
               Follow Us on Socials
             </h3>
-            <div className="flex items-center justify-center gap-2 sm:gap-3">
-              {SOCIAL_LINKS.map((social) => (
-                <Link
-                  key={social.label}
-                  href={social.href}
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              {FREE_PICKS_SOCIAL_LINKS.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-zinc-400 transition-all duration-200 hover:border-accent  hover:text-accent"
-                  title={social.label}
+                  className={cn(
+                    "group flex min-w-34 flex-col items-center rounded-2xl border border-white/10 bg-white/3 px-4 py-3.5 text-center transition-colors",
+                    "hover:border-accent/35 hover:bg-white/5"
+                  )}
                 >
-                  <social.Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                </Link>
+                  <span className="flex size-10 items-center justify-center rounded-full bg-white/5 text-zinc-200 ring-1 ring-white/10 transition group-hover:bg-accent/10 group-hover:text-accent">
+                    <SocialLinkIcon platform={link.platform} />
+                  </span>
+                  <span className="mt-2 text-sm font-semibold text-white">{link.label}</span>
+                  <span className="mt-0.5 text-[11px] text-zinc-500">{link.blurb}</span>
+                </a>
               ))}
             </div>
           </div>

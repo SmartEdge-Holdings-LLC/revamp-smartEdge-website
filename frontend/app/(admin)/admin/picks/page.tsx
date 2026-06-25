@@ -39,7 +39,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AdminApiError, deleteAdminPick, listAdminPicks } from "@/lib/api/adminApi";
+import { AdminApiError, deleteAdminPick, listAdminPicks, updateAdminPick } from "@/lib/api/adminApi";
 import { readAuthSession } from "@/lib/authCookies";
 import { formatDateET, formatDateTimeET } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,7 @@ import { BET_TYPE_LABELS, PICK_ACCESS_LABELS, PICK_STATUS_LABELS } from "@/types
 import type { League } from "@/types/picks";
 
 const PAGE_SIZE = 20;
-const COLUMN_COUNT = 11;
+const COLUMN_COUNT = 12;
 
 function authorName(pick: AdminPick) {
   const cb = pick.createdBy;
@@ -70,13 +70,20 @@ function betTypeBadgeClass() {
 }
 
 function accessBadgeClass(access: PickAccess) {
-  return access === "free"
-    ? "bg-sky-500/10 text-sky-300 ring-1 ring-inset ring-sky-400/25"
-    : "bg-violet-500/10 text-violet-200 ring-1 ring-inset ring-violet-400/25";
+  switch (access) {
+    case "free":
+      return "bg-sky-500/10 text-sky-300 ring-1 ring-inset ring-sky-400/25";
+    case "both":
+      return "bg-emerald-500/10 text-emerald-300 ring-1 ring-inset ring-emerald-400/25";
+    default:
+      return "bg-violet-500/10 text-violet-200 ring-1 ring-inset ring-violet-400/25";
+  }
 }
 
 function pickAccess(pick: AdminPick): PickAccess {
-  return pick.access === "free" ? "free" : "paid";
+  if (pick.access === "free") return "free";
+  if (pick.access === "both") return "both";
+  return "paid";
 }
 
 function statusBadgeClass(status: PickStatus) {
@@ -88,6 +95,102 @@ function statusBadgeClass(status: PickStatus) {
 function pickStatus(pick: AdminPick): PickStatus {
   return pick.status === "inactive" ? "inactive" : "active";
 }
+
+/* ── Mobile Pick Card ── */
+
+function PickCard({
+  pick,
+  onView,
+  onEdit,
+  onDelete,
+  onResult,
+}: {
+  pick: AdminPick;
+  onView: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onResult: (result: "won" | "lost" | "pending") => void;
+}) {
+  return (
+    <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4 transition hover:bg-white/[0.04]">
+      {/* Top row: league + badges */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {pick.league && (
+          <span className="inline-flex items-center gap-1.5">
+            <LeagueLogo league={pick.league} size={18} />
+            <span className="typo-caption font-semibold text-white">{pick.league}</span>
+          </span>
+        )}
+        <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", accessBadgeClass(pickAccess(pick)))}>
+          {PICK_ACCESS_LABELS[pickAccess(pick)]}
+        </Badge>
+        <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", statusBadgeClass(pickStatus(pick)))}>
+          {PICK_STATUS_LABELS[pickStatus(pick)]}
+        </Badge>
+      </div>
+
+      {/* Title */}
+      <p className="mt-2.5 typo-body-sm font-semibold text-white line-clamp-2">{pick.pickTitle}</p>
+
+      {/* Matchup */}
+      <div className="mt-2">
+        <MatchupDisplay pick={pick} logoSize={14} />
+      </div>
+
+      {/* Stats row */}
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 typo-caption text-subtle">
+        <span>{BET_TYPE_LABELS[pick.betType]}</span>
+        <span className="text-white tabular-nums">{pick.odds}</span>
+        {pick.confidence && (
+          <span className={cn("font-semibold tabular-nums", pick.confidence >= 80 ? "text-emerald-400" : pick.confidence >= 60 ? "text-accent" : "text-amber-300")}>
+            {pick.confidence}%
+          </span>
+        )}
+        {pick.matchTime && <span>{formatDateET(pick.matchTime)}</span>}
+      </div>
+
+      {/* Result + Actions */}
+      <div className="mt-3 flex items-center justify-between border-t border-white/6 pt-3">
+        <div className="flex items-center gap-1">
+          <span className="typo-caption text-subtle mr-1">Result:</span>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            aria-label="Mark won"
+            onClick={() => onResult(pick.result === "won" ? "pending" : "won")}
+            className={cn("size-7", pick.result === "won" ? "text-emerald-400 bg-emerald-500/15" : "text-zinc-500 hover:text-emerald-400")}
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg>
+          </Button>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            aria-label="Mark lost"
+            onClick={() => onResult(pick.result === "lost" ? "pending" : "lost")}
+            className={cn("size-7", pick.result === "lost" ? "text-rose-400 bg-rose-500/15" : "text-zinc-500 hover:text-rose-400")}
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </Button>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Button type="button" size="sm" onClick={onView} className="h-8 gap-1.5 border border-transparent bg-[#c75931] text-white hover:bg-[#b54f2a]">
+            <Eye className="size-3.5" /> View
+          </Button>
+          <Button type="button" size="icon" variant="outline" aria-label="Edit" onClick={onEdit} className="size-8 border-white/12 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
+            <Pencil className="size-3.5" />
+          </Button>
+          <Button type="button" size="icon" variant="outline" aria-label="Delete" onClick={onDelete} className="size-8 border-white/12 bg-white/5 text-rose-300 hover:bg-rose-500/10 hover:text-rose-200">
+            <Trash2 className="size-3.5" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main Page ── */
 
 export default function AdminPicksPage() {
   const [role, setRole] = React.useState<AppRole | undefined>(undefined);
@@ -178,6 +281,17 @@ export default function AdminPicksPage() {
     }
   };
 
+  const handleResultChange = async (pick: AdminPick, result: "won" | "lost" | "pending") => {
+    try {
+      await updateAdminPick(pick._id, { result });
+      toast.success(`Marked as ${result}`);
+      lastKeyRef.current = null;
+      fetchPicks(page, debouncedSearch, leagueFilter);
+    } catch (err) {
+      toast.error(err instanceof AdminApiError ? err.message : "Failed to update result");
+    }
+  };
+
   const totalPages = data?.totalPages ?? 1;
   const total = data?.total ?? 0;
   const showingFrom = data ? (data.page - 1) * data.limit + 1 : 0;
@@ -194,11 +308,12 @@ export default function AdminPicksPage() {
         }
       />
 
-      <div className="flex flex-1 flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-1 flex-col gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6 md:py-8">
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0">
             <h1 className="typo-heading-lg text-white">Pick management</h1>
-            <p className="mt-1 typo-body-md text-subtle">
+            <p className="mt-1 typo-body-sm sm:typo-body-md text-subtle">
               {isHandicapper
                 ? "Create and edit your picks with game info, analysis, odds, bet type, and confidence."
                 : "Create picks with game info, analysis, odds, bet type, and confidence."}
@@ -207,15 +322,16 @@ export default function AdminPicksPage() {
           <Button
             type="button"
             onClick={openCreate}
-            className="bg-accent text-slate-950 hover:brightness-105"
+            className="w-full bg-accent text-slate-950 hover:brightness-105 sm:w-auto"
           >
             <Plus className="mr-2 size-4" />
             Upload pick
           </Button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-55 flex-1 sm:max-w-md">
+        {/* Toolbar */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="relative flex-1 sm:max-w-md">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
             <Input
               type="text"
@@ -235,8 +351,8 @@ export default function AdminPicksPage() {
               </button>
             ) : null}
           </div>
-          <LeagueFilterSelect value={leagueFilter} onChange={setLeagueFilter} />
-          <div className="ml-auto flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <LeagueFilterSelect value={leagueFilter} onChange={setLeagueFilter} />
             <Button
               type="button"
               variant="outline"
@@ -244,61 +360,72 @@ export default function AdminPicksPage() {
               onClick={handleRefresh}
               disabled={loading}
               aria-label="Refresh"
-              className="h-9 gap-2 border-white/12 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white"
+              className="ml-auto h-9 gap-2 border-white/12 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white sm:ml-0"
             >
               <RefreshCw className={cn("size-4", loading && "animate-spin")} />
-              Refresh
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
           </div>
         </div>
 
-        <section className="overflow-hidden">
-          {error ? (
-            <div className="flex items-start gap-3 px-5 py-4 text-rose-200">
-              <AlertCircle className="mt-0.5 size-4 shrink-0" />
-              <div className="min-w-0">
-                <p className="typo-body-sm font-medium">Couldn&apos;t load picks</p>
-                <p className="typo-caption text-rose-200/80">{error}</p>
-              </div>
+        {/* Error */}
+        {error ? (
+          <div className="flex items-start gap-3 rounded-lg border border-rose-500/20 bg-rose-500/5 px-4 py-3 text-rose-200">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <div className="min-w-0">
+              <p className="typo-body-sm font-medium">Couldn&apos;t load picks</p>
+              <p className="typo-caption text-rose-200/80">{error}</p>
             </div>
-          ) : null}
+          </div>
+        ) : null}
 
+        {/* ── Mobile Card Layout ── */}
+        <section className="lg:hidden">
+          {loading && !data ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-40 w-full rounded-xl bg-white/10" />
+              ))}
+            </div>
+          ) : data && data.picks.length > 0 ? (
+            <div className="space-y-3">
+              {data.picks.map((pick) => (
+                <PickCard
+                  key={pick._id}
+                  pick={pick}
+                  onView={() => setViewPick(pick)}
+                  onEdit={() => openEdit(pick)}
+                  onDelete={() => handleDelete(pick)}
+                  onResult={(r) => handleResultChange(pick, r)}
+                />
+              ))}
+            </div>
+          ) : !loading && !error ? (
+            <p className="py-10 text-center typo-body-sm text-subtle">
+              {debouncedSearch || leagueFilter !== "all"
+                ? "No picks match the current filters."
+                : "No picks yet. Upload your first pick."}
+            </p>
+          ) : null}
+        </section>
+
+        {/* ── Desktop Table Layout ── */}
+        <section className="hidden overflow-x-auto lg:block">
           <Table className="text-slate-100">
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  League
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Matchup
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Pick title
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Access
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Status
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Bet type
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Odds
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Confidence
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Match time
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
-                  Posted
-                </TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-right text-subtle">
-                  Actions
-                </TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">League</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Matchup</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Pick title</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Access</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Status</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Bet type</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Odds</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Confidence</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Match time</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Posted</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Result</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-right text-subtle">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-white/5">
@@ -314,17 +441,12 @@ export default function AdminPicksPage() {
                 ))
               ) : data && data.picks.length > 0 ? (
                 data.picks.map((pick) => (
-                  <TableRow
-                    key={pick._id}
-                    className="border-white/5 transition hover:bg-white/4"
-                  >
+                  <TableRow key={pick._id} className="border-white/5 transition hover:bg-white/4">
                     <TableCell>
                       {pick.league ? (
                         <span className="inline-flex items-center gap-2.5">
                           <LeagueLogo league={pick.league} size={22} />
-                          <span className="typo-body-sm font-medium text-white">
-                            {pick.league}
-                          </span>
+                          <span className="typo-body-sm font-medium text-white">{pick.league}</span>
                         </span>
                       ) : (
                         <span className="typo-body-sm text-subtle">—</span>
@@ -334,58 +456,34 @@ export default function AdminPicksPage() {
                       <MatchupDisplay pick={pick} logoSize={16} />
                     </TableCell>
                     <TableCell className="max-w-50 whitespace-normal">
-                      <p className="line-clamp-2 typo-body-sm font-medium text-white">
-                        {pick.pickTitle}
-                      </p>
+                      <p className="line-clamp-2 typo-body-sm font-medium text-white">{pick.pickTitle}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={cn(
-                          "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold",
-                          accessBadgeClass(pickAccess(pick))
-                        )}
-                      >
+                      <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", accessBadgeClass(pickAccess(pick)))}>
                         {PICK_ACCESS_LABELS[pickAccess(pick)]}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={cn(
-                          "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold",
-                          statusBadgeClass(pickStatus(pick))
-                        )}
-                      >
+                      <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", statusBadgeClass(pickStatus(pick)))}>
                         {PICK_STATUS_LABELS[pickStatus(pick)]}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={cn(
-                          "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold",
-                          betTypeBadgeClass()
-                        )}
-                      >
+                      <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", betTypeBadgeClass())}>
                         {BET_TYPE_LABELS[pick.betType]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="typo-body-sm tabular-nums text-white">
-                      {pick.odds}
-                    </TableCell>
+                    <TableCell className="typo-body-sm tabular-nums text-white">{pick.odds}</TableCell>
                     <TableCell>
                       {pick.confidence ? (
-                        <Badge
-                          className={cn(
-                            "rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold tabular-nums",
-                            confidenceBadgeClass(pick.confidence)
-                          )}
-                        >
+                        <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold tabular-nums", confidenceBadgeClass(pick.confidence))}>
                           {pick.confidence}%
                         </Badge>
                       ) : (
                         <span className="text-subtle">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="whitespace-normal">
+                    <TableCell className="whitespace-nowrap">
                       {pick.matchTime ? (
                         <>
                           <p className="typo-body-sm text-white">{formatDateET(pick.matchTime)}</p>
@@ -395,39 +493,43 @@ export default function AdminPicksPage() {
                         <p className="typo-caption text-subtle">—</p>
                       )}
                     </TableCell>
-                    <TableCell className="whitespace-normal">
+                    <TableCell className="whitespace-nowrap">
                       <p className="typo-body-sm text-white">{formatDateET(pick.createdAt)}</p>
                       <p className="typo-caption text-subtle">{authorName(pick)}</p>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Mark won"
+                          onClick={() => handleResultChange(pick, pick.result === "won" ? "pending" : "won")}
+                          className={cn("size-7", pick.result === "won" ? "text-emerald-400 bg-emerald-500/15" : "text-zinc-500 hover:text-emerald-400")}
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg>
+                        </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Mark lost"
+                          onClick={() => handleResultChange(pick, pick.result === "lost" ? "pending" : "lost")}
+                          className={cn("size-7", pick.result === "lost" ? "text-rose-400 bg-rose-500/15" : "text-zinc-500 hover:text-rose-400")}
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+                        </Button>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={() => setViewPick(pick)}
-                          className="h-8 gap-1.5 border border-transparent bg-[#c75931] text-white hover:bg-[#b54f2a] hover:text-white"
-                        >
-                          <Eye className="size-3.5" />
-                          View
+                        <Button type="button" size="sm" onClick={() => setViewPick(pick)} className="h-8 gap-1.5 border border-transparent bg-[#c75931] text-white hover:bg-[#b54f2a] hover:text-white">
+                          <Eye className="size-3.5" /> View
                         </Button>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="outline"
-                          aria-label="Edit pick"
-                          onClick={() => openEdit(pick)}
-                          className="size-8 border-white/12 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
-                        >
+                        <Button type="button" size="icon" variant="outline" aria-label="Edit pick" onClick={() => openEdit(pick)} className="size-8 border-white/12 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
                           <Pencil className="size-3.5" />
                         </Button>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="outline"
-                          aria-label="Delete pick"
-                          onClick={() => handleDelete(pick)}
-                          className="size-8 border-white/12 bg-white/5 text-rose-300 hover:bg-rose-500/10 hover:text-rose-200"
-                        >
+                        <Button type="button" size="icon" variant="outline" aria-label="Delete pick" onClick={() => handleDelete(pick)} className="size-8 border-white/12 bg-white/5 text-rose-300 hover:bg-rose-500/10 hover:text-rose-200">
                           <Trash2 className="size-3.5" />
                         </Button>
                       </div>
@@ -436,10 +538,7 @@ export default function AdminPicksPage() {
                 ))
               ) : !loading && !error ? (
                 <TableRow className="border-white/5 hover:bg-transparent">
-                  <TableCell
-                    colSpan={COLUMN_COUNT}
-                    className="py-10 text-center typo-body-sm text-subtle"
-                  >
+                  <TableCell colSpan={COLUMN_COUNT} className="py-10 text-center typo-body-sm text-subtle">
                     {debouncedSearch || leagueFilter !== "all"
                       ? "No picks match the current filters."
                       : "No picks yet. Upload your first pick."}
@@ -448,43 +547,44 @@ export default function AdminPicksPage() {
               ) : null}
             </TableBody>
           </Table>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-5 py-3">
-            <p className="typo-caption text-subtle">
-              {data && data.picks.length > 0
-                ? `Showing ${showingFrom.toLocaleString()}–${showingTo.toLocaleString()} of ${total.toLocaleString()}`
-                : loading
-                  ? "Loading…"
-                  : "—"}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={loading || page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="h-8 gap-1 border-white/12 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white disabled:opacity-40"
-              >
-                <ChevronLeft className="size-4" /> Prev
-              </Button>
-              <span className="typo-caption text-slate-300">
-                Page <span className="font-semibold text-white">{data?.page ?? page}</span>
-                {data ? <> / {totalPages}</> : null}
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={loading || (data ? page >= totalPages : true)}
-                onClick={() => setPage((p) => p + 1)}
-                className="h-8 gap-1 border-white/12 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white disabled:opacity-40"
-              >
-                Next <ChevronRight className="size-4" />
-              </Button>
-            </div>
-          </div>
         </section>
+
+        {/* Pagination */}
+        <div className="flex flex-col items-center gap-3 border-t border-white/10 px-3 py-3 sm:flex-row sm:justify-between sm:px-5">
+          <p className="typo-caption text-subtle">
+            {data && data.picks.length > 0
+              ? `Showing ${showingFrom.toLocaleString()}–${showingTo.toLocaleString()} of ${total.toLocaleString()}`
+              : loading
+                ? "Loading…"
+                : "—"}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={loading || page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="h-8 gap-1 border-white/12 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white disabled:opacity-40"
+            >
+              <ChevronLeft className="size-4" /> <span className="hidden sm:inline">Prev</span>
+            </Button>
+            <span className="typo-caption text-slate-300">
+              <span className="font-semibold text-white">{data?.page ?? page}</span>
+              {data ? <> / {totalPages}</> : null}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={loading || (data ? page >= totalPages : true)}
+              onClick={() => setPage((p) => p + 1)}
+              className="h-8 gap-1 border-white/12 bg-white/5 text-slate-100 hover:bg-white/10 hover:text-white disabled:opacity-40"
+            >
+              <span className="hidden sm:inline">Next</span> <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       <PickFormDialog
@@ -497,36 +597,27 @@ export default function AdminPicksPage() {
         }}
       />
 
+      {/* View Pick Dialog */}
       <Dialog open={Boolean(viewPick)} onOpenChange={(o) => !o && setViewPick(null)}>
         <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto border border-white/10 bg-linear-to-br from-[#0f0f0f] to-[#1a1a1a] p-0 text-slate-100 sm:max-w-xl">
           {viewPick ? (
             <>
               {/* Header */}
-              <div className="border-b border-white/10 bg-linear-to-r from-accent/10 to-transparent px-6 py-6">
+              <div className="border-b border-white/10 bg-linear-to-r from-accent/10 to-transparent px-4 py-5 sm:px-6 sm:py-6">
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <DialogTitle className="text-2xl font-bold text-white leading-tight">
+                      <DialogTitle className="text-xl font-bold leading-tight text-white sm:text-2xl">
                         {viewPick.pickTitle}
                       </DialogTitle>
                       <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <Badge className="bg-accent/20 text-accent border border-accent/40 text-sm py-1 px-3">
+                        <Badge className="border border-accent/40 bg-accent/20 px-3 py-1 text-sm text-accent">
                           {viewPick.league}
                         </Badge>
-                        <Badge
-                          className={cn(
-                            "rounded-full border-transparent px-3 py-1 text-xs font-semibold",
-                            accessBadgeClass(pickAccess(viewPick))
-                          )}
-                        >
+                        <Badge className={cn("rounded-full border-transparent px-3 py-1 text-xs font-semibold", accessBadgeClass(pickAccess(viewPick)))}>
                           {PICK_ACCESS_LABELS[pickAccess(viewPick)]}
                         </Badge>
-                        <Badge
-                          className={cn(
-                            "rounded-full border-transparent px-3 py-1 text-xs font-semibold",
-                            statusBadgeClass(pickStatus(viewPick))
-                          )}
-                        >
+                        <Badge className={cn("rounded-full border-transparent px-3 py-1 text-xs font-semibold", statusBadgeClass(pickStatus(viewPick)))}>
                           {PICK_STATUS_LABELS[pickStatus(viewPick)]}
                         </Badge>
                       </div>
@@ -536,24 +627,24 @@ export default function AdminPicksPage() {
               </div>
 
               {/* Matchup & Quick Info */}
-              <div className="border-b border-white/10 px-6 py-5">
+              <div className="border-b border-white/10 px-4 py-5 sm:px-6">
                 <div className="mb-5">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Matchup</p>
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Matchup</p>
                   <div className="flex items-center justify-center gap-6 py-4">
                     <MatchupDisplay pick={viewPick} logoSize={48} />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                  <div className="rounded-lg border border-white/5 bg-white/5 p-3">
                     <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Bet Type</p>
                     <p className="mt-2 text-sm font-medium text-white">{BET_TYPE_LABELS[viewPick.betType]}</p>
                   </div>
-                  <div className="bg-white/5 rounded-lg p-3 border border-white/5">
+                  <div className="rounded-lg border border-white/5 bg-white/5 p-3">
                     <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Odds</p>
                     <p className="mt-2 text-sm font-medium text-accent">{viewPick.odds}</p>
                   </div>
-                  <div className="bg-white/5 rounded-lg p-3 border border-white/5 flex flex-col">
+                  <div className="flex flex-col rounded-lg border border-white/5 bg-white/5 p-3">
                     <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Confidence</p>
                     {viewPick.confidence ? (
                       <div className="mt-2 flex items-baseline gap-1">
@@ -567,23 +658,23 @@ export default function AdminPicksPage() {
                 </div>
               </div>
 
-              {/* Analysis Section */}
-              <div className="border-b border-white/10 px-6 py-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Expert Analysis</p>
-                <div className="bg-white/3 rounded-lg border border-white/5 p-4">
-                  <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-wrap">
+              {/* Analysis */}
+              <div className="border-b border-white/10 px-4 py-5 sm:px-6">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Expert Analysis</p>
+                <div className="rounded-lg border border-white/5 bg-white/3 p-4">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-200">
                     {viewPick.detailedAnalysis}
                   </p>
                 </div>
               </div>
 
-              {/* Timeline Section */}
-              <div className="border-b border-white/10 px-6 py-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4">Timeline</p>
+              {/* Timeline */}
+              <div className="border-b border-white/10 px-4 py-5 sm:px-6">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-400">Timeline</p>
                 <div className="space-y-3">
                   {viewPick.matchTime ? (
                     <div className="flex items-start gap-3">
-                      <Clock className="size-5 text-blue-400 mt-0.5 shrink-0" />
+                      <Clock className="mt-0.5 size-5 shrink-0 text-blue-400" />
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Match Time</p>
                         <p className="mt-1 text-sm text-white">{formatDateTimeET(viewPick.matchTime)}</p>
@@ -591,7 +682,7 @@ export default function AdminPicksPage() {
                     </div>
                   ) : null}
                   <div className="flex items-start gap-3">
-                    <Clock className="size-5 text-zinc-600 mt-0.5 shrink-0" />
+                    <Clock className="mt-0.5 size-5 shrink-0 text-zinc-600" />
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Posted</p>
                       <p className="mt-1 text-sm text-white">{formatDateTimeET(viewPick.createdAt)}</p>
@@ -602,18 +693,18 @@ export default function AdminPicksPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end gap-3 px-6 py-4 bg-white/2">
+              <div className="flex flex-col gap-2 bg-white/2 px-4 py-4 sm:flex-row sm:justify-end sm:gap-3 sm:px-6">
                 <Button
                   type="button"
                   variant="ghost"
-                  className="text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                  className="text-slate-400 hover:bg-white/5 hover:text-slate-200"
                   onClick={() => setViewPick(null)}
                 >
                   Close
                 </Button>
                 <Button
                   type="button"
-                  className="bg-accent text-slate-950 hover:brightness-110 font-medium"
+                  className="bg-accent font-medium text-slate-950 hover:brightness-110"
                   onClick={() => {
                     setViewPick(null);
                     openEdit(viewPick);
@@ -624,6 +715,7 @@ export default function AdminPicksPage() {
               </div>
             </>
           ) : null}
+          <DialogDescription className="sr-only">Pick details</DialogDescription>
         </DialogContent>
       </Dialog>
     </>

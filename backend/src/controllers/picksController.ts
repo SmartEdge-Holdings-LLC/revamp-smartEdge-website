@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { getLeagueTeams } from "../config/leagueTeams";
 import { isBetTypeAllowedForLeague } from "../config/pickBetTypes";
-import { BET_TYPES, LEAGUES, PICK_ACCESS, PICK_STATUS } from "../models/Pick";
+import { BET_TYPES, LEAGUES, PICK_ACCESS, PICK_RESULTS, PICK_STATUS } from "../models/Pick";
 import { picksService } from "../services/picksService";
 
 const betTypeSchema = z.enum(BET_TYPES);
@@ -27,6 +27,7 @@ const pickBodySchema = z.object({
   status: pickStatusSchema.default("active"),
   matchTime: z.string().datetime().optional(),
   isPickOfDay: z.boolean().optional(),
+  result: z.enum(PICK_RESULTS).optional(),
 });
 
 function refinePickBody(data: z.infer<typeof pickBodySchema>, ctx: z.RefinementCtx) {

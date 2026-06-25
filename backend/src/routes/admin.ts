@@ -3,6 +3,7 @@ import { adminController } from "../controllers/adminController";
 import { picksController } from "../controllers/picksController";
 import { videosController } from "../controllers/videosController";
 import { promotionsController } from "../controllers/promotionsController";
+import { tournamentController } from "../controllers/tournamentController";
 import { adminAuthMiddleware } from "../middleware/adminAuth";
 import {
   requireAdminJwt,
@@ -48,5 +49,15 @@ router.get("/promotions/:id", requireAdminJwt, promotionsController.getOne);
 router.post("/promotions", requireAdminJwt, promotionsController.create);
 router.put("/promotions/:id", requireAdminJwt, promotionsController.update);
 router.delete("/promotions/:id", requireAdminJwt, promotionsController.remove);
+
+router.get("/tournaments", requireAdminJwt, tournamentController.list);
+router.get("/tournaments/:id", requireAdminJwt, tournamentController.getOne);
+router.post("/tournaments", requireAdminJwt, tournamentController.create);
+router.put("/tournaments/:id", requireAdminJwt, tournamentController.update);
+router.delete("/tournaments/:id", requireAdminJwt, tournamentController.remove);
+router.get("/tournaments/:id/leaderboard", requireAdminJwt, tournamentController.leaderboard);
+router.post("/tournaments/:id/entries", requireAdminJwt, tournamentController.addEntry);
+router.put("/tournaments/:id/entries/:entryId/picks", requireAdminJwt, tournamentController.updateEntryPicks);
+router.post("/tournaments/:id/mark-prize-claimed", requireAdminJwt, tournamentController.markPrizeClaimed);
 
 export default router;

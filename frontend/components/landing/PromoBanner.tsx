@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useLiveOdds, type Game } from "@/lib/hooks/useOdds";
 import { Calendar } from "lucide-react";
 
@@ -141,7 +142,7 @@ function OddsCard({ game }: { game: Game }) {
   const underTotal = totalsMarket?.outcomes?.find((o) => o.name === "Under");
 
   return (
-    <div className="shrink-0 w-120 sm:w-140 rounded-2xl bg-[#e4e4ed] p-4 sm:p-5 shadow-sm">
+    <Link href="/odds" className="shrink-0 w-120 sm:w-140 rounded-2xl border-2 border-green-500 bg-[#e4e4ed] p-4 sm:p-5 shadow-sm block hover:shadow-md transition-shadow cursor-pointer">
       {/* Grid: team info + odds cells */}
       <div className="grid grid-cols-[minmax(160px,1fr)_auto_auto_auto] gap-x-3 sm:gap-x-4 gap-y-2 sm:gap-y-3 items-stretch">
         {/* Away team row */}
@@ -238,7 +239,7 @@ function OddsCard({ game }: { game: Game }) {
           {formatGameTime(game.commence_time)}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
 

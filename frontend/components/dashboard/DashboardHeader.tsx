@@ -32,6 +32,7 @@ function initialsFromName(name: string) {
 
 const DASHBOARD_TABS = [
   { label: "Premium Picks", href: "/dashboard" },
+  { label: "Tournaments", href: "/dashboard/tournaments" },
   { label: "Free Picks", href: "/free-picks" },
   { label: "Expert Picks", href: "/expert-picks" },
   { label: "Odds", href: "/odds" },

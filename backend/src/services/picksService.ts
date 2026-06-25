@@ -6,6 +6,7 @@ import {
 } from "../config/leagueTeams";
 import { isBetTypeAllowedForLeague } from "../config/pickBetTypes";
 import type { AdminRole } from "../models/Admin";
+import { TournamentEntry } from "../models/TournamentEntry";
 import {
   BET_TYPES,
   Pick,
@@ -13,6 +14,7 @@ import {
   type IPick,
   type League,
   type PickAccess,
+  type PickResult,
   type PickStatus,
 } from "../models/Pick";
 
@@ -46,7 +48,9 @@ export type PickCreateInput = {
   createdBy: string;
 };
 
-export type PickUpdateInput = Partial<Omit<PickCreateInput, "createdBy">>;
+export type PickUpdateInput = Partial<Omit<PickCreateInput, "createdBy">> & {
+  result?: PickResult;
+};
 
 export type PickListOptions = {
   page: number;
@@ -159,14 +163,14 @@ async function findActivePagedByAuthorSource(options: {
   limit: number;
   search?: string;
   league?: League[];
-  access: PickAccess;
+  access: PickAccess | PickAccess[];
   authorRoles: AdminRole[];
 }) {
   const { page, limit, search, league, access, authorRoles } = options;
   const skip = (page - 1) * limit;
 
   const match: Record<string, unknown> = {
-    access,
+    access: Array.isArray(access) ? { $in: access } : access,
     status: "active",
   };
   if (league && league.length > 0) {
@@ -399,7 +403,7 @@ export const picksService = {
       limit,
       search: options.search,
       league: options.league,
-      access: ["free"],
+      access: ["free", "both"],
       status: ["active"],
     });
 
@@ -428,7 +432,7 @@ export const picksService = {
       limit,
       search,
       league,
-      access: "free",
+      access: ["free", "both"],
       authorRoles: roles,
     });
 
@@ -452,7 +456,7 @@ export const picksService = {
       limit,
       search,
       league,
-      access: "paid",
+      access: ["free", "paid", "both"],
       authorRoles: roles,
     });
 
@@ -467,7 +471,7 @@ export const picksService = {
     }
     const pick = await Pick.findOne({
       _id: id,
-      access: "free",
+      access: { $in: ["free", "both"] },
       status: "active",
     })
       .populate("createdBy", CREATED_BY_FIELDS)
@@ -597,9 +601,15 @@ export const picksService = {
       update.matchTime = input.matchTime ? new Date(input.matchTime) : undefined;
     }
     if (input.isPickOfDay !== undefined) update.isPickOfDay = input.isPickOfDay;
+    if (input.result !== undefined) update.result = input.result;
 
     const pick = await Pick.findByIdAndUpdate(id, update, { new: true, runValidators: true });
     if (!pick) throw new Error("Pick not found");
+
+    if (input.result !== undefined) {
+      await this.recalcTournamentScoresForPick(id);
+    }
+
     return this.findById(id);
   },
 
@@ -619,5 +629,24 @@ export const picksService = {
 
   allowedBetTypes(): readonly BetType[] {
     return BET_TYPES;
+  },
+
+  async recalcTournamentScoresForPick(pickId: string): Promise<void> {
+    const entries = await TournamentEntry.find({
+      picks: new mongoose.Types.ObjectId(pickId),
+    });
+    if (entries.length === 0) return;
+
+    for (const entry of entries) {
+      const wonPicks = await Pick.find({
+        _id: { $in: entry.picks },
+        result: "won",
+      }).select("_id");
+      const newScore = wonPicks.length;
+      if (entry.score !== newScore) {
+        entry.score = newScore;
+        await entry.save();
+      }
+    }
   },
 };

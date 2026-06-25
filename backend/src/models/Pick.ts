@@ -4,13 +4,17 @@ import { LEAGUES, type League } from "../config/pickLeagues";
 
 export { BET_TYPES, type BetType, LEAGUES, type League };
 
-export const PICK_ACCESS = ["free", "paid"] as const;
+export const PICK_ACCESS = ["free", "paid", "both"] as const;
 
 export type PickAccess = (typeof PICK_ACCESS)[number];
 
 export const PICK_STATUS = ["active", "inactive"] as const;
 
 export type PickStatus = (typeof PICK_STATUS)[number];
+
+export const PICK_RESULTS = ["pending", "won", "lost"] as const;
+
+export type PickResult = (typeof PICK_RESULTS)[number];
 
 export interface IPick extends Document {
   league: League;
@@ -35,6 +39,7 @@ export interface IPick extends Document {
   matchTime?: Date;
   /** Mark this pick as Pick/Lock of the Day */
   isPickOfDay?: boolean;
+  result: PickResult;
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -59,6 +64,7 @@ const pickSchema = new Schema<IPick>(
     status: { type: String, enum: PICK_STATUS, required: true, default: "active" },
     matchTime: { type: Date },
     isPickOfDay: { type: Boolean, default: false },
+    result: { type: String, enum: PICK_RESULTS, default: "pending" },
     createdBy: { type: Schema.Types.ObjectId, ref: "Admin", required: true },
   },
   { timestamps: true }

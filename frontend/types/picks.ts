@@ -46,13 +46,17 @@ export function normalizeBetTypeForLeague(league: League, betType: string): BetT
   return isBetTypeValidForLeague(league, betType) ? betType : getDefaultBetTypeForLeague(league);
 }
 
-export const PICK_ACCESS = ["free", "paid"] as const;
+export const PICK_ACCESS = ["free", "paid", "both"] as const;
 
 export type PickAccess = (typeof PICK_ACCESS)[number];
 
 export const PICK_STATUS = ["active", "inactive"] as const;
 
 export type PickStatus = (typeof PICK_STATUS)[number];
+
+export const PICK_RESULTS = ["pending", "won", "lost"] as const;
+
+export type PickResult = (typeof PICK_RESULTS)[number];
 
 export { LEAGUE_LOGOS };
 
@@ -106,6 +110,7 @@ export interface AdminPick {
   status: PickStatus;
   matchTime?: string;
   isPickOfDay?: boolean;
+  result?: PickResult;
   createdBy: string | PickAuthor;
   createdAt: string;
   updatedAt: string;
@@ -146,11 +151,14 @@ export interface CreatePickPayload {
   isPickOfDay?: boolean;
 }
 
-export type UpdatePickPayload = Partial<CreatePickPayload>;
+export type UpdatePickPayload = Partial<CreatePickPayload> & {
+  result?: PickResult;
+};
 
 export const PICK_ACCESS_LABELS: Record<PickAccess, string> = {
   free: "Free",
   paid: "Paid",
+  both: "Both",
 };
 
 export const PICK_STATUS_LABELS: Record<PickStatus, string> = {

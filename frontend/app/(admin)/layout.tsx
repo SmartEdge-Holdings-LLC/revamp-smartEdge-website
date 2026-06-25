@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <SidebarProvider defaultOpen>
         <AdminAccessGuard>
           <AdminSidebar />
-          <SidebarInset className="bg-black">{children}</SidebarInset>
+          <SidebarInset className="min-w-0 overflow-hidden bg-black">{children}</SidebarInset>
         </AdminAccessGuard>
       </SidebarProvider>
     </div>

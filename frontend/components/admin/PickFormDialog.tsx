@@ -451,8 +451,8 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
                       : "Pick a date and time"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <div className="space-y-2 p-3">
+                <PopoverContent className="w-auto border-white/10 bg-zinc-950 p-0" align="start">
+                  <div className="p-3">
                     <Calendar
                       mode="single"
                       selected={
@@ -470,38 +470,86 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
                       }}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     />
-                    <div className="space-y-2 border-t pt-3">
-                      <label className="text-xs font-medium text-zinc-400">Time</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex items-center gap-1">
-                          <Clock className="size-4 text-zinc-500" />
-                          <Input
-                            type="time"
-                            value={
-                              form.matchTimeLocal
-                                ? form.matchTimeLocal.split("T")[1]
-                                : "12:00"
-                            }
+                  </div>
+                  <div className="border-t border-white/10 px-3 py-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                      Time
+                    </p>
+                    {(() => {
+                      const timePart = form.matchTimeLocal?.split("T")[1] ?? "12:00";
+                      const [hhStr, mmStr] = timePart.split(":");
+                      const hh24 = parseInt(hhStr, 10);
+                      const mm = parseInt(mmStr, 10);
+                      const hh12 = hh24 % 12 || 12;
+                      const isPM = hh24 >= 12;
+                      const datePart = form.matchTimeLocal?.split("T")[0] ?? "";
+
+                      const setTime = (h24: number, m: number) => {
+                        if (!datePart) return;
+                        update("matchTimeLocal", `${datePart}T${String(h24).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+                      };
+
+                      return (
+                        <div className="flex items-center gap-1.5">
+                          {/* Hour */}
+                          <select
+                            value={hh12}
                             onChange={(e) => {
-                              if (form.matchTimeLocal) {
-                                const [date] = form.matchTimeLocal.split("T");
-                                update("matchTimeLocal", `${date}T${e.target.value}`);
-                              }
+                              let h = parseInt(e.target.value, 10);
+                              if (isPM) h = h === 12 ? 12 : h + 12;
+                              else h = h === 12 ? 0 : h;
+                              setTime(h, mm);
                             }}
-                            className="h-8 rounded border border-white/20 bg-white/5 px-2 text-xs text-slate-100"
-                          />
+                            disabled={!form.matchTimeLocal}
+                            className="h-9 w-14 appearance-none rounded-lg border border-white/12 bg-white/5 px-2 text-center text-sm font-medium text-slate-100 outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/25"
+                          >
+                            {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                              <option key={h} value={h}>{String(h).padStart(2, "0")}</option>
+                            ))}
+                          </select>
+                          <span className="text-lg font-bold text-zinc-500">:</span>
+                          {/* Minute */}
+                          <select
+                            value={mm}
+                            onChange={(e) => setTime(hh24, parseInt(e.target.value, 10))}
+                            disabled={!form.matchTimeLocal}
+                            className="h-9 w-14 appearance-none rounded-lg border border-white/12 bg-white/5 px-2 text-center text-sm font-medium text-slate-100 outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/25"
+                          >
+                            {Array.from({ length: 60 }, (_, i) => (
+                              <option key={i} value={i}>{String(i).padStart(2, "0")}</option>
+                            ))}
+                          </select>
+                          {/* AM/PM */}
+                          <div className="ml-1 flex overflow-hidden rounded-lg border border-white/12">
+                            {(["AM", "PM"] as const).map((period) => {
+                              const isActive = period === "PM" ? isPM : !isPM;
+                              return (
+                                <button
+                                  key={period}
+                                  type="button"
+                                  disabled={!form.matchTimeLocal}
+                                  onClick={() => {
+                                    const h12Val = hh24 % 12 || 12;
+                                    let newH: number;
+                                    if (period === "AM") newH = h12Val === 12 ? 0 : h12Val;
+                                    else newH = h12Val === 12 ? 12 : h12Val + 12;
+                                    setTime(newH, mm);
+                                  }}
+                                  className={cn(
+                                    "px-3 py-1.5 text-xs font-semibold transition",
+                                    isActive
+                                      ? "bg-accent text-white"
+                                      : "bg-white/5 text-zinc-500 hover:text-zinc-300"
+                                  )}
+                                >
+                                  {period}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      className="w-full bg-accent text-slate-950 hover:brightness-105"
-                      onClick={() => {
-                        // Close popover by clicking outside or pressing escape
-                      }}
-                    >
-                      Done
-                    </Button>
+                      );
+                    })()}
                   </div>
                 </PopoverContent>
               </Popover>

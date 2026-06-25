@@ -14,6 +14,7 @@ import {
   PlayCircle,
   Settings,
   ShieldCheck,
+  Swords,
   TicketPercent,
   Trophy,
   Users,
@@ -46,6 +47,7 @@ const PRIMARY_NAV: NavItem[] = [
   { title: "Picks", url: "/admin/picks", icon: LineChart },
   { title: "Videos", url: "/admin/videos", icon: PlayCircle },
   { title: "Promotions", url: "/admin/promotions", icon: TicketPercent },
+  { title: "Tournaments", url: "/admin/tournaments", icon: Swords },
 ];
 
 const SYSTEM_NAV: NavItem[] = [

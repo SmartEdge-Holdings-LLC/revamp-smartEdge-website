@@ -62,13 +62,13 @@ export function Navbar() {
 
   return (
     <header className="relative z-10 border-b border-gray-800 bg-black text-white">
-      <nav className="flex w-full items-center justify-between px-8 py-5 sm:px-10 md:px-12 lg:px-16">
+      <nav className="flex w-full items-center justify-between px-8 py-6 sm:px-10 sm:py-7 md:px-12 md:py-8 lg:px-16">
         <Link
           href="/"
           className="flex shrink-0 items-center rounded-md outline-offset-4 focus-visible:outline-2 focus-visible:outline-white/30"
           onClick={closeMenu}
         >
-          <span className="relative block h-10 w-44 sm:h-11 sm:w-56">
+          <span className="relative block h-11 w-48 sm:h-12 sm:w-60">
             <Image
               src="/logo.webp"
               alt="SmartEdgePicks"

@@ -31,7 +31,7 @@ export function HowItWorksSection() {
 
             return (
               <li key={item.step} className="flex h-full min-h-0">
-                <article className="flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/3 shadow-[0_16px_48px_-16px_rgba(0,0,0,0.8)]">
+                <article className="flex h-full w-full flex-col overflow-hidden rounded-3xl border-2 border-green-500/40 bg-white/3 shadow-[0_16px_48px_-16px_rgba(0,0,0,0.8)] transition-colors hover:border-green-500/60">
                   <HowItWorksStepMockup index={index} />
 
                   <div className="flex min-h-36 flex-1 gap-4 border-t border-white/10 px-5 py-5 sm:min-h-38 sm:px-6 sm:py-6">

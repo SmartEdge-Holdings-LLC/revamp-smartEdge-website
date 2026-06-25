@@ -14,6 +14,7 @@ import videoRoutes from "./routes/videos";
 import pickRoutes from "./routes/picks";
 import parlayRoutes from "./routes/parlay";
 import oddsRoutes from "./routes/odds";
+import { tournamentBrowseRouter, tournamentMemberRouter } from "./routes/memberTournaments";
 import { stripeWebhookController } from "./webhooks/stripeWebhook";
 
 const app = express();
@@ -37,7 +38,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "sep_token"],
 };
 
 app.use(cors(corsOptions));
@@ -74,6 +75,8 @@ app.use("/api/videos", videoRoutes);
 app.use("/api/picks", pickRoutes);
 app.use("/api/parlay", parlayRoutes);
 app.use("/api/odds", oddsRoutes);
+app.use("/api/tournaments", tournamentBrowseRouter);
+app.use("/api/user/tournaments", tournamentMemberRouter);
 
 app.use(
   "/api-docs",

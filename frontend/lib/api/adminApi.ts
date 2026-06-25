@@ -31,6 +31,13 @@ import type {
   ListPromotionsResponse,
   UpdatePromotionPayload,
 } from "@/types/promotions";
+import type {
+  AdminTournament,
+  CreateTournamentPayload,
+  LeaderboardResponse,
+  ListTournamentsResponse,
+  UpdateTournamentPayload,
+} from "@/types/tournaments";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -545,6 +552,78 @@ export async function deleteAdminPromotion(id: string): Promise<{ deleted: boole
   return adminFetch<{ deleted: boolean }>(
     `/api/admin/promotions/${encodeURIComponent(id)}`,
     { method: "DELETE" }
+  );
+}
+
+/** `GET /api/admin/tournaments` */
+export async function listAdminTournaments(
+  status?: string
+): Promise<ListTournamentsResponse> {
+  const params = status ? `?status=${encodeURIComponent(status)}` : "";
+  return adminFetch<ListTournamentsResponse>(`/api/admin/tournaments${params}`, {
+    method: "GET",
+  });
+}
+
+/** `GET /api/admin/tournaments/:id` */
+export async function getAdminTournament(
+  id: string
+): Promise<{ tournament: AdminTournament }> {
+  return adminFetch<{ tournament: AdminTournament }>(
+    `/api/admin/tournaments/${encodeURIComponent(id)}`,
+    { method: "GET" }
+  );
+}
+
+/** `POST /api/admin/tournaments` */
+export async function createAdminTournament(
+  payload: CreateTournamentPayload
+): Promise<{ tournament: AdminTournament }> {
+  return adminFetch<{ tournament: AdminTournament }>("/api/admin/tournaments", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+/** `PUT /api/admin/tournaments/:id` */
+export async function updateAdminTournament(
+  id: string,
+  payload: UpdateTournamentPayload
+): Promise<{ tournament: AdminTournament }> {
+  return adminFetch<{ tournament: AdminTournament }>(
+    `/api/admin/tournaments/${encodeURIComponent(id)}`,
+    { method: "PUT", body: JSON.stringify(payload) }
+  );
+}
+
+/** `DELETE /api/admin/tournaments/:id` */
+export async function deleteAdminTournament(
+  id: string
+): Promise<{ deleted: boolean }> {
+  return adminFetch<{ deleted: boolean }>(
+    `/api/admin/tournaments/${encodeURIComponent(id)}`,
+    { method: "DELETE" }
+  );
+}
+
+/** `GET /api/admin/tournaments/:id/leaderboard` */
+export async function getAdminTournamentLeaderboard(
+  id: string
+): Promise<LeaderboardResponse> {
+  return adminFetch<LeaderboardResponse>(
+    `/api/admin/tournaments/${encodeURIComponent(id)}/leaderboard`,
+    { method: "GET" }
+  );
+}
+
+/** `POST /api/admin/tournaments/:id/mark-prize-claimed` */
+export async function markTournamentPrizeClaimed(
+  tournamentId: string,
+  memberId: string
+): Promise<{ success: boolean }> {
+  return adminFetch<{ success: boolean }>(
+    `/api/admin/tournaments/${encodeURIComponent(tournamentId)}/mark-prize-claimed`,
+    { method: "POST", body: JSON.stringify({ memberId }) }
   );
 }
 

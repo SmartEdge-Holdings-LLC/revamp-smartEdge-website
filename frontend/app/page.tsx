@@ -23,6 +23,7 @@ export default function HomePage() {
 
         <div className="relative z-10 flex min-h-screen flex-col">
           <Navbar />
+          <div className="py-3 sm:py-4" />
           <PromoBanner />
           <Hero />
         </div>

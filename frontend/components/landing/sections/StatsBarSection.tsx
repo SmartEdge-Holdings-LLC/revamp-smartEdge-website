@@ -19,10 +19,10 @@ function StatCard({ stat }: { stat: (typeof LANDING_STATS)[number] }) {
       <article
         className={cn(
           "relative flex h-full min-h-64 flex-col overflow-hidden rounded-3xl p-6 text-left sm:min-h-48 sm:p-7",
-          "border border-white/8 bg-zinc-950/55 shadow-[0_12px_40px_rgb(0_0_0/0.6),inset_0_1px_0_rgb(255_255_255/0.04)]",
+          "border-2 border-green-500/40 bg-zinc-950/55 shadow-[0_12px_40px_rgb(0_0_0/0.6),inset_0_1px_0_rgb(255_255_255/0.04)]",
           "backdrop-blur-2xl",
           "transition-[background-color,border-color,box-shadow] duration-300",
-          "hover:border-white/12 hover:bg-zinc-900/65 hover:shadow-[0_16px_48px_rgb(0_0_0/0.65),inset_0_1px_0_rgb(255_255_255/0.06)]"
+          "hover:border-green-500/60 hover:bg-zinc-900/65 hover:shadow-[0_16px_48px_rgb(0_0_0/0.65),inset_0_1px_0_rgb(255_255_255/0.06)]"
         )}
       >
         <div

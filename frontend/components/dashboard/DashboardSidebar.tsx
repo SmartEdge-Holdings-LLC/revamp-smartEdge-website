@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  Trophy,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +34,7 @@ type NavItem = {
 
 const MEMBER_NAV: NavItem[] = [
   { title: "Premium picks", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Tournaments", url: "/dashboard/tournaments", icon: Trophy },
   { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
