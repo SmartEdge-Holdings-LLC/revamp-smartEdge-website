@@ -1,8 +1,8 @@
 export const LANDING_STATS = [
   { value: "3,000+", label: "Active Members" },
-  { value: "8+", label: "Sports Covered Daily" },
-  { value: "3+", label: "Years of Documented Picks" },
-  { value: "Multiple", label: "Expert Handicappers" },
+  { value: "15+", label: "Sports Covered" },
+  { value: "3+ Years", label: "of Documented Positions" },
+  { value: "Expert Handicappers", label: "Multiple professional handicappers" },
 ] as const;
 
 export const HOW_IT_WORKS_STEPS = [
@@ -124,23 +124,44 @@ export const TESTIMONIALS = [
   {
     quote:
       "The confidence scores alone changed how I size my bets. I'm not guessing anymore — I'm following a process.",
-    name: "Chris M.",
+    name: "Jake Sullivan",
     detail: "VIP member · 14 months",
     avatar: "/avatars/google-1.jpg",
   },
   {
     quote:
       "Line movement alerts paid for my subscription in the first month. SmartEdge catches moves I used to miss.",
-    name: "Priya S.",
+    name: "Ryan Mitchell",
     detail: "Standard member · NBA focus",
     avatar: "/avatars/google-2.jpg",
   },
   {
     quote:
       "Having NFL and MLB specialists instead of one generic capper is the difference. Real depth on every play.",
-    name: "Jordan T.",
+    name: "Danny Kowalski",
     detail: "Weekly member · multi-sport",
     avatar: "/avatars/google-3.jpg",
+  },
+  {
+    quote:
+      "I used to spend hours researching lines. Now I check SmartEdge in the morning and my card is set by noon. Best investment I've made.",
+    name: "Brett Anderson",
+    detail: "VIP member · NFL & NBA",
+    avatar: "/avatars/google-4.jpg",
+  },
+  {
+    quote:
+      "The detailed analysis behind every pick is what sets this apart. It's not just a pick — it's an education in sports betting.",
+    name: "Kevin O'Brien",
+    detail: "Standard member · 8 months",
+    avatar: "/avatars/google-5.jpg",
+  },
+  {
+    quote:
+      "Went from losing months to consistent profit. The MLB plays especially have been unreal — hit 11 of my last 14 following SmartEdge.",
+    name: "Matt Henderson",
+    detail: "VIP member · MLB focus",
+    avatar: "/avatars/google-6.jpg",
   },
 ] as const;
 

@@ -277,10 +277,10 @@ function PricingCard({
       <motion.article
         layout={!reduceMotion}
         className={cn(
-          "relative flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border bg-[#0a0a0a] p-6 pt-8 sm:p-7 sm:pt-9",
+          "relative flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border-2 bg-[#0a0a0a] p-6 pt-8 sm:p-7 sm:pt-9",
           plan.popular
             ? "pricing-card-glow border-accent/45 shadow-[0_0_60px_rgb(234_105_58/0.12)]"
-            : "border-white/8"
+            : "border-green-500/40"
         )}
       >
 

@@ -32,8 +32,8 @@ export function SportsCoverageSection() {
             <article
               key={sport.name}
               className={cn(
-                "group flex flex-col items-center rounded-3xl border border-white/10 bg-white/3 p-6 text-center transition-colors sm:p-7",
-                "hover:border-accent/35 hover:bg-white/5"
+                "group flex flex-col items-center rounded-3xl border-2 border-green-500/40 bg-white/3 p-6 text-center transition-colors sm:p-7",
+                "hover:border-green-500/60 hover:bg-white/5"
               )}
             >
               <div className="flex size-24 items-center justify-center sm:size-28 md:size-32">

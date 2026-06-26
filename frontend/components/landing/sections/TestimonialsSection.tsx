@@ -32,9 +32,9 @@ function TestimonialCard({
   return (
     <blockquote
       className={cn(
-        "relative flex w-[min(88vw,20rem)] shrink-0 flex-col rounded-3xl border border-white/10 p-6 sm:w-[20rem]",
+        "relative flex w-[min(88vw,20rem)] shrink-0 flex-col rounded-3xl border-2 border-green-500/40 p-6 sm:w-[20rem]",
         "bg-linear-to-b from-white/4 to-white/2 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.85)]",
-        "transition-colors duration-300 hover:border-accent/30 hover:from-white/8"
+        "transition-colors duration-300 hover:border-green-500/60 hover:from-white/8"
       )}
     >
       <div

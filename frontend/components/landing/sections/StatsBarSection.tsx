@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 
 const STAT_ICON_BY_LABEL: Record<(typeof LANDING_STATS)[number]["label"], LucideIcon> = {
   "Active Members": Users,
-  "Sports Covered Daily": Activity,
-  "Years of Documented Picks": Award,
-  "Expert Handicappers": UserCheck,
+  "Sports Covered": Activity,
+  "of Documented Positions": Award,
+  "Multiple professional handicappers": UserCheck,
 };
 
 function StatCard({ stat }: { stat: (typeof LANDING_STATS)[number] }) {
