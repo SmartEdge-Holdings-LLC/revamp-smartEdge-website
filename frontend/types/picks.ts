@@ -46,7 +46,7 @@ export function normalizeBetTypeForLeague(league: League, betType: string): BetT
   return isBetTypeValidForLeague(league, betType) ? betType : getDefaultBetTypeForLeague(league);
 }
 
-export const PICK_ACCESS = ["free", "paid", "both"] as const;
+export const PICK_ACCESS = ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"] as const;
 
 export type PickAccess = (typeof PICK_ACCESS)[number];
 
@@ -130,6 +130,7 @@ export interface ListPicksParams {
   search?: string;
   betType?: BetType[];
   league?: League[];
+  access?: PickAccess[];
 }
 
 export interface CreatePickPayload {
@@ -157,8 +158,12 @@ export type UpdatePickPayload = Partial<CreatePickPayload> & {
 
 export const PICK_ACCESS_LABELS: Record<PickAccess, string> = {
   free: "Free",
-  paid: "Paid",
-  both: "Both",
+  smartedgeVIP: "SmartEdge VIP",
+  smartedgeVIPPremium: "SmartEdge Premium",
+  jonahweekly: "Jonah's Weekly",
+  jonahvip: "Jonah's Monthly Standard",
+  "jonah-vip-premium": "Jonah's Monthly VIP",
+  tournament: "Tournament",
 };
 
 export const PICK_STATUS_LABELS: Record<PickStatus, string> = {

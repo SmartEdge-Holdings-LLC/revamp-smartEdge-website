@@ -10,6 +10,7 @@ import {
   resolvePlanNameFromPriceId,
 } from "../lib/stripe";
 import { refreshUserSubscriptionSummary } from "./subscriptionEntitlementsService";
+import { userService } from "./userService";
 import type { StripeBrand } from "../config/stripeProducts";
 
 type StripeSubscription = Awaited<ReturnType<typeof retrieveStripeSubscription>>;
@@ -115,7 +116,9 @@ export async function applySubscriptionToUser(
     stripeCustomerId: String(sub.customer),
   });
 
-  await removeStaleBrandSubscriptions(userId, brand, sub.id);
+  // Keep subscription history - don't delete old subscriptions
+  // They will naturally be updated with "canceled" status when Stripe syncs them
+  // await removeStaleBrandSubscriptions(userId, brand, sub.id);
 
   const payload = {
     userId,
@@ -133,9 +136,9 @@ export async function applySubscriptionToUser(
     trialEnd: sub.trial_end ? new Date(sub.trial_end * 1000) : undefined,
   };
 
-  // Upsert by (userId, brand) so we never insert a second row for the same member/brand.
-  // Legacy DBs may still have a unique `userId_1` index — run scripts/migrate-subscription-brands.ts.
-  await Subscription.findOneAndUpdate({ userId, brand }, payload, {
+  // Upsert by stripeSubscriptionId so we keep all subscriptions (old and new)
+  // This allows subscription history to be preserved
+  await Subscription.findOneAndUpdate({ stripeSubscriptionId: sub.id }, payload, {
     upsert: true,
     returnDocument: "after",
     setDefaultsOnInsert: true,
@@ -163,6 +166,24 @@ export async function resolveUserIdFromCheckoutSession(
     if (byEmail?._id) return String(byEmail._id);
   }
 
+  // For pay-first registration, create user from pending registration data if not found
+  if (session.metadata?.pendingRegistration) {
+    try {
+      const regData = JSON.parse(session.metadata.pendingRegistration);
+      const { user: newUser } = await userService.register({
+        name: regData.name,
+        email: regData.email,
+        password: regData.password,
+      });
+      return String(newUser._id);
+    } catch (err) {
+      console.warn(
+        "[resolve-user-from-session] Failed to create user from pending registration:",
+        (err as Error).message
+      );
+    }
+  }
+
   return null;
 }
 
@@ -177,7 +198,7 @@ export function extractSubscriptionId(session: StripeCheckoutSession): string | 
 
 /** After redirect from Checkout — sync Mongo from session_id (webhook backup). */
 export async function syncUserFromCheckoutSessionId(
-  userId: string,
+  userId: string | undefined,
   sessionId: string
 ): Promise<IUser> {
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
@@ -189,7 +210,12 @@ export async function syncUserFromCheckoutSessionId(
   }
 
   const ownerId = await resolveUserIdFromCheckoutSession(session);
-  if (!ownerId || ownerId !== userId) {
+  if (!ownerId) {
+    throw new Error("Checkout session has no associated user");
+  }
+
+  // For authenticated users, verify the session belongs to them
+  if (userId && ownerId !== userId) {
     throw new Error("Checkout session does not belong to this account");
   }
 
@@ -200,13 +226,13 @@ export async function syncUserFromCheckoutSessionId(
 
   const checkoutProductId = session.metadata?.productId?.trim() ?? null;
   const sub = await retrieveStripeSubscription(subscriptionId);
-  await applySubscriptionToUser(userId, sub, checkoutProductId);
+  await applySubscriptionToUser(ownerId, sub, checkoutProductId);
 
   const customerId =
     typeof session.customer === "string" ? session.customer : session.customer?.id ?? null;
-  await syncAllCustomerSubscriptionsFromStripe(userId, customerId);
+  await syncAllCustomerSubscriptionsFromStripe(ownerId, customerId);
 
-  const user = await User.findById(userId);
+  const user = await User.findById(ownerId);
   if (!user) throw new Error("User not found");
 
   return user;

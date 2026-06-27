@@ -95,6 +95,7 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
   const leagueMark = getSportsLeagueLogo(pick.league) ?? getPickLeagueLogo(pick.league);
   const angleParagraphs = analysisParagraphs(pick.detailedAnalysis);
   const betLabel = betTypeLabel(pick.betType);
+  const isLocked = pick.odds === "Locked";
 
   const awayName = pick.awayTeamName?.trim() || "Away";
   const homeName = pick.homeTeamName?.trim() || "Home";
@@ -158,7 +159,7 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
       </section>
 
       <section className="grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2">
-        <div className="bg-black/40 px-5 py-4 sm:px-6">
+        <div className={`bg-black/40 px-5 py-4 sm:px-6 ${isLocked ? "blur-sm" : ""}`}>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
           <p className="mt-1.5 space-y-2">
             <div className="text-sm text-white">
@@ -184,7 +185,7 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
         <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
           Expert Analysis
         </h4>
-        <div className={`min-h-0 flex-1 space-y-3 ${!showFullAnalysis ? "blur-sm" : ""}`}>
+        <div className={`min-h-0 flex-1 space-y-3 ${!showFullAnalysis || isLocked ? "blur-sm" : ""}`}>
           {angleParagraphs.length > 0 ? (
             angleParagraphs.map((para, i) => (
               <p key={i} className="text-[15px] leading-[1.7] text-zinc-300">

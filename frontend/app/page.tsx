@@ -9,6 +9,7 @@ import {
   HandicappersSection,
   HowItWorksSection,
   LandingFooter,
+  NewsSection,
   SportsCoverageSection,
   StatsBarSection,
   TestimonialsSection,
@@ -25,13 +26,20 @@ export default function HomePage() {
           <Navbar />
           <div className="py-3 sm:py-4" />
           <PromoBanner />
+                    <div className="py-3 sm:py-4" />
+
+          <NewsSection />
+          <div className="py-3 sm:py-4" />
+
+
           <Hero />
+          <SportsCoverageSection />
         </div>
       </div>
 
+
       <StatsBarSection />
       <HowItWorksSection />
-      <SportsCoverageSection />
       {/* <HandicappersSection /> */}
       <TestimonialsSection />
       <PricingSection />

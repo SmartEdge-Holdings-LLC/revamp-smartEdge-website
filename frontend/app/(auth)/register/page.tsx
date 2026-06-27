@@ -26,13 +26,12 @@ import {
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 async function ensureCheckoutSession() {
+  // For new registrations, we don't require authentication yet
+  // The user will be created after payment confirmation via webhook
   let session = await getSession();
-  if (!session?.user?.backendToken) {
-    session = await getSession();
-  }
-  if (!session?.user?.backendToken) {
-    throw new Error("Please sign in again to continue to payment.");
-  }
+
+  // If user is already logged in, that's fine - they can checkout
+  // If not, that's also fine for new registrations - they'll be created after payment
   return session;
 }
 
@@ -103,29 +102,29 @@ function RegisterForm() {
     setLoading(true);
     checkoutLock.current = true;
     try {
-      const response = await fetch(`${backendUrl}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Registration failed");
-
-      const signInResult = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-      if (signInResult?.error) {
-        throw new Error("Account created but sign-in failed. Please log in.");
+      // Validate email format
+      if (!email || !email.includes("@")) {
+        throw new Error("Valid email is required");
+      }
+      if (!password || password.length < 6) {
+        throw new Error("Password must be at least 6 characters");
+      }
+      if (!name || name.length < 2) {
+        throw new Error("Name is required");
       }
 
-      await update();
-      await ensureCheckoutSession();
+      // Store registration data in sessionStorage - account will be created after successful payment
+      const regData = { name, email, password };
+      sessionStorage.setItem("pendingRegistration", JSON.stringify(regData));
+      localStorage.setItem("pendingRegistrationPlan", JSON.stringify(plan));
+
+      // Go directly to checkout without creating account
       await startSubscriptionCheckout(plan, {
         promotionCode: promoCode.trim() || undefined,
       });
     } catch (error) {
+      sessionStorage.removeItem("pendingRegistration");
+      localStorage.removeItem("pendingRegistrationPlan");
       toast.error((error as Error).message);
       setLoading(false);
       checkoutLock.current = false;

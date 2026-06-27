@@ -9,6 +9,7 @@ type StripeSubscription = Awaited<ReturnType<typeof stripe.subscriptions.retriev
 type StripeInvoice = Awaited<ReturnType<typeof stripe.invoices.retrieve>>;
 import { User } from "../models/User";
 import { emailService } from "../services/emailService";
+import { userService } from "../services/userService";
 import {
   handleCheckoutSessionCompleted,
   handleSubscriptionUpdated,
@@ -44,7 +45,7 @@ export const stripeWebhookController = async (req: Request, res: Response) => {
           });
           const customerId =
             typeof full.customer === "string" ? full.customer : full.customer?.id;
-          const user = await User.findOne({
+          let user = await User.findOne({
             $or: [
               ...(customerId ? [{ stripeCustomerId: customerId }] : []),
               ...(session.metadata?.userId
@@ -52,6 +53,25 @@ export const stripeWebhookController = async (req: Request, res: Response) => {
                 : []),
             ],
           });
+
+          // If user doesn't exist, create them from pending registration data
+          if (!user && session.metadata?.pendingRegistration) {
+            try {
+              const regData = JSON.parse(session.metadata.pendingRegistration);
+              const { user: newUser } = await userService.register({
+                name: regData.name,
+                email: regData.email,
+                password: regData.password,
+              });
+              user = newUser;
+            } catch (regErr) {
+              console.warn(
+                "[stripe-webhook] Failed to create user from pending registration:",
+                (regErr as Error).message
+              );
+            }
+          }
+
           if (user) {
             const productId = full.metadata?.productId?.trim();
             const planKey = productId ? getPlanNameFromProductId(productId) : "free";

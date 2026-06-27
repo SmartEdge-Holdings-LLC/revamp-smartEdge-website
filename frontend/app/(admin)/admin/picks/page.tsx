@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -39,6 +40,12 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AdminApiError, deleteAdminPick, listAdminPicks, updateAdminPick } from "@/lib/api/adminApi";
 import { readAuthSession } from "@/lib/authCookies";
 import { formatDateET, formatDateTimeET } from "@/lib/datetime";
@@ -73,7 +80,17 @@ function accessBadgeClass(access: PickAccess) {
   switch (access) {
     case "free":
       return "bg-sky-500/10 text-sky-300 ring-1 ring-inset ring-sky-400/25";
-    case "both":
+    case "tournament":
+      return "bg-amber-500/10 text-amber-300 ring-1 ring-inset ring-amber-400/25";
+    case "smartedgeVIP":
+      return "bg-purple-500/10 text-purple-300 ring-1 ring-inset ring-purple-400/25";
+    case "smartedgeVIPPremium":
+      return "bg-pink-500/10 text-pink-300 ring-1 ring-inset ring-pink-400/25";
+    case "jonahweekly":
+      return "bg-blue-500/10 text-blue-300 ring-1 ring-inset ring-blue-400/25";
+    case "jonahvip":
+      return "bg-green-500/10 text-green-300 ring-1 ring-inset ring-green-400/25";
+    case "jonah-vip-premium":
       return "bg-emerald-500/10 text-emerald-300 ring-1 ring-inset ring-emerald-400/25";
     default:
       return "bg-violet-500/10 text-violet-200 ring-1 ring-inset ring-violet-400/25";
@@ -81,9 +98,7 @@ function accessBadgeClass(access: PickAccess) {
 }
 
 function pickAccess(pick: AdminPick): PickAccess {
-  if (pick.access === "free") return "free";
-  if (pick.access === "both") return "both";
-  return "paid";
+  return (pick.access as PickAccess) || "free";
 }
 
 function statusBadgeClass(status: PickStatus) {
@@ -104,15 +119,17 @@ function PickCard({
   onEdit,
   onDelete,
   onResult,
+  onStatus,
 }: {
   pick: AdminPick;
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onResult: (result: "won" | "lost" | "pending") => void;
+  onStatus: (active: boolean) => void;
 }) {
   return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4 transition hover:bg-white/[0.04]">
+    <div className="rounded-xl border border-white/8 bg-white/2 p-4 transition hover:bg-white/4">
       {/* Top row: league + badges */}
       <div className="flex items-center gap-2 flex-wrap">
         {pick.league && (
@@ -124,9 +141,17 @@ function PickCard({
         <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", accessBadgeClass(pickAccess(pick)))}>
           {PICK_ACCESS_LABELS[pickAccess(pick)]}
         </Badge>
-        <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", statusBadgeClass(pickStatus(pick)))}>
-          {PICK_STATUS_LABELS[pickStatus(pick)]}
-        </Badge>
+        <div className="flex items-center gap-2 px-2 py-0.5">
+          <span className={cn("text-xs font-medium", pick.status === "active" ? "text-emerald-400" : "text-zinc-400")}>
+            {pick.status === "active" ? "Active" : "Inactive"}
+          </span>
+          <Switch
+            checked={pick.status === "active"}
+            onCheckedChange={onStatus}
+            aria-label="Toggle status"
+            className="data-[state=checked]:bg-emerald-500 size-4"
+          />
+        </div>
       </div>
 
       {/* Title */}
@@ -210,6 +235,9 @@ export default function AdminPicksPage() {
   const [formOpen, setFormOpen] = React.useState(false);
   const [editPick, setEditPick] = React.useState<AdminPick | null>(null);
   const [viewPick, setViewPick] = React.useState<AdminPick | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [pickToDelete, setPickToDelete] = React.useState<AdminPick | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
 
   React.useEffect(() => {
     const id = setTimeout(() => setDebouncedSearch(searchInput.trim()), 300);
@@ -269,15 +297,25 @@ export default function AdminPicksPage() {
     setFormOpen(true);
   };
 
-  const handleDelete = async (pick: AdminPick) => {
-    if (!confirm(`Delete pick "${pick.pickTitle}"?`)) return;
+  const handleDelete = (pick: AdminPick) => {
+    setPickToDelete(pick);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!pickToDelete) return;
+    setDeleting(true);
     try {
-      await deleteAdminPick(pick._id);
+      await deleteAdminPick(pickToDelete._id);
       toast.success("Pick deleted");
+      setDeleteDialogOpen(false);
+      setPickToDelete(null);
       lastKeyRef.current = null;
       fetchPicks(page, debouncedSearch, leagueFilter);
     } catch (err) {
       toast.error(err instanceof AdminApiError ? err.message : "Failed to delete pick");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -289,6 +327,18 @@ export default function AdminPicksPage() {
       fetchPicks(page, debouncedSearch, leagueFilter);
     } catch (err) {
       toast.error(err instanceof AdminApiError ? err.message : "Failed to update result");
+    }
+  };
+
+  const handleStatusChange = async (pick: AdminPick, active: boolean) => {
+    try {
+      const status: PickStatus = active ? "active" : "inactive";
+      await updateAdminPick(pick._id, { status });
+      toast.success(`Pick marked as ${status}`);
+      lastKeyRef.current = null;
+      fetchPicks(page, debouncedSearch, leagueFilter);
+    } catch (err) {
+      toast.error(err instanceof AdminApiError ? err.message : "Failed to update status");
     }
   };
 
@@ -397,6 +447,7 @@ export default function AdminPicksPage() {
                   onEdit={() => openEdit(pick)}
                   onDelete={() => handleDelete(pick)}
                   onResult={(r) => handleResultChange(pick, r)}
+                  onStatus={(active) => handleStatusChange(pick, active)}
                 />
               ))}
             </div>
@@ -418,12 +469,12 @@ export default function AdminPicksPage() {
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Matchup</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Pick title</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Access</TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Status</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Bet type</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Odds</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Confidence</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Match time</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Posted</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Status</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Result</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-right text-subtle">Actions</TableHead>
               </TableRow>
@@ -464,11 +515,6 @@ export default function AdminPicksPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", statusBadgeClass(pickStatus(pick)))}>
-                        {PICK_STATUS_LABELS[pickStatus(pick)]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
                       <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", betTypeBadgeClass())}>
                         {BET_TYPE_LABELS[pick.betType]}
                       </Badge>
@@ -498,41 +544,65 @@ export default function AdminPicksPage() {
                       <p className="typo-caption text-subtle">{authorName(pick)}</p>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          aria-label="Mark won"
-                          onClick={() => handleResultChange(pick, pick.result === "won" ? "pending" : "won")}
-                          className={cn("size-7", pick.result === "won" ? "text-emerald-400 bg-emerald-500/15" : "text-zinc-500 hover:text-emerald-400")}
-                        >
-                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg>
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          aria-label="Mark lost"
-                          onClick={() => handleResultChange(pick, pick.result === "lost" ? "pending" : "lost")}
-                          className={cn("size-7", pick.result === "lost" ? "text-rose-400 bg-rose-500/15" : "text-zinc-500 hover:text-rose-400")}
-                        >
-                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} className="size-3.5"><path d="M4 4l8 8M12 4l-8 8" /></svg>
-                        </Button>
+                      <div className="flex items-center gap-3">
+                        <span className={cn("text-xs font-medium", pick.status === "active" ? "text-emerald-400" : "text-zinc-400")}>
+                          {pick.status === "active" ? "Active" : "Inactive"}
+                        </span>
+                        <Switch
+                          checked={pick.status === "active"}
+                          onCheckedChange={(checked) =>
+                            handleStatusChange(pick, checked)
+                          }
+                          aria-label="Toggle status"
+                          className="data-[state=checked]:bg-emerald-500"
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <span className={cn("text-xs font-medium", pick.result === "won" ? "text-emerald-400" : "text-rose-400")}>
+                          {pick.result === "won" ? "Win" : "Loss"}
+                        </span>
+                        <Switch
+                          checked={pick.result === "won"}
+                          onCheckedChange={(checked) =>
+                            handleResultChange(pick, checked ? "won" : "lost")
+                          }
+                          aria-label="Toggle result"
+                          className="data-[state=checked]:bg-emerald-500"
+                        />
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <Button type="button" size="sm" onClick={() => setViewPick(pick)} className="h-8 gap-1.5 border border-transparent bg-[#c75931] text-white hover:bg-[#b54f2a] hover:text-white">
-                          <Eye className="size-3.5" /> View
-                        </Button>
-                        <Button type="button" size="icon" variant="outline" aria-label="Edit pick" onClick={() => openEdit(pick)} className="size-8 border-white/12 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white">
-                          <Pencil className="size-3.5" />
-                        </Button>
-                        <Button type="button" size="icon" variant="outline" aria-label="Delete pick" onClick={() => handleDelete(pick)} className="size-8 border-white/12 bg-white/5 text-rose-300 hover:bg-rose-500/10 hover:text-rose-200">
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="h-8 border-white/12 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+                          >
+                            Actions
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem onClick={() => setViewPick(pick)}>
+                            <Eye className="mr-2 size-4" />
+                            View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEdit(pick)}>
+                            <Pencil className="mr-2 size-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(pick)}
+                            className="text-rose-400 focus:bg-rose-500/10 focus:text-rose-400"
+                          >
+                            <Trash2 className="mr-2 size-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
@@ -591,6 +661,7 @@ export default function AdminPicksPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         pick={editPick}
+        role={role}
         onSaved={() => {
           lastKeyRef.current = null;
           fetchPicks(page, debouncedSearch, leagueFilter);
@@ -716,6 +787,67 @@ export default function AdminPicksPage() {
             </>
           ) : null}
           <DialogDescription className="sr-only">Pick details</DialogDescription>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="border-white/10 bg-[#0c0c0c] sm:max-w-md">
+          <DialogTitle className="text-xl font-bold text-white">
+            Delete Pick
+          </DialogTitle>
+          <DialogDescription className="text-subtle">
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-white">
+              "{pickToDelete?.pickTitle}"
+            </span>
+            ? This action cannot be undone.
+          </DialogDescription>
+          <div className="flex gap-3 pt-4 sm:justify-end">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-slate-400 hover:bg-white/5 hover:text-slate-200"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="bg-rose-600 text-white hover:bg-rose-700"
+              onClick={confirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <>
+                  <svg
+                    className="mr-2 h-4 w-4 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>

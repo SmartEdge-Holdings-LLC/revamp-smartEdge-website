@@ -98,28 +98,27 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
       <div
         className={
           standalone
-            ? "mx-auto w-full max-w-6xl px-4 sm:px-5 md:px-6 pb-16 sm:pb-24 md:pb-32 pt-4 sm:pt-6 md:pt-8"
+            ? "mx-auto w-full max-w-6xl px-3 sm:px-5 md:px-6 pb-12 sm:pb-24 md:pb-32 pt-3 sm:pt-6 md:pt-8"
             : "mx-auto max-w-5xl"
         }
       >
         {standalone ? (
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 sm:px-3.5 py-1 sm:py-1.5 text-xs sm:text-[13px] text-zinc-300">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs md:text-[13px] text-zinc-300">
               Free picks · SmartEdge® & handicappers
             </div>
-            <h1 className="typo-hero-title mt-4 sm:mt-6 text-2xl sm:text-4xl md:text-5xl text-white">Free Picks</h1>
-            <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-subtle">
-              Sample our analysis with free active plays — full matchup, odds, and situational
-              breakdown on every card.
+            <h1 className="typo-hero-title mt-3 sm:mt-6 text-xl sm:text-3xl md:text-4xl lg:text-5xl text-white">Free Picks</h1>
+            <p className="mx-auto mt-2 sm:mt-4 max-w-xl text-xs sm:text-base md:text-lg leading-relaxed text-subtle">
+              Sample our analysis with free active plays — full matchup, odds, and situational breakdown.
             </p>
           </div>
         ) : (
-          <h1 className="font-pricing-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-accent">
+          <h1 className="font-pricing-serif text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-accent">
             FREE PICKS
           </h1>
         )}
 
-        <div className={standalone ? "mx-auto mt-6 sm:mt-8 md:mt-10 max-w-4xl" : "mt-4 sm:mt-6"}>
+        <div className={standalone ? "mx-auto mt-4 sm:mt-8 md:mt-10 max-w-4xl" : "mt-3 sm:mt-6"}>
           <IntroCopy source={source} />
         </div>
 
@@ -204,26 +203,28 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
         </div>
 
         <div
-          className={cn("mt-8 sm:mt-10 md:mt-12 space-y-6 sm:space-y-8", standalone && "mx-auto max-w-4xl")}
+          className={cn("mt-6 sm:mt-10 md:mt-12 space-y-4 sm:space-y-6 md:space-y-8", standalone && "mx-auto max-w-4xl")}
           role="tabpanel"
         >
-          <h2 className="text-center text-base sm:text-lg md:text-xl font-bold uppercase tracking-wide text-white">
-            Today&apos;s free picks
-          </h2>
-          <p className="mt-1 sm:mt-2 text-center text-xs sm:text-sm text-zinc-500">
-            Active plays with full matchup, odds, and analysis
-          </p>
+          <div>
+            <h2 className="text-center text-sm sm:text-base md:text-lg lg:text-xl font-bold uppercase tracking-wide text-white">
+              Today&apos;s free picks
+            </h2>
+            <p className="mt-1 sm:mt-2 text-center text-xs text-zinc-500">
+              Active plays with full matchup, odds, and analysis
+            </p>
+          </div>
 
-          <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
+          <div className="space-y-4 sm:space-y-6 md:space-y-8">
             {loading ? (
-              <div className="flex justify-center py-12 sm:py-20">
-                <Loader2 className="size-6 sm:size-8 animate-spin text-accent" aria-label="Loading picks" />
+              <div className="flex justify-center py-8 sm:py-20">
+                <Loader2 className="size-5 sm:size-8 animate-spin text-accent" aria-label="Loading picks" />
               </div>
             ) : error ? (
-              <p className="text-center text-xs sm:text-sm text-red-400/90 px-4">{error}</p>
+              <p className="text-center text-xs sm:text-sm text-red-400/90 px-3 sm:px-4">{error}</p>
             ) : picks.length === 0 ? (
-              <p className="rounded-lg border border-white/10 bg-white/3 px-4 sm:px-6 py-8 sm:py-12 text-center text-xs sm:text-sm text-zinc-400">
-                No active free picks for this source yet. Check back soon or browse paid plans below.
+              <p className="rounded-lg border border-white/10 bg-white/3 px-3 sm:px-6 py-6 sm:py-12 text-center text-xs sm:text-sm text-zinc-400">
+                No active free picks yet. Check back soon or browse paid plans.
               </p>
             ) : (
               picks.map((pick, index) => (

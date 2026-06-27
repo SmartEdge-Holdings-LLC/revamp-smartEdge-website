@@ -5,5 +5,6 @@ export { SportsCoverageSection } from "./SportsCoverageSection";
 export { HandicappersSection } from "./HandicappersSection";
 export { TestimonialsSection } from "./TestimonialsSection";
 export { WhyTrustSection } from "./WhyTrustSection";
+export { NewsSection } from "./NewsSection";
 export { FaqSection } from "./FaqSection";
 export { LandingFooter } from "./LandingFooter";

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { leagueDisplayName, TRACK_RECORD_LINE } from "@/components/landing/free-picks-content";
 import { getPickLeagueLogo, getSportsLeagueLogo } from "@/lib/sports-leagues";
@@ -9,6 +10,7 @@ import type { PublicPick, PublicPickSource } from "@/lib/api/picksApi";
 import { BET_TYPE_LABELS, type BetType } from "@/types/picks";
 import { teamLogoPath } from "@/types/picks";
 import { formatDateET, formatDateTimeLongET } from "@/lib/datetime";
+import { cn } from "@/lib/utils";
 
 function betTypeLabel(betType: string) {
   return betType in BET_TYPE_LABELS ? BET_TYPE_LABELS[betType as BetType] : betType;
@@ -98,6 +100,7 @@ type FreePickDetailCardProps = {
 };
 
 export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCardProps) {
+  const { data: session } = useSession();
   const authorName =
     pick.createdBy?.name ?? (source === "smartedge" ? "SmartEdge® Desk" : "Featured Expert");
   const leagueMark = getSportsLeagueLogo(pick.league) ?? getPickLeagueLogo(pick.league);
@@ -112,6 +115,8 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
   const pickTitle = pick.pickTitle.trim();
   const odds = pick.odds.trim();
 
+  const isLocked = !session && pick.access !== "free";
+
   return (
     <article className="flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40">
       {pick.isPickOfDay && (
@@ -124,21 +129,21 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
       {/* Author */}
       <header className="flex flex-col gap-4 border-b border-green-500/40 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
         <div className="flex min-w-0 items-start gap-4">
-          <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent/15 text-lg font-bold text-accent ring-2 ring-accent/25 sm:size-16 sm:text-xl">
+          <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent/15 text-2xl font-bold text-accent ring-2 ring-accent/25 sm:size-28 sm:text-3xl">
             {source === "handicapper" ? (
               <Image
-                src="/social/jonah.jpg"
+                src="/social/jonah.jpeg"
                 alt="Jonah"
-                width={64}
-                height={64}
+                width={112}
+                height={112}
                 className="size-full object-cover"
               />
             ) : source === "smartedge" ? (
               <Image
-                src="/social/dustin.png"
+                src="/social/dustin.jpeg"
                 alt="Dustin"
-                width={64}
-                height={64}
+                width={112}
+                height={112}
                 className="size-full object-cover"
               />
             ) : (
@@ -202,7 +207,7 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
         </div>
         <div className="bg-black/40 px-5 py-4 sm:border-l sm:border-green-500/40 sm:px-7 sm:py-5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
-          <p className="mt-1.5 text-sm leading-snug text-white sm:text-[15px]">
+          <p className={cn("mt-1.5 text-sm leading-snug text-white sm:text-[15px]", isLocked && "blur-sm")}>
             <span className="font-semibold text-accent">{pickTitle}</span>
             {odds ? (
               <span className="text-zinc-400">
@@ -219,7 +224,7 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
         <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
           Expert Analysis
         </h4>
-        <div className="space-y-4">
+        <div className={cn("space-y-4", isLocked && "blur-sm")}>
           {angleParagraphs.length > 0 ? (
             angleParagraphs.map((para, i) => (
               <p key={i} className="text-[15px] leading-[1.7] text-zinc-300">

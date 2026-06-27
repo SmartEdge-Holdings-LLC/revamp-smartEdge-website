@@ -142,7 +142,11 @@ export const tournamentService = {
     if (!t) throw new Error("Tournament not found");
     const count = await TournamentEntry.countDocuments({ tournamentId: t._id });
 
-    const picks = await Pick.find({ _id: { $in: t.gameIds } }).select(
+    // Only fetch picks that are labeled as "tournament" access
+    const picks = await Pick.find({
+      _id: { $in: t.gameIds },
+      access: "tournament"
+    }).select(
       "game pickTitle league awayTeamName homeTeamName odds betType matchTime"
     );
 

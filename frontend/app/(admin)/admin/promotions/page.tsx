@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Pencil, Plus, RefreshCw, TicketPercent, Trash2 } from "lucide-react";
+import { Pencil, Plus, RefreshCw, TicketPercent, Trash2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { PromotionFormDialog } from "@/components/admin/PromotionFormDialog";
+import { NewsFormDialog } from "@/components/admin/NewsFormDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,7 +22,15 @@ import {
   deleteAdminPromotion,
   listAdminPromotions,
 } from "@/lib/api/adminApi";
+import {
+  AdminApiError as NewsApiError,
+  deleteAdminNews,
+  listAdminNews,
+  activateAdminNews,
+  type AdminNews,
+} from "@/lib/api/newsApi";
 import { cn } from "@/lib/utils";
+import { formatDateET } from "@/lib/datetime";
 import type { AdminPromotion, PromotionStatus } from "@/types/promotions";
 
 const COLUMN_COUNT = 7;
@@ -42,15 +51,18 @@ function statusLabel(status: PromotionStatus) {
 }
 
 export default function PromotionsPage() {
+  const [tab, setTab] = React.useState<"promotions" | "news">("promotions");
   const [promotions, setPromotions] = React.useState<AdminPromotion[]>([]);
+  const [news, setNews] = React.useState<AdminNews[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [formOpen, setFormOpen] = React.useState(false);
+  const [newsFormOpen, setNewsFormOpen] = React.useState(false);
   const [editPromotion, setEditPromotion] = React.useState<AdminPromotion | null>(null);
+  const [editNews, setEditNews] = React.useState<AdminNews | null>(null);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   const fetchPromotions = React.useCallback(async () => {
-    setLoading(true);
     setError(null);
     try {
       const result = await listAdminPromotions();
@@ -64,14 +76,34 @@ export default function PromotionsPage() {
             : "Failed to load promotions";
       setError(message);
       setPromotions([]);
-    } finally {
-      setLoading(false);
+    }
+  }, []);
+
+  const fetchNews = React.useCallback(async () => {
+    setError(null);
+    try {
+      const result = await listAdminNews();
+      setNews(result.news);
+    } catch (err) {
+      const message =
+        err instanceof NewsApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Failed to load news";
+      setError(message);
+      setNews([]);
     }
   }, []);
 
   React.useEffect(() => {
-    void fetchPromotions();
-  }, [fetchPromotions]);
+    setLoading(true);
+    if (tab === "promotions") {
+      void fetchPromotions().finally(() => setLoading(false));
+    } else {
+      void fetchNews().finally(() => setLoading(false));
+    }
+  }, [tab, fetchPromotions, fetchNews]);
 
   const handleDelete = async (promo: AdminPromotion) => {
     if (!confirm(`Deactivate and remove "${promo.code}"? This cannot be undone.`)) return;
@@ -87,6 +119,33 @@ export default function PromotionsPage() {
     }
   };
 
+  const handleDeleteNews = async (newsItem: AdminNews) => {
+    if (!confirm(`Delete "${newsItem.title}"? This cannot be undone.`)) return;
+    setDeletingId(newsItem._id);
+    try {
+      await deleteAdminNews(newsItem._id);
+      toast.success("News deleted");
+      await fetchNews();
+    } catch (err) {
+      toast.error(err instanceof NewsApiError ? err.message : "Failed to delete");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleActivateNews = async (newsItem: AdminNews) => {
+    setDeletingId(newsItem._id);
+    try {
+      await activateAdminNews(newsItem._id);
+      toast.success("News activated");
+      await fetchNews();
+    } catch (err) {
+      toast.error(err instanceof NewsApiError ? err.message : "Failed to activate");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const openCreate = () => {
     setEditPromotion(null);
     setFormOpen(true);
@@ -95,6 +154,16 @@ export default function PromotionsPage() {
   const openEdit = (promo: AdminPromotion) => {
     setEditPromotion(promo);
     setFormOpen(true);
+  };
+
+  const openCreateNews = () => {
+    setEditNews(null);
+    setNewsFormOpen(true);
+  };
+
+  const openEditNews = (newsItem: AdminNews) => {
+    setEditNews(newsItem);
+    setNewsFormOpen(true);
   };
 
   const isEmpty = !loading && promotions.length === 0;
@@ -107,6 +176,36 @@ export default function PromotionsPage() {
       />
 
       <div className="flex flex-1 flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
+        {/* Tabs */}
+        <div className="flex gap-2 border-b border-white/10">
+          <button
+            type="button"
+            onClick={() => setTab("promotions")}
+            className={cn(
+              "px-4 py-3 text-sm font-medium transition-colors border-b-2",
+              tab === "promotions"
+                ? "border-accent text-white"
+                : "border-transparent text-subtle hover:text-white"
+            )}
+          >
+            Promotions
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("news")}
+            className={cn(
+              "px-4 py-3 text-sm font-medium transition-colors border-b-2",
+              tab === "news"
+                ? "border-accent text-white"
+                : "border-transparent text-subtle hover:text-white"
+            )}
+          >
+            News
+          </button>
+        </div>
+
+        {tab === "promotions" && (
+          <>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <h1 className="typo-heading-lg text-white">Promotion codes</h1>
@@ -165,7 +264,7 @@ export default function PromotionsPage() {
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
                   Status
                 </TableHead>
-                <TableHead className="w-[88px] typo-caption uppercase tracking-[0.12em] text-subtle">
+                <TableHead className="w-22 typo-caption uppercase tracking-[0.12em] text-subtle">
                   Actions
                 </TableHead>
               </TableRow>
@@ -176,7 +275,7 @@ export default function PromotionsPage() {
                   <TableRow key={i} className="border-white/5 hover:bg-transparent">
                     {Array.from({ length: COLUMN_COUNT }).map((__, j) => (
                       <TableCell key={j}>
-                        <Skeleton className="h-5 w-full max-w-[120px] bg-white/10" />
+                        <Skeleton className="h-5 w-full max-w-30 bg-white/10" />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -213,7 +312,7 @@ export default function PromotionsPage() {
                     <TableCell className="font-mono typo-body-sm font-medium text-white">
                       {promo.code}
                     </TableCell>
-                    <TableCell className="max-w-[200px] typo-body-sm text-white">
+                    <TableCell className="max-w-50 typo-body-sm text-white">
                       {promo.description}
                       {promo.assignedUsers.length > 0 && (
                         <p className="mt-0.5 typo-caption text-subtle">
@@ -270,6 +369,192 @@ export default function PromotionsPage() {
             </TableBody>
           </Table>
         </section>
+          </>
+        )}
+
+        {tab === "news" && (
+          <>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0">
+                <h1 className="typo-heading-lg text-white">News</h1>
+                <p className="mt-1 typo-body-md text-subtle">
+                  Create and manage news items with links.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-subtle hover:text-white"
+                  onClick={() => void fetchNews()}
+                  disabled={loading}
+                  aria-label="Refresh"
+                >
+                  <RefreshCw className={cn("size-4", loading && "animate-spin")} />
+                </Button>
+                <Button
+                  type="button"
+                  className="bg-accent text-slate-950 hover:brightness-105"
+                  onClick={openCreateNews}
+                >
+                  <Plus className="mr-2 size-4" />
+                  Create news
+                </Button>
+              </div>
+            </div>
+
+            {error && (
+              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 typo-body-sm text-red-300">
+                {error}
+              </p>
+            )}
+
+            <section className="overflow-hidden">
+              <Table className="text-slate-100">
+                <TableHeader>
+                  <TableRow className="border-white/10 hover:bg-transparent">
+                    <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                      Title
+                    </TableHead>
+                    <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                      Description
+                    </TableHead>
+                    <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                      CTA Link
+                    </TableHead>
+                    <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                      Created By
+                    </TableHead>
+                    <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                      Date
+                    </TableHead>
+                    <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                      Status
+                    </TableHead>
+                    <TableHead className="w-28 typo-caption uppercase tracking-[0.12em] text-subtle">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="divide-y divide-white/5">
+                  {loading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                      <TableRow key={i} className="border-white/5 hover:bg-transparent">
+                        {Array.from({ length: 6 }).map((__, j) => (
+                          <TableCell key={j}>
+                            <Skeleton className="h-5 w-full max-w-30 bg-white/10" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : news.length === 0 ? (
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableCell colSpan={7} className="py-14">
+                        <div className="flex flex-col items-center justify-center gap-3 text-center">
+                          <p className="typo-body-sm font-medium text-white">No news yet</p>
+                          <Button
+                            type="button"
+                            className="mt-2 bg-accent text-slate-950 hover:brightness-105"
+                            onClick={openCreateNews}
+                          >
+                            <Plus className="mr-2 size-4" />
+                            Create news
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    news.map((newsItem) => (
+                      <TableRow
+                        key={newsItem._id}
+                        className="border-white/5 transition hover:bg-white/4"
+                      >
+                        <TableCell className="typo-body-sm font-medium text-white">
+                          {newsItem.title}
+                        </TableCell>
+                        <TableCell className="max-w-50 typo-body-sm text-white">
+                          <p className="line-clamp-2">{newsItem.description || "—"}</p>
+                        </TableCell>
+                        <TableCell className="max-w-40 typo-body-sm text-white">
+                          {newsItem.cta ? (
+                            <a
+                              href={newsItem.cta}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="truncate text-accent hover:underline"
+                              title={newsItem.cta}
+                            >
+                              {new URL(newsItem.cta).hostname}
+                            </a>
+                          ) : (
+                            <span className="text-subtle">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="typo-body-sm text-subtle">
+                          {newsItem.createdBy.name}
+                        </TableCell>
+                        <TableCell className="typo-body-sm text-subtle">
+                          {formatDateET(newsItem.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          {newsItem.isActive ? (
+                            <Badge className="bg-emerald-500/10 text-emerald-300 ring-1 ring-inset ring-emerald-400/25 rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold">
+                              Active
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-zinc-500/10 text-zinc-400 ring-1 ring-inset ring-zinc-400/20 rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold">
+                              Inactive
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            {!newsItem.isActive && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-subtle hover:text-emerald-400"
+                                onClick={() => void handleActivateNews(newsItem)}
+                                disabled={deletingId === newsItem._id}
+                                aria-label={`Activate ${newsItem.title}`}
+                                title="Make this the active news"
+                              >
+                                <CheckCircle2 className="size-4" />
+                              </Button>
+                            )}
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-subtle hover:text-white"
+                              onClick={() => openEditNews(newsItem)}
+                              aria-label={`Edit ${newsItem.title}`}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-subtle hover:text-red-400"
+                              onClick={() => void handleDeleteNews(newsItem)}
+                              disabled={deletingId === newsItem._id}
+                              aria-label={`Delete ${newsItem.title}`}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </section>
+          </>
+        )}
       </div>
 
       <PromotionFormDialog
@@ -277,6 +562,13 @@ export default function PromotionsPage() {
         onOpenChange={setFormOpen}
         promotion={editPromotion}
         onSaved={() => void fetchPromotions()}
+      />
+
+      <NewsFormDialog
+        open={newsFormOpen}
+        onOpenChange={setNewsFormOpen}
+        news={editNews}
+        onSaved={() => void fetchNews()}
       />
     </>
   );

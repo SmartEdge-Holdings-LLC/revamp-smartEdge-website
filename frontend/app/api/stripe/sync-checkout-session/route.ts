@@ -5,16 +5,26 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user?.backendToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!backendUrl) {
+    return NextResponse.json({ error: "Missing NEXT_PUBLIC_BACKEND_URL" }, { status: 500 });
   }
 
-  const body = await req.json();
+  let body: any;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  // Allow both authenticated and unauthenticated requests (pay-first registration flow)
   const response = await fetch(`${backendUrl}/api/stripe/sync-checkout-session`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${session.user.backendToken}`,
+      ...(session?.user?.backendToken
+        ? { Authorization: `Bearer ${session.user.backendToken}` }
+        : {}),
     },
     body: JSON.stringify(body),
   });

@@ -51,9 +51,8 @@ const jonahSubscriberSchema = new Schema<IJonahSubscriber>(
       type: String,
       enum: [
         "free",
-        "smartedgeWeekly",
-        "smartedgeMonthlyStandard",
-        "smartedgeMonthlyVip",
+        "smartedgeVIP",
+        "smartedgeVIPPremium",
         "jonahWeekly",
         "jonahMonthlyStandard",
         "jonahMonthlyVip",

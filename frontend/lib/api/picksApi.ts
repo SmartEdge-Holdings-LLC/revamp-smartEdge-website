@@ -50,6 +50,7 @@ export interface ListPublicPicksParams {
   search?: string;
   league?: League[];
   source?: PublicPickSource;
+  access?: string[];
 }
 
 export async function listPublicFreePicks(
@@ -72,6 +73,9 @@ export async function listPublicFreePicks(
   }
   if (params.source) {
     url.searchParams.set("source", params.source);
+  }
+  for (const ac of params.access ?? []) {
+    url.searchParams.append("access", ac);
   }
 
   const res = await fetch(url.toString(), {
@@ -106,6 +110,45 @@ export async function getPublicFreePick(id: string): Promise<{ pick: PublicPick 
 
   if (!res.ok) {
     throw new Error(data.error ?? `Failed to load pick (HTTP ${res.status})`);
+  }
+
+  return data;
+}
+
+export async function listAuthenticatedPicks(
+  params: ListPublicPicksParams = {}
+): Promise<ListPublicPicksResponse> {
+  const page = params.page && params.page > 0 ? params.page : 1;
+  const limit = params.limit && params.limit > 0 ? Math.min(params.limit, 50) : 20;
+  const url = new URL("/api/picks/admin", window.location.origin);
+  url.searchParams.set("page", String(page));
+  url.searchParams.set("limit", String(limit));
+  if (params.search?.trim()) {
+    url.searchParams.set("search", params.search.trim());
+  }
+  for (const lg of params.league ?? []) {
+    url.searchParams.append("league", lg);
+  }
+  if (params.source) {
+    url.searchParams.set("source", params.source);
+  }
+  for (const ac of params.access ?? []) {
+    url.searchParams.append("access", ac);
+  }
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: { accept: "application/json" },
+    cache: "no-store",
+    credentials: "include",
+  });
+
+  const data = (await res.json().catch(() => ({}))) as ListPublicPicksResponse & {
+    error?: string;
+  };
+
+  if (!res.ok) {
+    throw new Error(data.error ?? `Failed to load picks (HTTP ${res.status})`);
   }
 
   return data;

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { LEAGUES } from "../models/Pick";
+import { LEAGUES, PICK_ACCESS } from "../models/Pick";
 import { picksService } from "../services/picksService";
 
 const leagueSchema = z.enum(LEAGUES);
@@ -12,6 +12,7 @@ const listPublicQuerySchema = z
     search: z.union([z.string(), z.array(z.string())]).optional(),
     league: z.union([z.string(), z.array(z.string())]).optional(),
     source: z.union([z.string(), z.array(z.string())]).optional(),
+    access: z.union([z.string(), z.array(z.string())]).optional(),
   })
   .transform((o) => {
     const pageStr = Array.isArray(o.page) ? o.page[0] : o.page;
@@ -45,12 +46,29 @@ const listPublicQuerySchema = z
       rawSource === "smartedge" || rawSource === "handicapper" ? rawSource : undefined
     ) as "smartedge" | "handicapper" | undefined;
 
+    const rawAccess = o.access;
+    const accessList: string[] = Array.isArray(rawAccess)
+      ? rawAccess
+      : typeof rawAccess === "string"
+        ? rawAccess.split(",")
+        : [];
+    const access = Array.from(
+      new Set(
+        accessList
+          .map((s) => s.trim())
+          .filter((s): s is (typeof PICK_ACCESS)[number] =>
+            (PICK_ACCESS as readonly string[]).includes(s)
+          )
+      )
+    );
+
     return {
       page,
       limit,
       search: searchStr?.trim().slice(0, 200) || undefined,
       league: league.length > 0 ? league : undefined,
       source,
+      access: access.length > 0 ? access : undefined,
     };
   });
 
@@ -60,18 +78,46 @@ function pickIdParam(req: Request): string {
 }
 
 export const publicPicksController = {
-  /** Active picks with `access: free` only (no auth). */
+  /** Active picks (no auth). Filters by access type if provided, otherwise defaults to free. */
   async list(req: Request, res: Response) {
     try {
-      const { page, limit, search, league, source } = listPublicQuerySchema.parse(req.query);
-      const result = await picksService.findPublicFreePaged({
-        page,
-        limit,
-        search,
-        league,
-        source,
-      });
-      return res.json(result);
+      const { page, limit, search, league, source, access } = listPublicQuerySchema.parse(req.query);
+
+      if (access && access.length > 0) {
+        // Use regular findPaged when access filter is specified
+        const result = await picksService.findPaged({
+          page,
+          limit,
+          search,
+          league,
+          access,
+          status: ["active"],
+        });
+
+        // Mask sensitive fields for non-logged-in users on non-free access types
+        const isAuthenticated = req.headers.authorization !== undefined;
+        if (!isAuthenticated) {
+          result.picks = result.picks.map((pick) => ({
+            ...pick,
+            pickTitle: pick.access !== "free" ? "Locked" : pick.pickTitle,
+            detailedAnalysis: pick.access !== "free" ? "Sign in to view analysis" : pick.detailedAnalysis,
+            odds: pick.access !== "free" ? "Locked" : pick.odds,
+            confidence: pick.access !== "free" ? undefined : pick.confidence,
+          }));
+        }
+
+        return res.json(result);
+      } else {
+        // Default to free picks for backward compatibility
+        const result = await picksService.findPublicFreePaged({
+          page,
+          limit,
+          search,
+          league,
+          source,
+        });
+        return res.json(result);
+      }
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
     }

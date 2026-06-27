@@ -40,6 +40,11 @@ export function buildOpenApiSpec() {
         description:
           "Public free picks (`GET /api/picks`) and member paid feeds (`GET /api/picks/paid/admin`, `GET /api/picks/paid/jonah`).",
       },
+      {
+        name: "News",
+        description:
+          "Public news feed. **GET /api/news** (public), **GET /api/news/:id** (public), **POST /api/news** (admin only), **PATCH /api/news/:id** (admin only), **DELETE /api/news/:id** (admin only).",
+      },
     ],
     components: {
       securitySchemes: {
@@ -85,9 +90,8 @@ export function buildOpenApiSpec() {
               type: "string",
               enum: [
                 "free",
-                "smartedgeWeekly",
-                "smartedgeMonthlyStandard",
-                "smartedgeMonthlyVip",
+                "smartedgeVIP",
+                "smartedgeVIPPremium",
                 "jonahWeekly",
                 "jonahMonthlyStandard",
                 "jonahMonthlyVip",
@@ -416,10 +420,27 @@ export function buildOpenApiSpec() {
         },
         CheckoutSessionRequest: {
           type: "object",
-          required: ["productId"],
           properties: {
-            productId: { type: "string", minLength: 1, description: "Stripe Product ID" },
+            productId: { type: "string", minLength: 1, description: "Stripe Product ID (required if brand and tier not provided)" },
+            brand: { type: "string", enum: ["smartedge", "jonah"], description: "Brand (required with tier if productId not provided)" },
+            tier: { type: "string", enum: ["weekly", "vip", "vip-premium"], description: "Subscription tier (required with brand if productId not provided)" },
+            promotionCode: { type: "string", minLength: 3, maxLength: 40, description: "Optional promotion code" },
+            userId: { type: "string", description: "User ID (for authenticated checkout)" },
+            pendingRegistration: {
+              type: "object",
+              description: "Registration data for new users (pay-first flow)",
+              properties: {
+                name: { type: "string", minLength: 2, maxLength: 100, description: "User full name" },
+                email: { type: "string", format: "email", description: "User email address" },
+                password: { type: "string", minLength: 6, description: "User password" },
+              },
+              required: ["name", "email", "password"],
+            },
           },
+          oneOf: [
+            { required: ["productId"] },
+            { required: ["brand", "tier"] },
+          ],
         },
         UrlResponse: {
           type: "object",
@@ -438,9 +459,8 @@ export function buildOpenApiSpec() {
               type: "string",
               enum: [
                 "free",
-                "smartedgeWeekly",
-                "smartedgeMonthlyStandard",
-                "smartedgeMonthlyVip",
+                "smartedgeVIP",
+                "smartedgeVIPPremium",
                 "jonahWeekly",
                 "jonahMonthlyStandard",
                 "jonahMonthlyVip",
@@ -744,8 +764,8 @@ export function buildOpenApiSpec() {
         },
         PickAccess: {
           type: "string",
-          enum: ["free", "paid"],
-          description: "Whether the pick is free or requires a paid membership",
+          enum: ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"],
+          description: "Pick access level: free (all users), smartedgeVIP/smartedgeVIPPremium (SmartEdge subscribers), jonahweekly/jonahvip/jonah-vip-premium (Jonah subscribers), tournament (tournament participants)",
         },
         PickStatus: {
           type: "string",
@@ -953,7 +973,7 @@ export function buildOpenApiSpec() {
             odds: { type: "string" },
             betType: { $ref: "#/components/schemas/PickBetType" },
             confidence: { type: "integer", minimum: 1, maximum: 100 },
-            access: { type: "string", enum: ["paid"] },
+            access: { type: "string", enum: ["smartedgeVIPPremium"] },
             status: { type: "string", enum: ["active"] },
             createdBy: { $ref: "#/components/schemas/PublicPickAuthor", nullable: true },
             createdAt: { type: "string", format: "date-time" },
@@ -1026,6 +1046,28 @@ export function buildOpenApiSpec() {
             totalPages: { type: "integer", minimum: 0 },
           },
           required: ["videos", "page", "limit", "total", "totalPages"],
+        },
+        NewsItem: {
+          type: "object",
+          description: "News item with creator info",
+          properties: {
+            _id: { type: "string" },
+            title: { type: "string", maxLength: 200 },
+            description: { type: "string", maxLength: 1000, nullable: true },
+            isActive: { type: "boolean", description: "Only one news can be active at a time" },
+            createdBy: {
+              type: "object",
+              properties: {
+                _id: { type: "string" },
+                name: { type: "string" },
+                email: { type: "string", format: "email" },
+                role: { type: "string" },
+              },
+            },
+            createdAt: { type: "string", format: "date-time" },
+            updatedAt: { type: "string", format: "date-time" },
+          },
+          required: ["_id", "title", "isActive", "createdBy", "createdAt", "updatedAt"],
         },
       },
     },
@@ -1229,9 +1271,11 @@ export function buildOpenApiSpec() {
       "/api/stripe/create-checkout-session": {
         post: {
           tags: ["Stripe"],
-          summary: "Create Stripe Checkout session",
+          summary: "Create Stripe Checkout session (pay-first registration or authenticated)",
+          description:
+            "Create a Stripe checkout session. Supports two flows: (1) Authenticated users with userId, or (2) New users with pendingRegistration data (pay-first registration). After successful payment, new users are automatically created via webhook.",
           operationId: "createCheckoutSession",
-          security: [{ bearerAuth: [] }],
+          security: [],
           requestBody: {
             required: true,
             content: {
@@ -2026,7 +2070,7 @@ export function buildOpenApiSpec() {
           tags: ["Picks"],
           summary: "List paid SmartEdge picks (member)",
           description:
-            "Returns picks where **access** is `paid`, **status** is `active`, and the author is an **admin** or **subadmin** (SmartEdge desk). Requires a **member** JWT and an active or trialing SmartEdge plan (`smartedgeWeekly`, `smartedgeMonthlyStandard`, `smartedgeMonthlyVip`, or legacy `weekly` / `monthlyStandard` / `monthlyVip`).",
+            "Returns picks from SmartEdge (admin/subadmin), **status** is `active`. Requires a **member** JWT and an active or trialing SmartEdge plan. Plan access mapping: **smartedgeVIP** (SmartEdge VIP), **smartedgeVIPPremium** (SmartEdge Premium). Filter by access type using the `access` parameter. Access control: SmartEdge VIP users can see smartedgeVIP and lower tiers; Premium users can see all SmartEdge picks.",
           operationId: "listPaidAdminPicks",
           security: [{ bearerAuth: [] }],
           parameters: [
@@ -2038,6 +2082,12 @@ export function buildOpenApiSpec() {
               in: "query",
               schema: { type: "string" },
               description: "Comma-separated leagues (e.g. NFL,NBA)",
+            },
+            {
+              name: "access",
+              in: "query",
+              schema: { type: "array", items: { type: "string", enum: ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"] } },
+              description: "Filter by pick access type (can specify multiple values)",
             },
           ],
           responses: {
@@ -2063,7 +2113,7 @@ export function buildOpenApiSpec() {
           tags: ["Picks"],
           summary: "List paid Jonah picks (member)",
           description:
-            "Returns picks where **access** is `paid`, **status** is `active`, and the author has role **handicapper** (Jonah). Requires a **member** JWT and an active or trialing Jonah plan (`jonahWeekly`, `jonahMonthlyStandard`, or `jonahMonthlyVip`).",
+            "Returns picks from Jonah (handicapper), **status** is `active`. Requires a **member** JWT and an active or trialing Jonah plan. Plan access mapping: **jonahweekly** (Jonah's Weekly), **jonahvip** (Jonah's Monthly Standard), **jonah-vip-premium** (Jonah's Monthly VIP). Filter by access type using the `access` parameter. Access control: users with a specific tier can only see picks marked for that tier (e.g., jonahvip users see jonahvip and lower-tier picks).",
           operationId: "listPaidJonahPicks",
           security: [{ bearerAuth: [] }],
           parameters: [
@@ -2075,6 +2125,12 @@ export function buildOpenApiSpec() {
               in: "query",
               schema: { type: "string" },
               description: "Comma-separated leagues (e.g. NFL,NBA)",
+            },
+            {
+              name: "access",
+              in: "query",
+              schema: { type: "array", items: { type: "string", enum: ["free", "jonahweekly", "jonahvip", "jonah-vip-premium"] } },
+              description: "Filter by pick access type (can specify multiple values)",
             },
           ],
           responses: {
@@ -2116,6 +2172,217 @@ export function buildOpenApiSpec() {
               },
             },
             "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "404": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+      },
+      "/api/news": {
+        get: {
+          tags: ["News"],
+          summary: "Get all news (public)",
+          operationId: "listNews",
+          security: [],
+          responses: {
+            "200": {
+              description: "List of all news",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      news: {
+                        type: "array",
+                        items: { $ref: "#/components/schemas/NewsItem" },
+                      },
+                    },
+                    required: ["news"],
+                  },
+                },
+              },
+            },
+            "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+        post: {
+          tags: ["News"],
+          summary: "Create news (admin only)",
+          operationId: "createNews",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", minLength: 1, maxLength: 200 },
+                    description: { type: "string", maxLength: 1000 },
+                  },
+                  required: ["title"],
+                },
+              },
+            },
+          },
+          responses: {
+            "201": {
+              description: "News created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { news: { $ref: "#/components/schemas/NewsItem" } },
+                    required: ["news"],
+                  },
+                },
+              },
+            },
+            "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "401": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+      },
+      "/api/news/active/current": {
+        get: {
+          tags: ["News"],
+          summary: "Get active news (public)",
+          operationId: "getActiveNews",
+          security: [],
+          responses: {
+            "200": {
+              description: "Currently active news item (or null if none)",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      news: {
+                        oneOf: [
+                          { $ref: "#/components/schemas/NewsItem" },
+                          { type: "null" },
+                        ],
+                      },
+                    },
+                    required: ["news"],
+                  },
+                },
+              },
+            },
+            "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+      },
+      "/api/news/{id}": {
+        get: {
+          tags: ["News"],
+          summary: "Get one news (public)",
+          operationId: "getOneNews",
+          security: [],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+          responses: {
+            "200": {
+              description: "News item",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { news: { $ref: "#/components/schemas/NewsItem" } },
+                    required: ["news"],
+                  },
+                },
+              },
+            },
+            "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "404": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+        patch: {
+          tags: ["News"],
+          summary: "Update news (admin only)",
+          operationId: "updateNews",
+          security: [{ bearerAuth: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", minLength: 1, maxLength: 200 },
+                    description: { type: "string", maxLength: 1000 },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "News updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { news: { $ref: "#/components/schemas/NewsItem" } },
+                    required: ["news"],
+                  },
+                },
+              },
+            },
+            "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "401": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "404": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+        delete: {
+          tags: ["News"],
+          summary: "Delete news (admin only)",
+          operationId: "deleteNews",
+          security: [{ bearerAuth: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+          responses: {
+            "200": {
+              description: "News deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { message: { type: "string" } },
+                    required: ["message"],
+                  },
+                },
+              },
+            },
+            "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "401": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "404": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          },
+        },
+      },
+      "/api/news/{id}/activate": {
+        post: {
+          tags: ["News"],
+          summary: "Activate news (admin only) - deactivates all others",
+          operationId: "activateNews",
+          security: [{ bearerAuth: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+          responses: {
+            "200": {
+              description: "News activated successfully (all others deactivated)",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      news: { $ref: "#/components/schemas/NewsItem" },
+                      message: { type: "string" },
+                    },
+                    required: ["news", "message"],
+                  },
+                },
+              },
+            },
+            "400": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+            "401": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
             "404": { content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
           },
         },

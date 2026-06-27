@@ -14,6 +14,7 @@ import videoRoutes from "./routes/videos";
 import pickRoutes from "./routes/picks";
 import parlayRoutes from "./routes/parlay";
 import oddsRoutes from "./routes/odds";
+import newsRoutes from "./routes/news";
 import { tournamentBrowseRouter, tournamentMemberRouter } from "./routes/memberTournaments";
 import { stripeWebhookController } from "./webhooks/stripeWebhook";
 
@@ -56,7 +57,7 @@ app.use(
 );
 
 app.post(
-  "/api/webhook/stripe",
+  "/api/webhooks/stripe",
   express.raw({ type: "application/json" }),
   stripeWebhookController
 );
@@ -75,6 +76,7 @@ app.use("/api/videos", videoRoutes);
 app.use("/api/picks", pickRoutes);
 app.use("/api/parlay", parlayRoutes);
 app.use("/api/odds", oddsRoutes);
+app.use("/api/news", newsRoutes);
 app.use("/api/tournaments", tournamentBrowseRouter);
 app.use("/api/user/tournaments", tournamentMemberRouter);
 

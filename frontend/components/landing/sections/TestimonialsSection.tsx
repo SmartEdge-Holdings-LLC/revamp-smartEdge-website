@@ -101,7 +101,7 @@ export function TestimonialsSection() {
 
       {/* Centered horizontal slider */}
       <div
-        className="relative mx-auto mt-8 sm:mt-14 w-full max-w-360 overflow-hidden px-4 sm:px-5 md:px-6 md:mt-16"
+        className="relative mx-auto mt-8 sm:mt-14 w-full max-w-360 overflow-hidden overflow-x-hidden px-4 sm:px-5 md:px-6 md:mt-16"
         aria-label="Member testimonials"
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-linear-to-r from-black via-black/80 to-transparent sm:left-6 sm:w-16" />

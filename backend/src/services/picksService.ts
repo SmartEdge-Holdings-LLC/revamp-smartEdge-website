@@ -96,7 +96,7 @@ export type PublicPickDto = {
 
 /** Pick fields exposed on paid member APIs (`GET /api/picks/paid/*`). */
 export type PaidPickDto = Omit<PublicPickDto, "access"> & {
-  access: "paid";
+  access: "smartedgeVIPPremium";
 };
 
 function parsePickAuthor(rawAuthor: unknown): PublicPickAuthor | undefined {
@@ -114,7 +114,7 @@ function parsePickAuthor(rawAuthor: unknown): PublicPickAuthor | undefined {
 
 function toMemberPick(
   pick: Record<string, unknown>,
-  access: "free" | "paid"
+  access: "free" | "smartedgeVIPPremium"
 ): PublicPickDto | PaidPickDto {
   const hydrated = hydratePickMatchup(pick as unknown as any) as Record<string, unknown>;
   const createdBy = parsePickAuthor(hydrated.createdBy);
@@ -151,7 +151,32 @@ function toPublicPick(pick: Record<string, unknown>): PublicPickDto {
 }
 
 function toPaidPick(pick: Record<string, unknown>): PaidPickDto {
-  return toMemberPick(pick, "paid") as PaidPickDto;
+  const hydrated = hydratePickMatchup(pick as unknown as any) as Record<string, unknown>;
+  const createdBy = parsePickAuthor(hydrated.createdBy);
+
+  return {
+    _id: String(hydrated._id),
+    league: hydrated.league as League,
+    awayTeamId: hydrated.awayTeamId as string | undefined,
+    homeTeamId: hydrated.homeTeamId as string | undefined,
+    awayTeamName: hydrated.awayTeamName as string | undefined,
+    homeTeamName: hydrated.homeTeamName as string | undefined,
+    awayTeamLogo: hydrated.awayTeamLogo as string | undefined,
+    homeTeamLogo: hydrated.homeTeamLogo as string | undefined,
+    game: String(hydrated.game),
+    pickTitle: String(hydrated.pickTitle),
+    detailedAnalysis: String(hydrated.detailedAnalysis),
+    odds: String(hydrated.odds),
+    betType: hydrated.betType as BetType,
+    confidence: hydrated.confidence ? Number(hydrated.confidence) : undefined,
+    access: hydrated.access as PickAccess,
+    status: "active" as const,
+    matchTime: hydrated.matchTime as Date | undefined,
+    isPickOfDay: hydrated.isPickOfDay as boolean | undefined,
+    createdBy,
+    createdAt: hydrated.createdAt as Date,
+    updatedAt: hydrated.updatedAt as Date,
+  } as PaidPickDto;
 }
 
 function authorRolesForPaidSource(source: PaidPickSource): AdminRole[] {
@@ -446,17 +471,23 @@ export const picksService = {
     limit: number;
     search?: string;
     league?: League[];
+    access?: string[];
     source: PaidPickSource;
   }) {
-    const { page, limit, search, league, source } = options;
+    const { page, limit, search, league, access, source } = options;
     const roles = authorRolesForPaidSource(source);
+
+    // Use provided access filter or default to free and tournament
+    const accessFilter = access && access.length > 0
+      ? (access as ["free" | "smartedgeVIP" | "smartedgeVIPPremium" | "tournament", ...("free" | "smartedgeVIP" | "smartedgeVIPPremium" | "tournament")[]])
+      : (["free", "tournament"] as const);
 
     const { rows, total, totalPages } = await findActivePagedByAuthorSource({
       page,
       limit,
       search,
       league,
-      access: ["free", "paid", "both"],
+      access: accessFilter,
       authorRoles: roles,
     });
 

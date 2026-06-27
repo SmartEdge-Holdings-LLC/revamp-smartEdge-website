@@ -12,11 +12,12 @@ import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { Input } from "@/components/ui/input";
 import { authInputClass } from "@/components/auth/auth-form-styles";
 import { loginRequest } from "@/lib/api/authApi";
-import { persistAuthSession } from "@/lib/authCookies";
+import { persistAuthSession, readAuthSession } from "@/lib/authCookies";
 import { CheckoutPromoCode } from "@/components/checkout/CheckoutPromoCode";
 import { startSubscriptionCheckout } from "@/lib/start-checkout";
 import { consumePendingCheckoutPlan } from "@/lib/pending-checkout-plan";
 import { consumePendingCheckoutPromo } from "@/lib/pending-checkout-promo";
+import { useAuth } from "@/lib/hooks";
 import {
   getPlanDisplayName,
   planSearchParams,
@@ -32,6 +33,29 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlanSelection | null>(null);
   const [promoCode, setPromoCode] = useState("");
+  const { isLoggedIn, isLoading } = useAuth();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    // Check for member session via useAuth
+    if (isLoggedIn) {
+      router.push("/dashboard");
+      return;
+    }
+
+    // Check for admin/handicapper session in cookies
+    const adminSession = readAuthSession();
+    if (adminSession) {
+      router.push("/admin");
+      return;
+    }
+
+    setIsChecking(false);
+  }, [isLoggedIn, isLoading, router]);
 
   useEffect(() => {
     setCheckoutPlan(consumePendingCheckoutPlan());

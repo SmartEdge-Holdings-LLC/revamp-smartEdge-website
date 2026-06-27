@@ -32,9 +32,10 @@ type DashboardPaidPicksFeedProps = {
   hideHeader?: boolean;
   showFullAnalysis?: boolean;
   leagues?: League[];
+  accessFilter?: string[];
 };
 
-export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalysis = true, leagues = [] }: DashboardPaidPicksFeedProps) {
+export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalysis = true, leagues = [], accessFilter }: DashboardPaidPicksFeedProps) {
   const meta = FEED_META[feed];
   const [picks, setPicks] = React.useState<ReturnType<typeof enrichPaidPicks>>([]);
   const [loading, setLoading] = React.useState(true);
@@ -45,10 +46,14 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalys
     setLoading(true);
     setError(null);
 
+    // Use provided accessFilter or determine based on feed type
+    const accessTypes = accessFilter ?? (feed === "admin" ? ["smartedgeVIPPremium"] : undefined);
+
     void listPaidPicks(token, feed, {
       page: 1,
       limit: 20,
-      league: leagues.length > 0 ? leagues : undefined
+      league: leagues.length > 0 ? leagues : undefined,
+      access: accessTypes
     })
       .then((res) => {
         if (cancelled) return;
@@ -66,7 +71,7 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalys
     return () => {
       cancelled = true;
     };
-  }, [feed, token, leagues, showFullAnalysis]);
+  }, [feed, token, leagues, showFullAnalysis, accessFilter]);
 
   return (
     <section className="space-y-4">

@@ -4,8 +4,9 @@ import { authMiddleware } from "../middleware/auth";
 
 const router = Router();
 
-router.post("/create-checkout-session", authMiddleware, stripeController.createCheckoutSession);
-router.post("/sync-checkout-session", authMiddleware, stripeController.syncCheckoutSession);
+// Allow unauthenticated access for pay-first registration flow
+router.post("/create-checkout-session", stripeController.createCheckoutSession);
+router.post("/sync-checkout-session", stripeController.syncCheckoutSession);
 router.post("/create-portal-session", authMiddleware, stripeController.createPortalSession);
 router.get("/subscription", authMiddleware, stripeController.getSubscription);
 router.get("/payment-methods", authMiddleware, stripeController.getPaymentMethods);

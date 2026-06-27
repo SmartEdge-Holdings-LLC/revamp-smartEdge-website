@@ -233,7 +233,7 @@ export function TournamentFormDialog({
     if (!open) return;
     let cancelled = false;
     setPicksLoading(true);
-    listAdminPicks({ limit: 100, page: 1 })
+    listAdminPicks({ limit: 100, page: 1, access: ["tournament"] })
       .then((res) => {
         if (!cancelled) setAvailablePicks(res.picks);
       })

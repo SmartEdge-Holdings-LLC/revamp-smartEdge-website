@@ -23,6 +23,13 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -357,9 +364,6 @@ export default function TournamentsPage() {
 
   const isEmpty = !loading && tournaments.length === 0;
 
-  const selectClass =
-    "h-9 rounded-md border-white/12 bg-white/5 px-3 typo-body-sm text-slate-100 focus-visible:border-accent/55 focus-visible:ring-accent/25";
-
   return (
     <>
       <AdminHeader
@@ -378,16 +382,16 @@ export default function TournamentsPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              className={selectClass}
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="">All statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="completed">Completed</option>
-            </select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
             <Button
               type="button"
               variant="ghost"
@@ -441,7 +445,7 @@ export default function TournamentsPage() {
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">
                   Prize
                 </TableHead>
-                <TableHead className="w-[120px] typo-caption uppercase tracking-[0.12em] text-subtle">
+                <TableHead className="w-30 typo-caption uppercase tracking-[0.12em] text-subtle">
                   Actions
                 </TableHead>
               </TableRow>
@@ -455,7 +459,7 @@ export default function TournamentsPage() {
                   >
                     {Array.from({ length: COLUMN_COUNT }).map((__, j) => (
                       <TableCell key={j}>
-                        <Skeleton className="h-5 w-full max-w-[120px] bg-white/10" />
+                        <Skeleton className="h-5 w-full max-w-30 bg-white/10" />
                       </TableCell>
                     ))}
                   </TableRow>

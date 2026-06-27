@@ -1,10 +1,11 @@
+
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { BET_TYPES, type BetType } from "../config/pickBetTypes";
 import { LEAGUES, type League } from "../config/pickLeagues";
 
 export { BET_TYPES, type BetType, LEAGUES, type League };
 
-export const PICK_ACCESS = ["free", "paid", "both"] as const;
+export const PICK_ACCESS = ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"] as const;
 
 export type PickAccess = (typeof PICK_ACCESS)[number];
 
@@ -31,7 +32,7 @@ export interface IPick extends Document {
   betType: BetType;
   /** 1–100 confidence score (optional, defaults to 75) */
   confidence?: number;
-  /** Whether members need a paid plan to view this pick */
+  /** Access level: "free" (all users), "smartedgeVIPPremium" (premium members only), "both" (free and premium), "tournament" (tournament participants only), "monthly_vip" (monthly VIP members only) */
   access: PickAccess;
   /** Whether the pick is published (active) or hidden (inactive) */
   status: PickStatus;
@@ -60,7 +61,7 @@ const pickSchema = new Schema<IPick>(
     odds: { type: String, required: true, trim: true, maxlength: 64 },
     betType: { type: String, enum: BET_TYPES, required: true },
     confidence: { type: Number, min: 1, max: 100 },
-    access: { type: String, enum: PICK_ACCESS, required: true, default: "paid" },
+    access: { type: String, enum: PICK_ACCESS, required: true, default: "smartedgeVIPPremium" },
     status: { type: String, enum: PICK_STATUS, required: true, default: "active" },
     matchTime: { type: Date },
     isPickOfDay: { type: Boolean, default: false },

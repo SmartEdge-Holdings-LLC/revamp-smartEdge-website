@@ -3,52 +3,76 @@
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Check, Coins, Info, Trophy, X } from "lucide-react";
+import { toast } from "sonner";
 import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buildRegisterPlanUrl } from "@/lib/subscription-plan";
+import { startSubscriptionCheckout } from "@/lib/start-checkout";
 import type { StripeBrand } from "@/lib/stripe-product-types";
 import type { PlanTierParam } from "@/lib/subscription-plan";
+import type { SubscriptionPlanSelection } from "@/lib/subscription-plan";
 import { cn } from "@/lib/utils";
 
-const HANDICAPPER_FEATURES = [
+const JONAH_STANDARD_FEATURES = [
   "Daily AI-backed sports picks",
   "Confidence scores on every play",
   "NFL, NBA, MLB & major leagues",
+  "Line movement & market alerts",
+  "Customer Support!",
+  "Membership Giveaways!",
+] as const;
+
+const JONAH_PREMIUM_FEATURES = [
+  "Daily AI-backed sports picks",
+  "Exclusive Early Pick Lines, Pick Releases, Notifications, Alerts",
+  "Confidence scores on every play",
+  "NFL, NBA, MLB & major leagues",
   "Email pick alerts",
-  "Discord community access",
   "Line movement & market alerts",
   "Featured handicapper picks",
   "VIP channel & priority support",
 ] as const;
 
-const HANDICAPPER_PLAN_INCLUDED: Record<"weekly" | "standard" | "vip", boolean[]> = {
-  weekly: [true, true, true, true, false, false, false, false],
-  standard: [true, true, true, true, true, true, false, false],
-  vip: HANDICAPPER_FEATURES.map(() => true),
-};
-
 const SMARTEDGE_VIP_STANDARD_FEATURES = [
-  "Access to your Personal member Dashboard",
-  "Access to our Highest ROI Plays of the day (ALL SPORTS)",
-  "Standard Insights and Analytics",
-  "Discord Access",
-  "Standard Push notifications / Pick Alerts",
-  "Customer Support",
+  "Personal Member Dashboard!",
+  "All Sports Package!",
+  "Highest ROI Plays of the Day!",
+  "Standard Member Competitions!",
+  "Standard Game insights and Analytics!",
+  "Standard Push Notifications/Picks Alerts!",
+  "Customer Support!",
   "Membership Giveaways!",
 ] as const;
 
-const SMARTEDGE_VIP_PREMIUM_FEATURES = [
-  "Exclusive access to All our Highest ROI Plays of the Day (All Sports)",
-  "Exclusive Access to SmartEdge's SharpSignal AI plays of the Day (ALL SPORTS)",
-  "Exclusive Access to ALL our Parlays, Player props, and Underdog Plays of the Day (ALL SPORTS)",
-  "Exclusive Early Pick Lines / Pick Releases / Notifications / Alerts",
-  "Exclusive (Premium) Discord Access",
-  "Customer Support",
+const SMARTEDGE_STANDARD_FEATURES = [
+  "Personal Member Dashboard!",
+  "All Sports Package!",
+  "Highest ROI Plays of the Day!",
+  "Standard Member Competitions!",
+  "Standard Game insights and Analytics!",
+  "Standard Push Notifications/Picks Alerts!",
+  "Customer Support!",
   "Membership Giveaways!",
 ] as const;
 
-type PlanKey = keyof typeof HANDICAPPER_PLAN_INCLUDED;
+const SMARTEDGE_PREMIUM_FEATURES = [
+  "Personal Member Dashboard!",
+  "All Sports Package!",
+  "Highest ROI Plays of the Day!",
+  "Exclusive Early Pick Lines/Pick Releases/Notifications/Alerts!",
+  "Exclusive Access to Parlay's, Player Props, and more!",
+  "Standard Member Competitions!",
+  "Standard Game insights and Analytics!",
+  "Standard Push Notifications/Picks Alerts!",
+  "Exclusive Premium Member Only Competitions!",
+  "Exclusive Premium Advanced Insights and Analytics",
+  "Customer Support!",
+  "Membership Giveaways!",
+] as const;
+
+type PlanKey = "vip" | "vip-premium";
 
 interface PlanConfig {
   key: PlanKey;
@@ -66,36 +90,23 @@ interface PlanConfig {
 
 const SMARTEDGE_PLANS: PlanConfig[] = [
   {
-    key: "weekly",
-    name: "Weekly VIP Standard",
-    description: "Standard VIP access billed weekly",
-    tagline:
-      "Perfect for ALL bettors seeking consistent and long term profitability!",
-    features: SMARTEDGE_VIP_STANDARD_FEATURES,
-    price: 19.99,
-    periodLabel: "week",
-    cta: "Select plan",
-  },
-  {
-    key: "standard",
-    name: "Monthly VIP Standard",
+    key: "vip",
+    name: "Monthly VIP",
     description: "Our Standard VIP package for consistent, long-term edge",
     tagline:
       "Perfect for ALL bettors seeking consistent and long term profitability!",
-    features: SMARTEDGE_VIP_STANDARD_FEATURES,
     price: 29.99,
-    compareAtPrice: 35,
+    compareAtPrice: 45,
     periodLabel: "month",
     cta: "Select plan",
     popular: true,
   },
   {
-    key: "vip",
+    key: "vip-premium",
     name: "Monthly VIP Premium",
     description: "Full suite of exclusive picks, alerts, and premium access",
     tagline:
       "OUR FULL SUITE OF PICKS for serious bettors seeking an elite edge and premium access!",
-    features: SMARTEDGE_VIP_PREMIUM_FEATURES,
     price: 75,
     compareAtPrice: 105,
     periodLabel: "month",
@@ -105,16 +116,7 @@ const SMARTEDGE_PLANS: PlanConfig[] = [
 
 const JONAH_PLANS: PlanConfig[] = [
   {
-    key: "weekly",
-    name: "Jonah's Weekly",
-    description: "A full week of Jonah's top plays across major leagues",
-    price: 19.99,
-    periodLabel: "week",
-    highlight: "7 days of Jonah's picks",
-    cta: "Select plan",
-  },
-  {
-    key: "standard",
+    key: "vip",
     name: "Jonah's Monthly Standard",
     description: "Month of Jonah's daily picks — best value for followers",
     price: 29.99,
@@ -125,7 +127,7 @@ const JONAH_PLANS: PlanConfig[] = [
     popular: true,
   },
   {
-    key: "vip",
+    key: "vip-premium",
     name: "Jonah's Monthly VIP",
     description: "Jonah's VIP card plays, breakdowns & priority access",
     price: 75,
@@ -231,7 +233,7 @@ function FeatureRow({ label, included }: { label: string; included: boolean }) {
     <li className="flex items-start gap-2.5 text-[13px] leading-snug">
       <span
         className={cn(
-          "mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full",
+          "mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full",
           included
             ? "bg-accent/15 text-accent"
             : "bg-white/5 text-zinc-600"
@@ -254,7 +256,30 @@ function PricingCard({
   brand: StripeBrand;
   reduceMotion: boolean;
 }) {
+  const { data: session, update: updateSession } = useSession();
+  const isLoggedIn = Boolean(session?.user?.backendToken);
   const registerHref = buildRegisterPlanUrl(brand, plan.key as PlanTierParam);
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    if (!isLoggedIn) return;
+
+    setLoading(true);
+    try {
+      // Refresh session to ensure we have the latest user info
+      await updateSession();
+
+      const selection: SubscriptionPlanSelection = {
+        brand,
+        tier: plan.key as PlanTierParam,
+      };
+      await startSubscriptionCheckout(selection);
+    } catch (error) {
+      toast.error((error as Error).message);
+      setLoading(false);
+    }
+  };
+
   return (
     <motion.div
       className="relative flex h-full flex-col"
@@ -291,11 +316,11 @@ function PricingCard({
 
         <div className="mt-6 min-h-21 space-y-1">
           {plan.compareAtPrice != null ? (
-            <p className="text-base font-medium text-zinc-500 line-through">
+            <p className="text-4xl font-medium text-zinc-500 line-through">
               ${formatUsd(plan.compareAtPrice)}
             </p>
           ) : (
-            <p className="text-base font-medium text-transparent" aria-hidden>
+            <p className="text-lg font-medium text-transparent" aria-hidden>
               &nbsp;
             </p>
           )}
@@ -308,7 +333,16 @@ function PricingCard({
       </div>
 
         <div className="mt-6 shrink-0">
-          <PricingAccentButton href={registerHref}>{plan.cta}</PricingAccentButton>
+          {isLoggedIn ? (
+            <PricingAccentButton
+              onClick={handleCheckout}
+              loading={loading}
+            >
+              {plan.cta}
+            </PricingAccentButton>
+          ) : (
+            <PricingAccentButton href={registerHref}>{plan.cta}</PricingAccentButton>
+          )}
         </div>
 
         {(plan.tagline ?? plan.highlight) && (
@@ -325,15 +359,19 @@ function PricingCard({
         )}
 
         <ul className="mt-5 flex flex-1 flex-col gap-3">
-          {plan.features
-            ? plan.features.map((feature) => (
-                <FeatureRow key={feature} label={feature} included />
-              ))
-            : HANDICAPPER_FEATURES.map((feature, i) => (
+          {brand === "smartedge"
+            ? (plan.key === "vip" ? SMARTEDGE_STANDARD_FEATURES : SMARTEDGE_PREMIUM_FEATURES).map((feature) => (
                 <FeatureRow
                   key={feature}
                   label={feature}
-                  included={HANDICAPPER_PLAN_INCLUDED[plan.key][i]}
+                  included
+                />
+              ))
+            : (plan.key === "vip" ? JONAH_STANDARD_FEATURES : JONAH_PREMIUM_FEATURES).map((feature) => (
+                <FeatureRow
+                  key={feature}
+                  label={feature}
+                  included
                 />
               ))}
         </ul>
@@ -348,15 +386,17 @@ function PricingPlansPanelInner({
   tabLayoutId = "pricing-plan-tab",
   planView: controlledPlanView,
   showTabs = true,
+  defaultView,
 }: {
   className?: string;
   tabLayoutId?: string;
   /** When set, shows only that plan group (hides tabs if `showTabs` is false). */
   planView?: PlanView;
   showTabs?: boolean;
+  defaultView?: PlanView;
 }) {
   const searchParams = useSearchParams();
-  const [internalPlanView, setInternalPlanView] = useState<PlanView>("vip");
+  const [internalPlanView, setInternalPlanView] = useState<PlanView>(defaultView || "vip");
   const requestedPlanView = parsePlanViewFromSearch(searchParams.get("pricingTab"));
 
   useEffect(() => {
@@ -433,7 +473,8 @@ function PricingPlansPanelInner({
           role="tabpanel"
           aria-label={planView === "vip" ? "SmartEdge VIP plans" : "Featured handicapper plans"}
           className={cn(
-            "grid items-stretch gap-5 overflow-visible lg:grid-cols-3 lg:gap-4 xl:gap-5",
+            "grid items-stretch gap-5 overflow-visible lg:gap-4 xl:gap-5",
+            planView === "vip" ? "lg:grid-cols-2 lg:justify-center" : "lg:grid-cols-2 lg:justify-center",
             showTabs ? "mt-10 pt-2" : "mt-0"
           )}
           variants={reduceMotion ? undefined : cardsContainer}
@@ -466,6 +507,7 @@ export function PricingPlansPanel(
     tabLayoutId?: string;
     planView?: PlanView;
     showTabs?: boolean;
+    defaultView?: PlanView;
   }
 ) {
   return (
@@ -473,7 +515,7 @@ export function PricingPlansPanel(
       fallback={
         <div
           className={cn(
-            "min-h-[320px] animate-pulse rounded-2xl bg-white/5",
+            "min-h-80 animate-pulse rounded-2xl bg-white/5",
             props.className
           )}
         />
@@ -484,7 +526,11 @@ export function PricingPlansPanel(
   );
 }
 
-export function PricingSection() {
+interface PricingSectionProps {
+  defaultView?: PlanView;
+}
+
+export function PricingSection({ defaultView }: PricingSectionProps = {}) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -545,7 +591,7 @@ export function PricingSection() {
           </motion.div>
         </motion.div>
 
-        <PricingPlansPanel className="mt-10" />
+        <PricingPlansPanel className="mt-10" defaultView={defaultView} />
       </div>
     </section>
   );

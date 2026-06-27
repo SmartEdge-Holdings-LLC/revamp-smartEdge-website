@@ -15,6 +15,7 @@ type PickAccessSelectProps = {
   onChange: (value: PickAccess) => void;
   className?: string;
   disabled?: boolean;
+  allowedAccess?: PickAccess[]; // Filter options by allowed access types
 };
 
 export function PickAccessSelect({
@@ -23,9 +24,13 @@ export function PickAccessSelect({
   onChange,
   className,
   disabled,
+  allowedAccess,
 }: PickAccessSelectProps) {
   const [open, setOpen] = React.useState(false);
   const label = PICK_ACCESS_LABELS[value];
+
+  // Use provided allowed access list or show all
+  const accessOptions = allowedAccess || PICK_ACCESS;
 
   const pick = (access: PickAccess) => {
     onChange(access);
@@ -48,7 +53,7 @@ export function PickAccessSelect({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <ul role="listbox" aria-label="Pick access" className="flex flex-col gap-0.5">
-          {PICK_ACCESS.map((access) => {
+          {accessOptions.map((access) => {
             const isSelected = access === value;
             return (
               <li key={access} role="presentation">

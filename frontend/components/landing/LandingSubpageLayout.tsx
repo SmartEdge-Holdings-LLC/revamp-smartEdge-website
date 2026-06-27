@@ -1,7 +1,7 @@
 import { BackgroundPattern } from "@/components/landing/BackgroundPattern";
 import { LandingBackdrop } from "@/components/landing/LandingBackdrop";
 import { Navbar } from "@/components/landing/Navbar";
-import { LandingFooter } from "@/components/landing/sections";
+import { LandingFooter, NewsSection } from "@/components/landing/sections";
 
 /** Shared shell for Odds, Free Picks, and similar marketing subpages. */
 export function LandingSubpageLayout({ children }: { children: React.ReactNode }) {
@@ -12,6 +12,7 @@ export function LandingSubpageLayout({ children }: { children: React.ReactNode }
         <div className="relative z-10 flex min-h-screen flex-col">
           <header className="relative shrink-0">
             <Navbar />
+            <NewsSection />
           </header>
           {children}
           <LandingFooter />

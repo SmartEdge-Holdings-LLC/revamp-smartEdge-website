@@ -112,14 +112,38 @@ function entitlementToSnapshot(ent: BrandEntitlement | null): BrandSubscriptionS
 
 /** Sync `users.brandSubscriptions` from `subscriptions` collection rows. */
 export async function refreshUserSubscriptionSummary(userId: string): Promise<IUser | null> {
-  const entitlements = await getMemberEntitlements(userId);
+  // Get all subscriptions from the database for this user (active and canceled)
+  const allSubscriptions = await Subscription.find({ userId }).lean();
+
+  // Build brand subscription arrays with all subscriptions (active and canceled)
+  const smartedgeSnapshots = allSubscriptions
+    .filter((sub) => sub.brand === "smartedge")
+    .map((sub) => ({
+      stripeSubscriptionId: sub.stripeSubscriptionId,
+      planName: sub.planName,
+      priceId: sub.priceId,
+      subscriptionStatus: sub.status,
+      currentPeriodEnd: sub.currentPeriodEnd,
+      cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+    }));
+
+  const jonahSnapshots = allSubscriptions
+    .filter((sub) => sub.brand === "jonah")
+    .map((sub) => ({
+      stripeSubscriptionId: sub.stripeSubscriptionId,
+      planName: sub.planName,
+      priceId: sub.priceId,
+      subscriptionStatus: sub.status,
+      currentPeriodEnd: sub.currentPeriodEnd,
+      cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+    }));
 
   return User.findByIdAndUpdate(
     userId,
     {
       brandSubscriptions: {
-        smartedge: entitlementToSnapshot(entitlements.smartedge),
-        jonah: entitlementToSnapshot(entitlements.jonah),
+        smartedge: smartedgeSnapshots,
+        jonah: jonahSnapshots,
       },
     },
     { returnDocument: "after" }

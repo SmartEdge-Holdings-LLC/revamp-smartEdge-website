@@ -13,9 +13,10 @@ import { useAuthStore } from "@/lib/store/authStore";
 
 const NAV_LINKS = [
   { label: "Buy Picks", href: "/#pricing" },
-  { label: "Odds", href: "/odds" },
-  { label: "Experts Picks", href: "/expert-picks" },
+  { label: "VIP Picks", href: "/expert-picks" },
   { label: "Free Picks", href: "/free-picks" },
+  // { label: "Tournaments", href: "/free-picks" },
+    { label: "Odds", href: "/odds" },
   { label: "Betting Resources", href: "/betting-resources" },
   { label: "Contact", href: "/contact-us" },
 ] as const;
@@ -62,21 +63,24 @@ export function Navbar() {
 
   return (
     <header className="relative z-10 border-b border-gray-800 bg-black text-white">
-      <nav className="flex w-full items-center justify-between px-8 py-6 sm:px-10 sm:py-7 md:px-12 md:py-8 lg:px-16">
+      <nav className="flex w-full items-center justify-between px-3 py-3 sm:px-5 sm:py-4 md:px-8 md:py-6 lg:px-12 lg:py-7">
         <Link
           href="/"
           className="flex shrink-0 items-center rounded-md outline-offset-4 focus-visible:outline-2 focus-visible:outline-white/30"
           onClick={closeMenu}
         >
-          <span className="relative block h-11 w-48 sm:h-12 sm:w-60">
-            <Image
-              src="/logo.webp"
-              alt="SmartEdgePicks"
-              fill
-              className="object-contain object-left"
-              sizes="(max-width: 640px) 176px, 224px"
-              priority
-            />
+          <span className="relative flex items-center gap-0.5 h-8 sm:h-9 md:h-10 lg:h-11">
+            <span className="relative block h-8 w-32 sm:h-9 sm:w-40 md:h-10 md:w-48 lg:h-11 lg:w-60">
+              <Image
+                src="/logo.webp"
+                alt="SmartEdgePicks"
+                fill
+                className="object-contain object-left"
+                sizes="(max-width: 640px) 176px, 224px"
+                priority
+              />
+            </span>
+            <span className="text-xs sm:text-sm md:text-base font-bold text-white leading-none -translate-y-1">®</span>
           </span>
         </Link>
 
@@ -138,7 +142,7 @@ export function Navbar() {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="border-t border-gray-800 bg-black md:hidden">
-          <div className="mx-auto max-w-6xl space-y-1 px-6 py-4">
+          <div className="mx-auto max-w-6xl space-y-1 px-3 sm:px-5 py-3 sm:py-4">
             {(isDashboard ? DASHBOARD_TABS : NAV_LINKS).map((item) => {
               const isActive = pathname === item.href;
               return (

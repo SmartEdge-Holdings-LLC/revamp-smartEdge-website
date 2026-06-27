@@ -1,8 +1,7 @@
 export type PlanName =
   | "free"
-  | "smartedgeWeekly"
-  | "smartedgeMonthlyStandard"
-  | "smartedgeMonthlyVip"
+  | "smartedgeVIP"
+  | "smartedgeVIPPremium"
   | "jonahWeekly"
   | "jonahMonthlyStandard"
   | "jonahMonthlyVip"

@@ -9,9 +9,8 @@ export type SubscriptionStatus =
   | "unpaid";
 export type PlanName =
   | "free"
-  | "smartedgeWeekly"
-  | "smartedgeMonthlyStandard"
-  | "smartedgeMonthlyVip"
+  | "smartedgeVIP"
+  | "smartedgeVIPPremium"
   | "jonahWeekly"
   | "jonahMonthlyStandard"
   | "jonahMonthlyVip"
@@ -34,8 +33,8 @@ export type BrandSubscriptionSnapshot = {
 };
 
 export type UserBrandSubscriptions = {
-  smartedge: BrandSubscriptionSnapshot | null;
-  jonah: BrandSubscriptionSnapshot | null;
+  smartedge: BrandSubscriptionSnapshot[];
+  jonah: BrandSubscriptionSnapshot[];
 };
 
 export interface IUser extends Document {
@@ -62,9 +61,8 @@ export interface IUser extends Document {
 
 const planNameEnum = [
   "free",
-  "smartedgeWeekly",
-  "smartedgeMonthlyStandard",
-  "smartedgeMonthlyVip",
+  "smartedgeVIP",
+  "smartedgeVIPPremium",
   "jonahWeekly",
   "jonahMonthlyStandard",
   "jonahMonthlyVip",
@@ -108,8 +106,8 @@ const userSchema = new Schema<IUser>(
     phoneNumber: { type: String, trim: true },
     wpRole: { type: String, enum: ["subscriber", "administrator"], required: false },
     brandSubscriptions: {
-      smartedge: { type: brandSubscriptionSnapshotSchema, default: null },
-      jonah: { type: brandSubscriptionSnapshotSchema, default: null },
+      smartedge: { type: [brandSubscriptionSnapshotSchema], default: [] },
+      jonah: { type: [brandSubscriptionSnapshotSchema], default: [] },
     },
     lastLoginAt: { type: Date, default: null },
   },

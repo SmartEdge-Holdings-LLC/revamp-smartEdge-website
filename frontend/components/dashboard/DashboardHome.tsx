@@ -16,9 +16,11 @@ import { cn } from "@/lib/utils";
 import type { SessionMemberUser } from "@/types/member-session";
 import type { League } from "@/types/picks";
 
-const PICK_TABS: { id: PaidPickFeed; label: string }[] = [
-  { id: "admin", label: "Smartedge picks" },
-  { id: "jonah", label: "Jonah's Picks" },
+type DashboardFeedType = PaidPickFeed | "jonah-vip" | "jonah-vip-premium";
+
+const PICK_TABS: { id: DashboardFeedType; label: string; access?: string }[] = [
+  { id: "admin", label: "Smartedge Premium VIP Picks" },
+  { id: "jonah-vip-premium", label: "Jonah Premium VIP Picks", access: "jonah-vip-premium" },
 ];
 
 type DashboardHomeProps = {
@@ -38,12 +40,36 @@ export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
   const { data: session } = useSession();
   const user = session?.user ?? initialUser;
   const token = user.backendToken;
-  const [activeFeed, setActiveFeed] = useState<PaidPickFeed>("admin");
+  const [activeFeed, setActiveFeed] = useState<DashboardFeedType>("admin");
   const [selectedLeagues, setSelectedLeagues] = useState<League[]>([]);
 
   const hasSmartedge = hasSmartedgePaidAccess(user);
   const hasJonah = hasJonahPaidAccess(user);
   const hasAccess = activeFeed === "admin" ? hasSmartedge : hasJonah;
+
+  // Map dashboard feed type to API feed and access filter
+  let actualFeed: PaidPickFeed;
+  let accessFilter: string[] | undefined;
+
+  switch (activeFeed) {
+    case "jonah":
+      actualFeed = "jonah";
+      accessFilter = ["jonahweekly"];
+      break;
+    case "jonah-vip":
+      actualFeed = "jonah";
+      accessFilter = ["jonahvip"];
+      break;
+    case "jonah-vip-premium":
+      actualFeed = "jonah";
+      accessFilter = ["jonah-vip-premium"];
+      break;
+    case "admin":
+    default:
+      actualFeed = "admin";
+      accessFilter = undefined;
+      break;
+  }
 
   const toggleLeague = (league: League) => {
     setSelectedLeagues((prev) =>
@@ -117,11 +143,12 @@ export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
             ) : (
               <FeedAccessGate>
                 <DashboardPaidPicksFeed
-                  feed={activeFeed}
+                  feed={actualFeed}
                   token={token}
                   hideHeader
                   showFullAnalysis={hasAccess}
                   leagues={selectedLeagues}
+                  accessFilter={accessFilter}
                 />
               </FeedAccessGate>
             )}

@@ -56,7 +56,7 @@ type PickFormState = CreatePickPayload & {
   isPickOfDay: boolean;
 };
 
-const emptyForm = (): PickFormState => ({
+const emptyForm = (isHandicapper: boolean): PickFormState => ({
   league: "NBA",
   awayTeamId: "",
   homeTeamId: "",
@@ -68,7 +68,7 @@ const emptyForm = (): PickFormState => ({
   odds: "",
   betType: "spread",
   confidence: 75,
-  access: "paid",
+  access: isHandicapper ? "jonahweekly" : "smartedgeVIPPremium",
   status: "active",
   matchTimeLocal: "",
   hasConfidence: false,
@@ -92,7 +92,7 @@ function pickToForm(pick: AdminPick): PickFormState {
     odds: pick.odds,
     betType: normalizeBetTypeForLeague(pick.league ?? "NBA", pick.betType),
     confidence: pick.confidence ?? 75,
-    access: pick.access ?? "paid",
+    access: pick.access ?? "smartedgeVIPPremium",
     status: pick.status ?? "active",
     matchTimeLocal,
     hasConfidence: Boolean(pick.confidence),
@@ -104,10 +104,11 @@ interface PickFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pick?: AdminPick | null;
+  role?: string; // User role from admin page
   onSaved: () => void;
 }
 
-export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDialogProps) {
+export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: PickFormDialogProps) {
   const isEdit = Boolean(pick?._id);
   const [form, setForm] = React.useState<PickFormState>(emptyForm);
   const [teams, setTeams] = React.useState<LeagueTeam[]>([]);
@@ -116,6 +117,12 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
   const [homeConferenceId, setHomeConferenceId] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [dialogContainer, setDialogContainer] = React.useState<HTMLElement | null>(null);
+
+  // Determine allowed access types based on user role
+  const isHandicapper = role === "handicapper";
+  const allowedAccess = isHandicapper
+    ? (["jonahweekly", "jonahvip", "jonah-vip-premium", "free"] as const)
+    : (["free", "smartedgeVIP", "smartedgeVIPPremium", "tournament"] as const);
 
   const loadTeamsForLeague = React.useCallback(async (league: League) => {
     if (isCollegeFootballLeague(league)) {
@@ -127,7 +134,7 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
 
   React.useEffect(() => {
     if (!open) return;
-    const nextForm = pick ? pickToForm(pick) : emptyForm();
+    const nextForm = pick ? pickToForm(pick) : emptyForm(isHandicapper);
     setForm(nextForm);
     setAwayConferenceId(
       pick?.awayTeamId ? findCollegeConferenceForTeam(pick.awayTeamId) ?? "" : ""
@@ -394,6 +401,7 @@ export function PickFormDialog({ open, onOpenChange, pick, onSaved }: PickFormDi
                   id="pick-access"
                   value={form.access}
                   onChange={(v) => update("access", v)}
+                  allowedAccess={allowedAccess}
                 />
               </Field>
               <Field label="Status" id="pick-status">

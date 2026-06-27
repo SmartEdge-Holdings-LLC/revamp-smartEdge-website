@@ -258,6 +258,9 @@ export async function listAdminPicks(
   for (const lg of params.league ?? []) {
     url.searchParams.append("league", lg);
   }
+  for (const ac of params.access ?? []) {
+    url.searchParams.append("access", ac);
+  }
   return adminFetch<ListPicksResponse>(url.pathname + url.search, { method: "GET" });
 }
 

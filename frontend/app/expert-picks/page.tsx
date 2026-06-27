@@ -14,8 +14,8 @@ export default function ExpertPicksPage() {
     <LandingSubpageLayout>
       <Suspense
         fallback={
-          <div className="flex flex-1 items-center justify-center py-24">
-            <div className="size-8 animate-pulse rounded-full bg-white/10" />
+          <div className="flex flex-1 items-center justify-center py-12 sm:py-24">
+            <div className="size-6 sm:size-8 animate-pulse rounded-full bg-white/10" />
           </div>
         }
       >

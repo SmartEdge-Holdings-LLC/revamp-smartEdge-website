@@ -142,100 +142,114 @@ function OddsCard({ game }: { game: Game }) {
   const underTotal = totalsMarket?.outcomes?.find((o) => o.name === "Under");
 
   return (
-    <Link href="/odds" className="shrink-0 w-120 sm:w-140 rounded-2xl border-2 border-green-500 bg-[#e4e4ed] p-4 sm:p-5 shadow-sm block hover:shadow-md transition-shadow cursor-pointer">
+    <Link href="/odds" className="shrink-0 w-96 sm:w-120 md:w-140 rounded-2xl border-2 border-green-500 bg-[#e4e4ed] p-2.5 sm:p-4 md:p-5 shadow-sm block hover:shadow-md transition-shadow cursor-pointer">
+      {/* Column Headers */}
+      <div className="grid grid-cols-[0.8fr_0.6fr_0.6fr_0.5fr] gap-x-1.5 sm:gap-x-3 md:gap-x-4 mb-2 sm:mb-3 px-1">
+        <div></div>
+        <div className="flex items-center justify-center text-[9px] sm:text-xs md:text-sm font-semibold text-gray-600">
+          Spread
+        </div>
+        <div className="flex items-center justify-center text-[9px] sm:text-xs md:text-sm font-semibold text-gray-600">
+          O/U
+        </div>
+        <div className="flex items-center justify-center text-[9px] sm:text-xs md:text-sm font-semibold text-gray-600">
+          ML
+        </div>
+      </div>
+
       {/* Grid: team info + odds cells */}
-      <div className="grid grid-cols-[minmax(160px,1fr)_auto_auto_auto] gap-x-3 sm:gap-x-4 gap-y-2 sm:gap-y-3 items-stretch">
+      <div className="grid grid-cols-[0.8fr_0.6fr_0.6fr_0.5fr] gap-x-1.5 sm:gap-x-3 md:gap-x-4 gap-y-1 sm:gap-y-2 md:gap-y-3 items-stretch">
         {/* Away team row */}
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0 self-center">
+        <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 min-w-0 self-center">
           {awayLogo && (
             <Image
               src={awayLogo}
               alt={game.away_team}
               width={48}
               height={48}
-              className="h-10 w-10 sm:h-12 sm:w-12 object-contain shrink-0"
+              className="h-6 w-6 sm:h-10 sm:w-10 md:h-12 md:w-12 object-contain shrink-0"
             />
           )}
-          <span className="text-sm sm:text-base font-semibold text-gray-800 truncate">
-            {game.away_team}
+          <span className="text-[10px] sm:text-sm md:text-base font-semibold text-gray-800 truncate">
+            {awayAbbrev}
           </span>
         </div>
 
         {/* Away spread */}
-        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded-xl px-4 sm:px-5 min-w-20 sm:min-w-22.5 h-15 sm:h-17">
-          <span className="text-xs sm:text-sm text-gray-500 font-medium">
+        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded px-1.5 sm:px-3 md:px-5 h-11 sm:h-14 md:h-17">
+          <span className="text-[8px] sm:text-xs md:text-sm text-gray-500 font-medium leading-tight">
             {formatPoint(awaySpread?.point)}
           </span>
-          <span className="text-sm sm:text-base font-bold text-[#ea693a]">
+          <span className="text-[9px] sm:text-sm md:text-base font-bold text-[#ea693a] leading-tight">
             {formatOdds(awaySpread?.price)}
           </span>
         </div>
 
         {/* Away total (Over) */}
-        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded-xl px-4 sm:px-5 min-w-20 sm:min-w-22.5 h-15 sm:h-17">
-          <span className="text-xs sm:text-sm text-gray-500 font-medium">
+        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded px-1.5 sm:px-3 md:px-5 h-11 sm:h-14 md:h-17">
+          <span className="text-[8px] sm:text-xs md:text-sm text-gray-500 font-medium leading-tight">
             O {overTotal?.point ?? "—"}
           </span>
-          <span className="text-sm sm:text-base font-bold text-[#ea693a]">
+          <span className="text-[9px] sm:text-sm md:text-base font-bold text-[#ea693a] leading-tight">
             {formatOdds(overTotal?.price)}
           </span>
         </div>
 
         {/* Away moneyline */}
-        <div className="flex items-center justify-center bg-[#ededf4] rounded-xl px-4 sm:px-5 min-w-17.5 sm:min-w-20 h-15 sm:h-17">
-          <span className="text-sm sm:text-base font-bold text-[#ea693a]">
+        <div className="flex items-center justify-center bg-[#ededf4] rounded px-1 sm:px-3 md:px-5 h-11 sm:h-14 md:h-17">
+          <span className="text-[9px] sm:text-sm md:text-base font-bold text-[#ea693a]">
             {formatOdds(awayH2h)}
           </span>
         </div>
 
         {/* Home team row */}
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0 self-center">
+        <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 min-w-0 self-center">
           {homeLogo && (
             <Image
               src={homeLogo}
               alt={game.home_team}
               width={48}
               height={48}
-              className="h-10 w-10 sm:h-12 sm:w-12 object-contain shrink-0"
+              className="h-6 w-6 sm:h-10 sm:w-10 md:h-12 md:w-12 object-contain shrink-0"
             />
           )}
-          <span className="text-sm sm:text-base font-semibold text-gray-800 truncate">
-            {game.home_team}
+          <span className="text-[10px] sm:text-sm md:text-base font-semibold text-gray-800 truncate">
+            {homeAbbrev}
           </span>
         </div>
 
         {/* Home spread */}
-        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded-xl px-4 sm:px-5 min-w-20 sm:min-w-22.5 h-15 sm:h-17">
-          <span className="text-xs sm:text-sm text-gray-500 font-medium">
+        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded px-1.5 sm:px-3 md:px-5 h-11 sm:h-14 md:h-17">
+          <span className="text-[8px] sm:text-xs md:text-sm text-gray-500 font-medium leading-tight">
             {formatPoint(homeSpread?.point)}
           </span>
-          <span className="text-sm sm:text-base font-bold text-[#ea693a]">
+          <span className="text-[9px] sm:text-sm md:text-base font-bold text-[#ea693a] leading-tight">
             {formatOdds(homeSpread?.price)}
           </span>
         </div>
 
         {/* Home total (Under) */}
-        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded-xl px-4 sm:px-5 min-w-20 sm:min-w-22.5 h-15 sm:h-17">
-          <span className="text-xs sm:text-sm text-gray-500 font-medium">
+        <div className="flex flex-col items-center justify-center bg-[#ededf4] rounded px-1.5 sm:px-3 md:px-5 h-11 sm:h-14 md:h-17">
+          <span className="text-[8px] sm:text-xs md:text-sm text-gray-500 font-medium leading-tight">
             U {underTotal?.point ?? "—"}
           </span>
-          <span className="text-sm sm:text-base font-bold text-[#ea693a]">
+          <span className="text-[9px] sm:text-sm md:text-base font-bold text-[#ea693a] leading-tight">
             {formatOdds(underTotal?.price)}
           </span>
         </div>
 
         {/* Home moneyline */}
-        <div className="flex items-center justify-center bg-[#ededf4] rounded-xl px-4 sm:px-5 min-w-17.5 sm:min-w-20 h-15 sm:h-17">
-          <span className="text-sm sm:text-base font-bold text-[#ea693a]">
+        <div className="flex items-center justify-center bg-[#ededf4] rounded px-1 sm:px-3 md:px-5 h-11 sm:h-14 md:h-17">
+          <span className="text-[9px] sm:text-sm md:text-base font-bold text-[#ea693a]">
             {formatOdds(homeH2h)}
           </span>
         </div>
       </div>
 
       {/* Game time */}
-      <div className="flex items-center gap-2 mt-3 sm:mt-4 pt-3 border-t border-[#d5d5e0]">
-        <Calendar className="h-4 w-4 text-gray-400" />
-        <span className="text-xs sm:text-sm text-gray-500 font-medium">
+      <div className="flex items-center gap-1 sm:gap-2 mt-1.5 sm:mt-3 md:mt-4 pt-1.5 sm:pt-3 border-t border-[#d5d5e0] px-1">
+        <Calendar className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-gray-400 shrink-0" />
+        <span className="text-[8px] sm:text-xs md:text-sm text-gray-500 font-medium truncate">
           {formatGameTime(game.commence_time)}
         </span>
       </div>
@@ -245,29 +259,29 @@ function OddsCard({ game }: { game: Game }) {
 
 function SkeletonCard() {
   return (
-    <div className="shrink-0 w-120 sm:w-140 rounded-2xl bg-[#e4e4ed] p-4 sm:p-5">
-      <div className="grid grid-cols-[minmax(160px,1fr)_auto_auto_auto] gap-x-3 sm:gap-x-4 gap-y-2 sm:gap-y-3 items-stretch">
+    <div className="shrink-0 w-96 sm:w-120 md:w-140 rounded-2xl bg-[#e4e4ed] p-2.5 sm:p-4 md:p-5">
+      <div className="grid grid-cols-[0.8fr_0.6fr_0.6fr_0.5fr] gap-x-1.5 sm:gap-x-3 md:gap-x-4 gap-y-1 sm:gap-y-2 md:gap-y-3 items-stretch px-1">
         {[0, 1].map((row) => (
           <div key={row} className="contents">
-            <div className="flex items-center gap-3 sm:gap-4 self-center">
-              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#d6d6e2] animate-pulse" />
-              <div className="h-4 w-24 sm:w-32 rounded bg-[#d6d6e2] animate-pulse" />
+            <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 self-center">
+              <div className="h-6 w-6 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-full bg-[#d6d6e2] animate-pulse" />
+              <div className="h-2 w-8 sm:w-24 md:w-32 rounded bg-[#d6d6e2] animate-pulse" />
             </div>
             {[0, 1, 2].map((col) => (
               <div
                 key={col}
-                className="flex flex-col items-center justify-center gap-1.5 bg-[#ededf4] rounded-xl px-4 sm:px-5 min-w-20 sm:min-w-22.5 h-15 sm:h-17"
+                className="flex flex-col items-center justify-center gap-0.5 sm:gap-1.5 bg-[#ededf4] rounded px-1.5 sm:px-3 md:px-5 h-11 sm:h-14 md:h-17"
               >
-                <div className="h-3 w-10 rounded bg-[#d6d6e2] animate-pulse" />
-                <div className="h-4 w-12 rounded bg-[#d6d6e2] animate-pulse" />
+                <div className="h-1.5 sm:h-3 w-6 sm:w-10 rounded bg-[#d6d6e2] animate-pulse" />
+                <div className="h-2 sm:h-4 w-8 sm:w-12 rounded bg-[#d6d6e2] animate-pulse" />
               </div>
             ))}
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-2 mt-3 sm:mt-4 pt-3 border-t border-[#d5d5e0]">
-        <div className="h-4 w-4 rounded bg-[#d6d6e2] animate-pulse" />
-        <div className="h-3.5 w-32 rounded bg-[#d6d6e2] animate-pulse" />
+      <div className="flex items-center gap-1 sm:gap-2 mt-1.5 sm:mt-3 md:mt-4 pt-1.5 sm:pt-3 border-t border-[#d5d5e0] px-1">
+        <div className="h-2.5 w-2.5 sm:h-4 sm:w-4 rounded bg-[#d6d6e2] animate-pulse" />
+        <div className="h-2 sm:h-3.5 w-20 sm:w-32 rounded bg-[#d6d6e2] animate-pulse" />
       </div>
     </div>
   );
@@ -290,34 +304,34 @@ export function PromoBanner() {
   return (
     <div className="bg-[#e4e4ed] overflow-hidden">
       {/* Header bar */}
-      <div className="bg-[#d6d6e2] px-4 sm:px-6 py-2.5 sm:py-3 text-center">
-        <span className="text-sm sm:text-base font-semibold text-gray-700 tracking-wide">
+      <div className="bg-[#d6d6e2] px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 text-center">
+        <span className="text-xs sm:text-sm md:text-base font-semibold text-gray-700 tracking-wide">
           Today&#39;s Games
         </span>
       </div>
 
-      <div className="py-3 sm:py-4">
+      <div className="py-2 sm:py-3 md:py-4">
       <style>{`
         @keyframes slideMarquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
         .marquee-content {
-          animation: slideMarquee 60s linear infinite;
+          animation: slideMarquee 30s linear infinite;
         }
         .marquee-container:hover .marquee-content {
           animation-play-state: paused;
         }
       `}</style>
       {showSkeleton ? (
-        <div className="flex gap-4 sm:gap-5 px-2 sm:px-4 overflow-hidden">
+        <div className="flex gap-2 sm:gap-3 md:gap-4 px-2 sm:px-3 md:px-4 overflow-hidden">
           {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
       ) : (
         <div className="marquee-container overflow-hidden">
-          <div className="marquee-content flex gap-4 sm:gap-5 px-2 sm:px-4">
+          <div className="marquee-content flex gap-2 sm:gap-3 md:gap-4 px-2 sm:px-3 md:px-4">
             {[...games, ...games].map((game, i) => (
               <OddsCard key={`${game.id}-${i}`} game={game} />
             ))}

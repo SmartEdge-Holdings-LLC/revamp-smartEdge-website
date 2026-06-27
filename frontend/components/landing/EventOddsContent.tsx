@@ -153,23 +153,23 @@ export function EventOddsContent({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="relative z-10 px-4 sm:px-5 md:px-6 mb-32">
-      <div className="mx-auto w-full max-w-8xl px-6 py-4 sm:px-8 sm:py-5 md:px-10 md:py-6 border border-[#ED723C]/30 rounded-xl">
+    <div className="relative z-10 px-3 sm:px-5 md:px-6 mb-20 sm:mb-32">
+      <div className="mx-auto w-full max-w-8xl px-3 sm:px-6 md:px-8 lg:px-10 py-3 sm:py-5 md:py-6 border border-[#ED723C]/30 rounded-xl">
         {/* View Line Movement Toggle */}
         <div
-          className="flex items-center justify-between cursor-pointer group"
+          className="flex items-center justify-between cursor-pointer group gap-3"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex items-center gap-3">
-            <div className="bg-white rounded-full p-1.5">
-              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-[#ED723C]" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="bg-white rounded-full p-1">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#ED723C] shrink-0" />
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white group-hover:text-[#ED723C] transition-colors">
-              View More Line Movements
+            <h2 className="text-sm sm:text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#ED723C] transition-colors truncate">
+              View More Lines
             </h2>
           </div>
           <ChevronDown
-            className={`w-5 h-5 sm:w-6 sm:h-6 text-[#ED723C] transition-transform duration-300 ${
+            className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#ED723C] transition-transform duration-300 shrink-0 ${
               isExpanded ? "rotate-180" : ""
             }`}
           />
@@ -178,14 +178,14 @@ export function EventOddsContent({ eventId }: { eventId: string }) {
         {isExpanded && (
           <div className="mt-8">
             {/* Header Section */}
-            <div className="mb-12">
-              <div className="flex items-center justify-between gap-4 mb-3">
-                <p className="text-zinc-400 text-sm sm:text-base">
+            <div className="mb-8 sm:mb-12">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 mb-3">
+                <p className="text-zinc-400 text-xs sm:text-sm md:text-base">
                   Real-time odds from major sportsbooks
                 </p>
                 {/* Filter Dropdown */}
                 <Select value={selectedMarket} onValueChange={(value) => setSelectedMarket(value as any)}>
-                  <SelectTrigger className="w-full sm:w-64 bg-white/5 border border-white/10 text-white">
+                  <SelectTrigger className="w-full sm:w-64 bg-white/5 border border-white/10 text-white text-xs sm:text-sm">
                     <SelectValue placeholder={MARKET_TABS.find((tab) => tab.key === selectedMarket)?.label || "Select market"} />
                   </SelectTrigger>
                   <SelectContent className="bg-black/80 border border-white/10">
@@ -280,36 +280,36 @@ function OddsTable({
   return (
     <div className="bg-black/60 rounded-lg overflow-hidden">
       {/* Orange Header */}
-      <div className="bg-[#ED723C] px-4 sm:px-6 py-3 sm:py-4">
-        <div className="flex items-center gap-3">
-          <div className="w-40 sm:w-48"></div>
-          <div className="flex-1">
-            <p className="text-white font-semibold text-sm sm:text-base">{title}</p>
+      <div className="bg-[#ED723C] px-2 sm:px-4 md:px-6 py-2.5 sm:py-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-20 sm:w-28 md:w-40 lg:w-48 shrink-0"></div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-semibold text-xs sm:text-sm md:text-base">{title}</p>
           </div>
         </div>
       </div>
 
       {/* Sportsbook Header */}
-      <div className="flex px-4 sm:px-6 py-4">
-          <div className="w-40 sm:w-48"></div>
-          <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+      <div className="flex px-2 sm:px-4 md:px-6 py-3 sm:py-4">
+          <div className="w-20 sm:w-28 md:w-40 lg:w-48 shrink-0"></div>
+          <div className="flex-1 flex gap-1 sm:gap-2 md:gap-3 justify-between">
             {bookmakers.map((bookmaker) => {
               const logoUrl = getSportsbookLogo(bookmaker.key);
               return (
-                <div key={bookmaker.key} className="flex-1 text-center flex items-center justify-center min-h-12">
+                <div key={bookmaker.key} className="flex-1 text-center flex items-center justify-center min-h-10 sm:min-h-12">
                   {logoUrl ? (
                     <Image
                       src={logoUrl}
                       alt={bookmaker.title}
                       width={80}
                       height={40}
-                      className="h-8 sm:h-10 w-auto object-contain rounded-md"
+                      className="h-5 sm:h-7 md:h-8 lg:h-10 w-auto object-contain rounded-md"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
                   ) : (
-                    <p className="text-xs font-semibold text-zinc-300 truncate">{bookmaker.title}</p>
+                    <p className="text-[8px] sm:text-xs font-semibold text-zinc-300 truncate">{bookmaker.title}</p>
                   )}
                 </div>
               );
@@ -359,38 +359,38 @@ function SpreadsTableBody({ marketKey, bookmakers, game }: any) {
   return (
     <>
       {awayOutcomes.map((awayOutcome: Outcome, idx: number) => (
-        <div key={`spread-${idx}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-40 sm:w-48 flex items-start gap-2">
+        <div key={`spread-${idx}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-2 sm:px-4 md:px-6 py-3 sm:py-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-20 sm:w-28 md:w-40 lg:w-48 flex items-start gap-1.5 sm:gap-2 min-w-0">
               {game.away_team && getTeamLogo(game.away_team) ? (
                 <Image
                   src={getTeamLogo(game.away_team)}
                   alt={game.away_team}
                   width={36}
                   height={36}
-                  className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                  className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
               ) : null}
-              <div className="flex flex-col">
-                <p className="text-[10px] sm:text-xs text-white mb-1">
+              <div className="flex flex-col min-w-0">
+                <p className="text-[8px] sm:text-[10px] md:text-xs text-white mb-0.5 sm:mb-1 truncate">
                   {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
                 </p>
-                <p className="text-xs sm:text-sm font-bold text-white">{game.away_team}</p>
-                <p className="text-xs text-zinc-400">{awayOutcome.point}</p>
+                <p className="text-[10px] sm:text-xs md:text-sm font-bold text-white truncate">{game.away_team}</p>
+                <p className="text-[8px] sm:text-xs text-zinc-400">{awayOutcome.point}</p>
               </div>
             </div>
-            <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+            <div className="flex-1 flex gap-1 sm:gap-2 md:gap-3 justify-between min-w-0">
               {filteredBookmakers.map((bookmaker: Bookmaker) => {
                 const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === marketKey);
                 const outcome = spreadMarket?.outcomes.find(
                   (o: Outcome) => o.name === game.away_team && o.point === awayOutcome.point
                 );
                 return (
-                  <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                    <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                  <div key={bookmaker.key} className="flex-1 min-w-12 sm:min-w-16 md:min-w-20 bg-white/8 rounded px-1 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                    <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                       {outcome ? formatOdds(outcome.price) : "—"}
                     </p>
                   </div>
@@ -401,38 +401,38 @@ function SpreadsTableBody({ marketKey, bookmakers, game }: any) {
         </div>
       ))}
       {homeOutcomes.map((homeOutcome: Outcome, idx: number) => (
-        <div key={`spread-home-${idx}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-40 sm:w-48 flex items-start gap-2">
+        <div key={`spread-home-${idx}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-2 sm:px-4 md:px-6 py-3 sm:py-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-20 sm:w-28 md:w-40 lg:w-48 flex items-start gap-1.5 sm:gap-2 min-w-0">
               {game.home_team && getTeamLogo(game.home_team) ? (
                 <Image
                   src={getTeamLogo(game.home_team)}
                   alt={game.home_team}
                   width={36}
                   height={36}
-                  className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                  className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
               ) : null}
-              <div className="flex flex-col">
-                <p className="text-[10px] sm:text-xs text-white mb-1">
+              <div className="flex flex-col min-w-0">
+                <p className="text-[8px] sm:text-[10px] md:text-xs text-white mb-0.5 sm:mb-1 truncate">
                   {formatCommenceTime(game.commence_time).split(" at ")[1]} ET
                 </p>
-                <p className="text-xs sm:text-sm font-bold text-white">{game.home_team}</p>
-                <p className="text-xs text-zinc-400">{homeOutcome.point}</p>
+                <p className="text-[10px] sm:text-xs md:text-sm font-bold text-white truncate">{game.home_team}</p>
+                <p className="text-[8px] sm:text-xs text-zinc-400">{homeOutcome.point}</p>
               </div>
             </div>
-            <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+            <div className="flex-1 flex gap-1 sm:gap-2 md:gap-3 justify-between min-w-0">
               {filteredBookmakers.map((bookmaker: Bookmaker) => {
                 const spreadMarket = bookmaker.markets?.find((m: Market) => m.key === marketKey);
                 const outcome = spreadMarket?.outcomes.find(
                   (o: Outcome) => o.name === game.home_team && o.point === homeOutcome.point
                 );
                 return (
-                  <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12">
-                    <p className="text-sm sm:text-base font-bold text-white leading-tight">
+                  <div key={bookmaker.key} className="flex-1 min-w-12 sm:min-w-16 md:min-w-20 bg-white/8 rounded px-1 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12">
+                    <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-tight">
                       {outcome ? formatOdds(outcome.price) : "—"}
                     </p>
                   </div>
@@ -460,27 +460,27 @@ function TotalsTableBody({ marketKey, bookmakers, game }: any) {
   return (
     <>
       {uniquePoints.map((point) => (
-        <div key={`total-${point}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-40 sm:w-48">
-              <p className="font-bold text-white text-xs sm:text-sm">O/U {point}</p>
-              <p className="text-xs text-zinc-400">Total Points</p>
+        <div key={`total-${point}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-2 sm:px-4 md:px-6 py-3 sm:py-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-20 sm:w-28 md:w-40 lg:w-48 shrink-0">
+              <p className="font-bold text-white text-[10px] sm:text-sm">O/U {point}</p>
+              <p className="text-[8px] sm:text-xs text-zinc-400">Total Pts</p>
             </div>
-            <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+            <div className="flex-1 flex gap-1 sm:gap-2 md:gap-3 justify-between min-w-0">
               {filteredBookmakers.map((bookmaker: Bookmaker) => {
                 const totalMarket = bookmaker.markets?.find((m: Market) => m.key === marketKey);
                 const overOutcome = totalMarket?.outcomes.find((o: Outcome) => o.name === "Over" && o.point === point);
                 const underOutcome = totalMarket?.outcomes.find((o: Outcome) => o.name === "Under" && o.point === point);
                 return (
-                  <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12 gap-1">
-                    <div className="flex gap-1 w-full">
-                      <div className="flex-1 bg-green-500/10 rounded px-1 py-1 border border-green-500/20">
-                        <p className="text-green-400 text-xs font-bold">O</p>
-                        <p className="text-white font-bold text-xs">{overOutcome ? formatOdds(overOutcome.price) : "—"}</p>
+                  <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12 gap-0.5 sm:gap-1">
+                    <div className="flex gap-0.5 sm:gap-1 w-full">
+                      <div className="flex-1 min-w-8 sm:min-w-12 bg-green-500/10 rounded px-0.5 sm:px-1 py-0.5 sm:py-1 border border-green-500/20">
+                        <p className="text-green-400 text-[8px] sm:text-xs font-bold">O</p>
+                        <p className="text-white font-bold text-[8px] sm:text-xs">{overOutcome ? formatOdds(overOutcome.price) : "—"}</p>
                       </div>
-                      <div className="flex-1 bg-red-500/10 rounded px-1 py-1 border border-red-500/20">
-                        <p className="text-red-400 text-xs font-bold">U</p>
-                        <p className="text-white font-bold text-xs">{underOutcome ? formatOdds(underOutcome.price) : "—"}</p>
+                      <div className="flex-1 min-w-8 sm:min-w-12 bg-red-500/10 rounded px-0.5 sm:px-1 py-0.5 sm:py-1 border border-red-500/20">
+                        <p className="text-red-400 text-[8px] sm:text-xs font-bold">U</p>
+                        <p className="text-white font-bold text-[8px] sm:text-xs">{underOutcome ? formatOdds(underOutcome.price) : "—"}</p>
                       </div>
                     </div>
                   </div>
@@ -515,27 +515,27 @@ function TeamTotalsTableBody({ marketKey, bookmakers, game }: any) {
         const teamName = description === game.away_team ? game.away_team : description === game.home_team ? game.home_team : description;
 
         return (
-          <div key={`team-total-${key}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-4 sm:px-6 py-4">
-            <div className="flex items-center gap-3">
-              <div className="w-40 sm:w-48 flex items-start gap-2">
+          <div key={`team-total-${key}`} className="border-b border-white/10 hover:bg-white/5 transition-colors px-2 sm:px-4 md:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-20 sm:w-28 md:w-40 lg:w-48 flex items-start gap-1.5 sm:gap-2 min-w-0">
                 {teamName && getTeamLogo(teamName) ? (
                   <Image
                     src={getTeamLogo(teamName)}
                     alt={teamName}
                     width={36}
                     height={36}
-                    className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+                    className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 object-contain shrink-0"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
                 ) : null}
-                <div className="flex flex-col">
-                  <p className="font-bold text-white text-xs sm:text-sm">{teamName}</p>
-                  <p className="text-xs text-zinc-400">{point}</p>
+                <div className="flex flex-col min-w-0">
+                  <p className="font-bold text-white text-[10px] sm:text-xs md:text-sm truncate">{teamName}</p>
+                  <p className="text-[8px] sm:text-xs text-zinc-400">{point}</p>
                 </div>
               </div>
-              <div className="flex-1 flex gap-2 sm:gap-3 justify-between">
+              <div className="flex-1 flex gap-1 sm:gap-2 md:gap-3 justify-between min-w-0">
                 {filteredBookmakers.map((bookmaker: Bookmaker) => {
                   const totalMarket = bookmaker.markets?.find((m: Market) => m.key === marketKey);
                   const overOutcome = (totalMarket?.outcomes as Array<Outcome & { description?: string }>)?.find(
@@ -545,15 +545,15 @@ function TeamTotalsTableBody({ marketKey, bookmakers, game }: any) {
                     (o: Outcome & { description?: string }) => o.description === description && o.point === point && o.name === "Under"
                   );
                   return (
-                    <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-2 py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-12 gap-1">
-                      <div className="flex gap-1 w-full">
-                        <div className="flex-1 bg-green-500/10 rounded px-1 py-1 border border-green-500/20">
-                          <p className="text-green-400 text-xs font-bold">O</p>
-                          <p className="text-white font-bold text-xs">{overOutcome ? formatOdds(overOutcome.price) : "—"}</p>
+                    <div key={bookmaker.key} className="flex-1 bg-white/8 rounded px-1 sm:px-2 py-1.5 sm:py-2 text-center hover:bg-white/12 transition-colors flex flex-col items-center justify-center min-h-10 sm:min-h-12 gap-0.5 sm:gap-1">
+                      <div className="flex gap-0.5 sm:gap-1 w-full">
+                        <div className="flex-1 bg-green-500/10 rounded px-0.5 sm:px-1 py-0.5 sm:py-1 border border-green-500/20">
+                          <p className="text-green-400 text-[8px] sm:text-xs font-bold">O</p>
+                          <p className="text-white font-bold text-[8px] sm:text-xs">{overOutcome ? formatOdds(overOutcome.price) : "—"}</p>
                         </div>
-                        <div className="flex-1 bg-red-500/10 rounded px-1 py-1 border border-red-500/20">
-                          <p className="text-red-400 text-xs font-bold">U</p>
-                          <p className="text-white font-bold text-xs">{underOutcome ? formatOdds(underOutcome.price) : "—"}</p>
+                        <div className="flex-1 bg-red-500/10 rounded px-0.5 sm:px-1 py-0.5 sm:py-1 border border-red-500/20">
+                          <p className="text-red-400 text-[8px] sm:text-xs font-bold">U</p>
+                          <p className="text-white font-bold text-[8px] sm:text-xs">{underOutcome ? formatOdds(underOutcome.price) : "—"}</p>
                         </div>
                       </div>
                     </div>

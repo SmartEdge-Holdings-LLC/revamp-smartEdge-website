@@ -2,33 +2,30 @@ export type StripeBrand = "smartedge" | "jonah";
 export type StripeTier = "weekly" | "monthlyStandard" | "monthlyVip";
 
 /** URL / UI tier param (pricing cards, register link). */
-export type PlanTierParam = "weekly" | "standard" | "vip";
+export type PlanTierParam = "weekly" | "vip" | "vip-premium";
 
 /** @deprecated Use StripeTier — kept for Jonah admin sync */
 export type JonahProductKey = StripeTier;
 
 export type StripeProductKey =
-  | "smartedgeWeekly"
-  | "smartedgeMonthlyStandard"
-  | "smartedgeMonthlyVip"
+  | "smartedgeVIP"
+  | "smartedgeVIPPremium"
   | "jonahWeekly"
   | "jonahMonthlyStandard"
   | "jonahMonthlyVip";
 
 /** Read live from process.env so a running server picks up .env after restart. */
 const PRODUCT_ENV_KEYS: Record<StripeProductKey, string> = {
-  smartedgeWeekly: "STRIPE_SMARTEDGE_WEEKLY_PRODUCT_ID",
-  smartedgeMonthlyStandard: "STRIPE_SMARTEDGE_MONTHLY_STANDARD_PRODUCT_ID",
-  smartedgeMonthlyVip: "STRIPE_SMARTEDGE_MONTHLY_VIP_PRODUCT_ID",
+  smartedgeVIP: "STRIPE_SMARTEDGE_VIP_PRODUCT_ID",
+  smartedgeVIPPremium: "STRIPE_SMARTEDGE_VIP_PREMIUM_PRODUCT_ID",
   jonahWeekly: "STRIPE_JONAH_WEEKLY_PRODUCT_ID",
   jonahMonthlyStandard: "STRIPE_JONAH_MONTHLY_STANDARD_PRODUCT_ID",
   jonahMonthlyVip: "STRIPE_JONAH_MONTHLY_VIP_PRODUCT_ID",
 };
 
 const PRODUCT_META: Record<StripeProductKey, { brand: StripeBrand; tier: StripeTier }> = {
-  smartedgeWeekly: { brand: "smartedge", tier: "weekly" },
-  smartedgeMonthlyStandard: { brand: "smartedge", tier: "monthlyStandard" },
-  smartedgeMonthlyVip: { brand: "smartedge", tier: "monthlyVip" },
+  smartedgeVIP: { brand: "smartedge", tier: "monthlyStandard" },
+  smartedgeVIPPremium: { brand: "smartedge", tier: "monthlyVip" },
   jonahWeekly: { brand: "jonah", tier: "weekly" },
   jonahMonthlyStandard: { brand: "jonah", tier: "monthlyStandard" },
   jonahMonthlyVip: { brand: "jonah", tier: "monthlyVip" },
@@ -36,8 +33,8 @@ const PRODUCT_META: Record<StripeProductKey, { brand: StripeBrand; tier: StripeT
 
 const TIER_PARAM_TO_STRIPE: Record<PlanTierParam, StripeTier> = {
   weekly: "weekly",
-  standard: "monthlyStandard",
-  vip: "monthlyVip",
+  vip: "monthlyStandard",
+  "vip-premium": "monthlyVip",
 };
 
 function readProductIdFromEnv(envVar: string): string {
@@ -90,9 +87,9 @@ export function resolveCheckoutProductId(input: {
     brand &&
     tier &&
     (brand === "smartedge" || brand === "jonah") &&
-    (tier === "weekly" || tier === "standard" || tier === "vip")
+    (tier === "weekly" || tier === "vip" || tier === "vip-premium")
   ) {
-    const resolved = getProductIdByBrandAndTier(brand, tier);
+    const resolved = getProductIdByBrandAndTier(brand, tier as PlanTierParam);
     if (resolved) return resolved;
   }
 

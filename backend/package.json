@@ -17,7 +17,8 @@
     "sync:stripe": "tsx scripts/sync-stripe-subscriptions.ts",
     "sync:jonah-users": "tsx scripts/sync-jonah-users.ts",
     "import:stripe-subscribers": "tsx scripts/import-missing-stripe-subscribers.ts",
-    "scrape:espn-logos": "node scripts/scrape-espn-ncaaf-logos.js"
+    "scrape:espn-logos": "node scripts/scrape-espn-ncaaf-logos.js",
+    "seed:tournament": "tsx scripts/enroll-test-users.ts"
   },
   "keywords": [],
   "author": "",

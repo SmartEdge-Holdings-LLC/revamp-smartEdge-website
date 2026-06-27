@@ -1,8 +1,8 @@
 import { getStripeProductId } from "@/lib/stripe";
 import type { StripeBrand, StripeTier } from "@/lib/stripe-product-types";
 
-/** Tier keys used in pricing UI and URL (`standard` / `vip` map to Stripe tiers). */
-export type PlanTierParam = "weekly" | "standard" | "vip";
+/** Tier keys used in pricing UI and URL (`vip` / `vip-premium` map to Stripe tiers). */
+export type PlanTierParam = "weekly" | "vip" | "vip-premium";
 
 export type SubscriptionPlanSelection = {
   brand: StripeBrand;
@@ -10,24 +10,24 @@ export type SubscriptionPlanSelection = {
 };
 
 const BRANDS: StripeBrand[] = ["smartedge", "jonah"];
-const TIERS: PlanTierParam[] = ["weekly", "standard", "vip"];
+const TIERS: PlanTierParam[] = ["weekly", "vip", "vip-premium"];
 
 const TIER_TO_STRIPE: Record<PlanTierParam, StripeTier> = {
   weekly: "weekly",
-  standard: "monthlyStandard",
-  vip: "monthlyVip",
+  vip: "monthlyStandard",
+  "vip-premium": "monthlyVip",
 };
 
 const PLAN_LABELS: Record<StripeBrand, Record<PlanTierParam, string>> = {
   smartedge: {
     weekly: "Weekly VIP Standard",
-    standard: "Monthly VIP Standard",
-    vip: "Monthly VIP Premium",
+    vip: "Monthly VIP",
+    "vip-premium": "Monthly VIP Premium",
   },
   jonah: {
-    weekly: "Jonah's Weekly",
-    standard: "Jonah's Monthly Standard",
-    vip: "Jonah's Monthly VIP",
+    weekly: "jonahweekly",
+    vip: "jonahvip",
+    "vip-premium": "jonah-vip-premium",
   },
 };
 

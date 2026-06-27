@@ -21,7 +21,7 @@ export function SportsSlider({ className }: { className?: string }) {
   const tiles = reduceMotion ? SPORTS_LEAGUE_MARKS : MARQUEE_ROW;
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full overflow-x-hidden", className)}>
       <p className="typo-caption mb-9 text-center uppercase tracking-[0.14em] text-subtle md:mb-10">
         Covers every league you bet on{" "}
         <span className="text-subtle">· {SPORTS_LEAGUE_MARKS.length} leagues & sports</span>

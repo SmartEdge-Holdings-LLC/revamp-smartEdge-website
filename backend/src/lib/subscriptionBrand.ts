@@ -3,9 +3,8 @@ import { getPlanKeyFromProductId } from "../config/stripeProducts";
 import type { PlanName } from "../models/User";
 
 const SMARTEDGE_PLANS: PlanName[] = [
-  "smartedgeWeekly",
-  "smartedgeMonthlyStandard",
-  "smartedgeMonthlyVip",
+  "smartedgeVIP",
+  "smartedgeVIPPremium",
   "weekly",
   "monthlyStandard",
   "monthlyVip",

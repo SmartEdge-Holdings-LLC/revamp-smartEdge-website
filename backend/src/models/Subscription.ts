@@ -40,7 +40,9 @@ const subscriptionSchema = new Schema<ISubscription>(
   { timestamps: true }
 );
 
-subscriptionSchema.index({ userId: 1, brand: 1 }, { unique: true });
+// Removed unique index on { userId, brand } to allow multiple subscriptions per user/brand
+// Each subscription is now uniquely identified by stripeSubscriptionId
+subscriptionSchema.index({ userId: 1, brand: 1 });
 subscriptionSchema.index({ userId: 1 });
 
 export const Subscription = mongoose.model<ISubscription>(

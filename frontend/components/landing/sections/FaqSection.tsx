@@ -20,18 +20,18 @@ export function FaqSection() {
           </h2>
         </div>
 
-        <ul className="mt-10 divide-y divide-white/10 border-y border-white/10">
+        <ul className="mt-8 sm:mt-10 divide-y divide-white/10 border-y border-white/10">
           {LANDING_FAQ.map((item, index) => {
             const open = openIndex === index;
             return (
               <li key={item.q}>
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                  className="flex w-full items-center justify-between gap-2 sm:gap-4 py-4 sm:py-5 px-1 text-left"
                   aria-expanded={open}
                   onClick={() => setOpenIndex(open ? null : index)}
                 >
-                  <span className="text-[15px] font-semibold text-white md:text-base">{item.q}</span>
+                  <span className="text-sm sm:text-[15px] md:text-base font-semibold text-white">{item.q}</span>
                   <ChevronDown
                     className={cn(
                       "size-5 shrink-0 text-accent transition-transform duration-200",

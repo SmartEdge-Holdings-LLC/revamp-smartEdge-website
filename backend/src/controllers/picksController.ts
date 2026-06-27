@@ -23,7 +23,7 @@ const pickBodySchema = z.object({
   odds: z.string().min(1).max(64),
   betType: betTypeSchema,
   confidence: z.coerce.number().int().min(1).max(100).optional(),
-  access: pickAccessSchema.default("paid"),
+  access: pickAccessSchema.default("smartedgeVIPPremium"),
   status: pickStatusSchema.default("active"),
   matchTime: z.string().datetime().optional(),
   isPickOfDay: z.boolean().optional(),
@@ -79,6 +79,7 @@ const listPicksQuerySchema = z
     search: z.union([z.string(), z.array(z.string())]).optional(),
     betType: z.union([z.string(), z.array(z.string())]).optional(),
     league: z.union([z.string(), z.array(z.string())]).optional(),
+    access: z.union([z.string(), z.array(z.string())]).optional(),
   })
   .transform((o) => {
     const pageStr = Array.isArray(o.page) ? o.page[0] : o.page;
@@ -123,12 +124,29 @@ const listPicksQuerySchema = z
       )
     );
 
+    const rawAccess = o.access;
+    const accessList: string[] = Array.isArray(rawAccess)
+      ? rawAccess
+      : typeof rawAccess === "string"
+        ? rawAccess.split(",")
+        : [];
+    const access = Array.from(
+      new Set(
+        accessList
+          .map((s) => s.trim())
+          .filter((s): s is (typeof PICK_ACCESS)[number] =>
+            (PICK_ACCESS as readonly string[]).includes(s)
+          )
+      )
+    );
+
     return {
       page,
       limit,
       search,
       betType: betType.length > 0 ? betType : undefined,
       league: league.length > 0 ? league : undefined,
+      access: access.length > 0 ? access : undefined,
     };
   });
 
@@ -162,13 +180,14 @@ export const picksController = {
 
   async list(req: Request, res: Response) {
     try {
-      const { page, limit, search, betType, league } = listPicksQuerySchema.parse(req.query);
+      const { page, limit, search, betType, league, access } = listPicksQuerySchema.parse(req.query);
       const result = await picksService.findPaged({
         page,
         limit,
         search,
         betType,
         league,
+        access,
         createdBy: handicapperAuthorId(req),
       });
       return res.json(result);

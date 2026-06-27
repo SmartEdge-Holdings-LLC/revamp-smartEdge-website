@@ -11,8 +11,15 @@ const checkoutSchema = z
   .object({
     productId: z.string().min(1).optional(),
     brand: z.enum(["smartedge", "jonah"]).optional(),
-    tier: z.enum(["weekly", "standard", "vip"]).optional(),
+    tier: z.enum(["weekly", "vip", "vip-premium"]).optional(),
+    email: z.string().email().optional(),
     promotionCode: z.string().min(3).max(40).optional(),
+    userId: z.string().optional(),
+    pendingRegistration: z.object({
+      name: z.string().min(2).max(100),
+      email: z.string().email(),
+      password: z.string().min(6),
+    }).optional(),
   })
   .refine((body) => Boolean(body.productId) || (body.brand && body.tier), {
     message: "Provide productId or both brand and tier",
@@ -22,8 +29,12 @@ export const stripeController = {
   async createCheckoutSession(req: Request, res: Response) {
     try {
       const body = checkoutSchema.parse(req.body);
+
+      // For authenticated users, use their ID; for new registrations, pass undefined
+      const userId = body.userId || req.user?._id?.toString();
+
       const session = await stripeService.createCheckoutSession(
-        req.user!._id.toString(),
+        userId,
         body
       );
       return res.json({ url: session.url });
@@ -34,8 +45,12 @@ export const stripeController = {
   async syncCheckoutSession(req: Request, res: Response) {
     try {
       const { sessionId } = z.object({ sessionId: z.string().min(1) }).parse(req.body);
+
+      // For authenticated users, use their ID; for new users, pass undefined
+      const userId = req.user?._id?.toString();
+
       const user = await syncUserFromCheckoutSessionId(
-        req.user!._id.toString(),
+        userId,
         sessionId
       );
       const entitlements = await getMemberEntitlements(user._id.toString());

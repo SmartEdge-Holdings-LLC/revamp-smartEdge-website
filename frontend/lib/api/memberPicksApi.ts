@@ -18,7 +18,7 @@ export interface PaidPick {
   odds: string;
   betType: string;
   confidence?: number;
-  access: "paid";
+  access: "smartedgeVIP" | "smartedgeVIPPremium";
   status: "active";
   matchTime?: string;
   isPickOfDay?: boolean;
@@ -43,6 +43,7 @@ export interface ListPaidPicksParams {
   limit?: number;
   search?: string;
   league?: League[];
+  access?: string[];
 }
 
 export async function listPaidPicks(
@@ -64,6 +65,9 @@ export async function listPaidPicks(
   }
   for (const lg of params.league ?? []) {
     url.searchParams.append("league", lg);
+  }
+  for (const ac of params.access ?? []) {
+    url.searchParams.append("access", ac);
   }
 
   const res = await fetch(url.toString(), {

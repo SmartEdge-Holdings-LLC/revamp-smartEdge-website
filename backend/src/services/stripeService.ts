@@ -149,6 +149,13 @@ async function ensureStripeCustomerForCurrentMode(user: IUser): Promise<string> 
     try {
       const customer = await stripe.customers.retrieve(existingId);
       if (!("deleted" in customer && customer.deleted)) {
+        // Update customer email if it's different from the database
+        if (customer.email !== user.email) {
+          await stripe.customers.update(existingId, {
+            email: user.email,
+            name: user.name,
+          });
+        }
         return existingId;
       }
     } catch (error) {
@@ -171,12 +178,14 @@ export const stripeService = {
     return user;
   },
   async createCheckoutSession(
-    userId: string,
+    userId: string | undefined,
     input: {
       productId?: string;
       brand?: string;
       tier?: string;
+      email?: string;
       promotionCode?: string;
+      pendingRegistration?: { name: string; email: string; password: string };
     }
   ) {
     const normalizedProductId = resolveCheckoutProductId(input);
@@ -185,10 +194,31 @@ export const stripeService = {
     );
 
     const priceId = await resolveDefaultPriceIdForProduct(normalizedProductId);
-    const user = await User.findById(userId);
-    if (!user) throw new Error("User not found");
 
-    const customerId = await ensureStripeCustomerForCurrentMode(user);
+    // For existing users, find their record
+    let user = userId ? await User.findById(userId) : null;
+
+    // For new registrations (pay-first flow), we'll use the pending registration email
+    // For existing users, use the provided email or fall back to user email
+    const email = input.pendingRegistration?.email || input.email || user?.email;
+    if (!email) {
+      throw new Error("Email is required for checkout");
+    }
+
+    // Get or create Stripe customer
+    let customerId: string;
+    if (user) {
+      customerId = await ensureStripeCustomerForCurrentMode(user);
+    } else {
+      // For new users, we'll create a temporary customer with the email
+      const customer = await stripe.customers.create({
+        email: email,
+        metadata: {
+          registrationType: "pending",
+        },
+      });
+      customerId = customer.id;
+    }
 
     let discounts: { promotion_code: string }[] | undefined;
     if (input.promotionCode?.trim()) {
@@ -199,33 +229,42 @@ export const stripeService = {
       discounts = [{ promotion_code: resolved.stripePromotionCodeId }];
     }
 
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
+    // Stripe doesn't allow both customer and customer_email
+    // Use customer for existing users, customer_email for new users
+    const sessionConfig: any = {
+      ...(user ? { customer: customerId } : { customer_email: email }),
       payment_method_types: ["card"],
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${env.frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${env.frontendUrl}/#pricing`,
       metadata: {
-        userId: user._id.toString(),
+        ...(user ? { userId: user._id.toString() } : {}),
         productId: normalizedProductId,
         ...(input.promotionCode?.trim()
           ? { promotionCode: input.promotionCode.trim().toUpperCase() }
           : {}),
+        ...(input.pendingRegistration
+          ? { pendingRegistration: JSON.stringify(input.pendingRegistration) }
+          : {}),
       },
       subscription_data: {
         metadata: {
-          userId: user._id.toString(),
+          ...(user ? { userId: user._id.toString() } : {}),
           productId: normalizedProductId,
           ...(productEntry
             ? { brand: productEntry.brand, tier: productEntry.tier }
+            : {}),
+          ...(input.pendingRegistration
+            ? { pendingRegistration: JSON.stringify(input.pendingRegistration) }
             : {}),
         },
       },
       ...(discounts ? { discounts } : { allow_promotion_codes: true }),
       billing_address_collection: "auto",
-    });
+    };
 
+    const session = await stripe.checkout.sessions.create(sessionConfig);
     return session;
   },
   async createPortalSession(userId: string) {

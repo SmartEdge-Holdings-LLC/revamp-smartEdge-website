@@ -14,3 +14,4 @@ router.get("/", publicPicksController.list);
 router.get("/:id", publicPicksController.getOne);
 
 export default router;
+

@@ -43,7 +43,7 @@ export function LandingFooter() {
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-5 sm:py-14 md:px-6 md:py-16">
         <div className="grid gap-6 sm:gap-10 lg:grid-cols-[minmax(0,18rem)_1fr] lg:items-start lg:gap-16">
           <div className="max-w-sm">
-            <Link href="/" className="inline-block">
+            <Link href="/" className="inline-flex items-center gap-0.5">
               <Image
                 src="/logo.webp"
                 alt="SmartEdgePicks"
@@ -51,6 +51,7 @@ export function LandingFooter() {
                 height={40}
                 className="h-8 sm:h-9 w-auto object-contain object-left"
               />
+              <span className="text-sm sm:text-base font-bold text-white leading-none -translate-y-1">®</span>
             </Link>
             <p className="mt-3 sm:mt-4 text-xs sm:text-sm leading-relaxed text-zinc-500">
               AI-driven sports picks backed by professional handicappers. Analysis and information only — not a
