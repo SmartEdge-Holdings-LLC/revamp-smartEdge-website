@@ -5,13 +5,11 @@ import type { PlanName } from "../models/User";
 const SMARTEDGE_PLANS: PlanName[] = [
   "smartedgeVIP",
   "smartedgeVIPPremium",
-  "weekly",
   "monthlyStandard",
   "monthlyVip",
 ];
 
 const JONAH_PLANS: PlanName[] = [
-  "jonahWeekly",
   "jonahMonthlyStandard",
   "jonahMonthlyVip",
 ];

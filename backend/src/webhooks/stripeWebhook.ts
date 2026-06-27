@@ -63,6 +63,12 @@ export const stripeWebhookController = async (req: Request, res: Response) => {
                 email: regData.email,
                 password: regData.password,
               });
+              // Link the existing Stripe customer to the newly created user
+              if (customerId && newUser) {
+                newUser.stripeCustomerId = customerId;
+                await newUser.save();
+                console.log(`[stripe-webhook] Linked Stripe customer ${customerId} to new user ${newUser._id}`);
+              }
               user = newUser;
             } catch (regErr) {
               console.warn(

@@ -22,7 +22,6 @@ function mapPlanNameToAccessType(planName: string | null | undefined, brand: "jo
 
   if (brand === "jonah") {
     // Map Jonah Stripe plan names to API access types
-    if (normalized.includes("weekly")) return "jonahweekly";
     if (normalized.includes("monthlystandard") || (normalized.includes("vip") && !normalized.includes("monthlyvip"))) return "jonahvip";
     if (normalized.includes("monthlyvip") || normalized.includes("vippremium")) return "jonah-vip-premium";
   } else {
@@ -79,7 +78,7 @@ const listPaidQuerySchema = z
       new Set(
         accessList
           .map((s) => s.trim())
-          .filter((s) => ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"].includes(s))
+          .filter((s) => ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahvip", "jonah-vip-premium", "tournament"].includes(s))
       )
     );
 
@@ -172,7 +171,6 @@ export const memberPicksController = {
               confidence: 0,
             };
 
-          case "jonahweekly":
           case "jonahvip":
           case "jonah-vip-premium":
             // Jonah picks should not appear in SmartEdge endpoint, but if they do, mask them
@@ -250,19 +248,6 @@ export const memberPicksController = {
           case "free":
             // All users can see free picks
             return pick;
-
-          case "jonahweekly":
-            // Only jonahweekly users can see jonahweekly picks
-            if (userAccessType === "jonahweekly") {
-              return pick;
-            }
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase Jonah's Weekly plan to view this pick",
-              odds: "Locked",
-              confidence: 0,
-            };
 
           case "jonahvip":
             // Only jonahvip users can see jonahvip picks

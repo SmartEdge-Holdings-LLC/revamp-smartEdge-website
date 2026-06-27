@@ -15,7 +15,7 @@ type VIPPickFeedType = PaidPickFeed | "jonah-vip" | "jonah-vip-premium";
 
 const VIP_PICK_TABS: { id: VIPPickFeedType; label: string; access?: string }[] = [
   { id: "admin", label: "Smartedge VIP Picks" },
-  { id: "jonah", label: "Jonah Weekly Picks", access: "jonahweekly" },
+  // { id: "jonah", label: "Jonah Weekly Picks", access: "jonahweekly" },
   { id: "jonah-vip", label: "Jonah Monthly Standard", access: "jonahvip" },
 ];
 

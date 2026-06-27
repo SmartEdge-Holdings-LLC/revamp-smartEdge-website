@@ -39,7 +39,8 @@ function formatReleased(createdAt: string, updatedAt: string) {
   return `${revised ? "Revised" : "Released"} ${formatDateET(ref)}`;
 }
 
-function analysisParagraphs(detailedAnalysis: string) {
+function analysisParagraphs(detailedAnalysis?: string) {
+  if (!detailedAnalysis?.trim()) return [];
   return detailedAnalysis
     .trim()
     .split(/\n\n+/)
@@ -182,30 +183,30 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
       </section>
 
       <section className="relative flex flex-1 flex-col space-y-4 px-5 py-5 sm:px-6 sm:py-6">
-        <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
-          Expert Analysis
-        </h4>
-        <div className={`min-h-0 flex-1 space-y-3 ${!showFullAnalysis || isLocked ? "blur-sm" : ""}`}>
-          {angleParagraphs.length > 0 ? (
-            angleParagraphs.map((para, i) => (
-              <p key={i} className="text-[15px] leading-[1.7] text-zinc-300">
-                {para}
-              </p>
-            ))
-          ) : (
-            <p className="text-[15px] italic text-zinc-500">No analysis provided.</p>
-          )}
-        </div>
-        {!showFullAnalysis && (
-          <Link href="/#pricing" className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 backdrop-blur-sm transition-colors hover:bg-black/60">
-            <div className="text-center">
-              <p className="text-sm font-semibold text-white">Full Analysis Available</p>
-              <p className="mt-1 text-xs text-zinc-300">Upgrade to {feedLabel(feed)} to unlock</p>
-              <Button className="pricing-accent-gradient mt-3 px-4 py-2 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)] transition-[filter,transform] duration-200 hover:brightness-110 active:scale-[0.99]">
-                Upgrade Now
-              </Button>
+        {angleParagraphs.length > 0 && (
+          <>
+            <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+              Expert Analysis
+            </h4>
+            <div className={`min-h-0 flex-1 space-y-3 ${!showFullAnalysis || isLocked ? "blur-sm" : ""}`}>
+              {angleParagraphs.map((para, i) => (
+                <p key={i} className="text-[15px] leading-[1.7] text-zinc-300">
+                  {para}
+                </p>
+              ))}
             </div>
-          </Link>
+            {!showFullAnalysis && (
+              <Link href="/#pricing" className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 backdrop-blur-sm transition-colors hover:bg-black/60">
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-white">Full Analysis Available</p>
+                  <p className="mt-1 text-xs text-zinc-300">Upgrade to {feedLabel(feed)} to unlock</p>
+                  <Button className="pricing-accent-gradient mt-3 px-4 py-2 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)] transition-[filter,transform] duration-200 hover:brightness-110 active:scale-[0.99]">
+                    Upgrade Now
+                  </Button>
+                </div>
+              </Link>
+            )}
+          </>
         )}
         <div className="mt-auto shrink-0 space-y-4 border-t border-green-500/40 pt-4">
           <p className="text-sm leading-relaxed text-zinc-500">{TRACK_RECORD_LINE[source]}</p>

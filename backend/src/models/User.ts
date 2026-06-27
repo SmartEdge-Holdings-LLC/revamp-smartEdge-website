@@ -11,10 +11,8 @@ export type PlanName =
   | "free"
   | "smartedgeVIP"
   | "smartedgeVIPPremium"
-  | "jonahWeekly"
   | "jonahMonthlyStandard"
   | "jonahMonthlyVip"
-  | "weekly"
   | "monthlyStandard"
   | "monthlyVip"
   | "starter"
@@ -63,10 +61,8 @@ const planNameEnum = [
   "free",
   "smartedgeVIP",
   "smartedgeVIPPremium",
-  "jonahWeekly",
   "jonahMonthlyStandard",
   "jonahMonthlyVip",
-  "weekly",
   "monthlyStandard",
   "monthlyVip",
   "starter",

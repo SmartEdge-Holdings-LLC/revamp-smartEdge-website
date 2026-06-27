@@ -92,7 +92,7 @@ export function buildOpenApiSpec() {
                 "free",
                 "smartedgeVIP",
                 "smartedgeVIPPremium",
-                "jonahWeekly",
+                
                 "jonahMonthlyStandard",
                 "jonahMonthlyVip",
                 "weekly",
@@ -461,7 +461,7 @@ export function buildOpenApiSpec() {
                 "free",
                 "smartedgeVIP",
                 "smartedgeVIPPremium",
-                "jonahWeekly",
+                
                 "jonahMonthlyStandard",
                 "jonahMonthlyVip",
                 "weekly",
@@ -764,8 +764,8 @@ export function buildOpenApiSpec() {
         },
         PickAccess: {
           type: "string",
-          enum: ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"],
-          description: "Pick access level: free (all users), smartedgeVIP/smartedgeVIPPremium (SmartEdge subscribers), jonahweekly/jonahvip/jonah-vip-premium (Jonah subscribers), tournament (tournament participants)",
+          enum: ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahvip", "jonah-vip-premium", "tournament"],
+          description: "Pick access level: free (all users), smartedgeVIP/smartedgeVIPPremium (SmartEdge subscribers), jonahvip/jonah-vip-premium (Jonah subscribers), tournament (tournament participants)",
         },
         PickStatus: {
           type: "string",
@@ -826,7 +826,7 @@ export function buildOpenApiSpec() {
         },
         PickCreateRequest: {
           type: "object",
-          required: ["league", "awayTeamId", "homeTeamId", "pickTitle", "detailedAnalysis", "odds", "betType", "confidence", "access", "status"],
+          required: ["league", "awayTeamId", "homeTeamId", "pickTitle", "betType", "access", "status"],
           properties: {
             league: { $ref: "#/components/schemas/PickLeague" },
             awayTeamId: { type: "string", minLength: 1, maxLength: 100 },
@@ -2086,7 +2086,7 @@ export function buildOpenApiSpec() {
             {
               name: "access",
               in: "query",
-              schema: { type: "array", items: { type: "string", enum: ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"] } },
+              schema: { type: "array", items: { type: "string", enum: ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahvip", "jonah-vip-premium", "tournament"] } },
               description: "Filter by pick access type (can specify multiple values)",
             },
           ],
@@ -2113,7 +2113,7 @@ export function buildOpenApiSpec() {
           tags: ["Picks"],
           summary: "List paid Jonah picks (member)",
           description:
-            "Returns picks from Jonah (handicapper), **status** is `active`. Requires a **member** JWT and an active or trialing Jonah plan. Plan access mapping: **jonahweekly** (Jonah's Weekly), **jonahvip** (Jonah's Monthly Standard), **jonah-vip-premium** (Jonah's Monthly VIP). Filter by access type using the `access` parameter. Access control: users with a specific tier can only see picks marked for that tier (e.g., jonahvip users see jonahvip and lower-tier picks).",
+            "Returns picks from Jonah (handicapper), **status** is `active`. Requires a **member** JWT and an active or trialing Jonah plan. Plan access mapping: **jonahvip** (Jonah's Monthly Standard), **jonah-vip-premium** (Jonah's Monthly VIP). Filter by access type using the `access` parameter. Access control: users with a specific tier can only see picks marked for that tier (e.g., jonahvip users see jonahvip and lower-tier picks).",
           operationId: "listPaidJonahPicks",
           security: [{ bearerAuth: [] }],
           parameters: [
@@ -2129,7 +2129,7 @@ export function buildOpenApiSpec() {
             {
               name: "access",
               in: "query",
-              schema: { type: "array", items: { type: "string", enum: ["free", "jonahweekly", "jonahvip", "jonah-vip-premium"] } },
+              schema: { type: "array", items: { type: "string", enum: ["free", "jonahvip", "jonah-vip-premium"] } },
               description: "Filter by pick access type (can specify multiple values)",
             },
           ],

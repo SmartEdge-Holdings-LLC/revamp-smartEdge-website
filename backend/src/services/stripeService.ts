@@ -210,14 +210,39 @@ export const stripeService = {
     if (user) {
       customerId = await ensureStripeCustomerForCurrentMode(user);
     } else {
-      // For new users, we'll create a temporary customer with the email
-      const customer = await stripe.customers.create({
-        email: email,
-        metadata: {
-          registrationType: "pending",
-        },
-      });
-      customerId = customer.id;
+      // For new users, check if a customer already exists with this email
+      try {
+        const existingCustomer = await stripe.customers.search({
+          query: `email:"${email}"`,
+          limit: 1,
+        });
+
+        if (existingCustomer.data.length > 0) {
+          // Reuse existing customer
+          console.log(`[Checkout] Reusing existing Stripe customer for ${email}: ${existingCustomer.data[0].id}`);
+          customerId = existingCustomer.data[0].id;
+        } else {
+          // Create new customer only if one doesn't exist
+          console.log(`[Checkout] Creating new Stripe customer for ${email}`);
+          const customer = await stripe.customers.create({
+            email: email,
+            metadata: {
+              registrationType: "pending",
+            },
+          });
+          customerId = customer.id;
+        }
+      } catch (searchError) {
+        // Fallback: create new customer if search fails
+        console.warn(`[Checkout] Customer search failed for ${email}:`, searchError instanceof Error ? searchError.message : searchError);
+        const customer = await stripe.customers.create({
+          email: email,
+          metadata: {
+            registrationType: "pending",
+          },
+        });
+        customerId = customer.id;
+      }
     }
 
     let discounts: { promotion_code: string }[] | undefined;
@@ -229,10 +254,10 @@ export const stripeService = {
       discounts = [{ promotion_code: resolved.stripePromotionCodeId }];
     }
 
-    // Stripe doesn't allow both customer and customer_email
-    // Use customer for existing users, customer_email for new users
+    // Always use customer ID to prevent Stripe from auto-creating duplicate customers
+    // We already have customerId from either existing user or our explicit customer creation
     const sessionConfig: any = {
-      ...(user ? { customer: customerId } : { customer_email: email }),
+      customer: customerId,
       payment_method_types: ["card"],
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],

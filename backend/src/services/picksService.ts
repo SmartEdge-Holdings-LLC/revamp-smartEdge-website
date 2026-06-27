@@ -37,8 +37,8 @@ export type PickCreateInput = {
   homeTeamName?: string;
   game?: string;
   pickTitle: string;
-  detailedAnalysis: string;
-  odds: string;
+  detailedAnalysis?: string;
+  odds?: string;
   betType: BetType;
   confidence?: number;
   access: PickAccess;
@@ -81,8 +81,8 @@ export type PublicPickDto = {
   homeTeamLogo?: string;
   game: string;
   pickTitle: string;
-  detailedAnalysis: string;
-  odds: string;
+  detailedAnalysis?: string;
+  odds?: string;
   betType: BetType;
   confidence?: number;
   access: "free";
@@ -387,8 +387,8 @@ export const picksService = {
       league: input.league,
       ...matchup,
       pickTitle: input.pickTitle.trim(),
-      detailedAnalysis: input.detailedAnalysis.trim(),
-      odds: input.odds.trim(),
+      detailedAnalysis: input.detailedAnalysis?.trim(),
+      odds: input.odds?.trim(),
       betType: input.betType,
       confidence: input.confidence,
       access: input.access,
@@ -617,9 +617,11 @@ export const picksService = {
     }
     if (input.pickTitle !== undefined) update.pickTitle = input.pickTitle.trim();
     if (input.detailedAnalysis !== undefined) {
-      update.detailedAnalysis = input.detailedAnalysis.trim();
+      update.detailedAnalysis = input.detailedAnalysis.trim() || undefined;
     }
-    if (input.odds !== undefined) update.odds = input.odds.trim();
+    if (input.odds !== undefined) {
+      update.odds = input.odds.trim() || undefined;
+    }
     const nextBetType = input.betType ?? existing.betType;
     if (!isBetTypeAllowedForLeague(league, nextBetType)) {
       throw new Error(`Bet type "${nextBetType}" is not valid for league ${league}`);

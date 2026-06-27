@@ -5,7 +5,7 @@ import { LEAGUES, type League } from "../config/pickLeagues";
 
 export { BET_TYPES, type BetType, LEAGUES, type League };
 
-export const PICK_ACCESS = ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"] as const;
+export const PICK_ACCESS = ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahvip", "jonah-vip-premium", "tournament"] as const;
 
 export type PickAccess = (typeof PICK_ACCESS)[number];
 
@@ -27,8 +27,8 @@ export interface IPick extends Document {
   homeTeamLogo?: string;
   game: string;
   pickTitle: string;
-  detailedAnalysis: string;
-  odds: string;
+  detailedAnalysis?: string;
+  odds?: string;
   betType: BetType;
   /** 1–100 confidence score (optional, defaults to 75) */
   confidence?: number;
@@ -57,8 +57,8 @@ const pickSchema = new Schema<IPick>(
     homeTeamLogo: { type: String, trim: true, maxlength: 256 },
     game: { type: String, required: true, trim: true, maxlength: 500 },
     pickTitle: { type: String, required: true, trim: true, maxlength: 300 },
-    detailedAnalysis: { type: String, required: true, trim: true, maxlength: 10000 },
-    odds: { type: String, required: true, trim: true, maxlength: 64 },
+    detailedAnalysis: { type: String, trim: true, maxlength: 10000 },
+    odds: { type: String, trim: true, maxlength: 64 },
     betType: { type: String, enum: BET_TYPES, required: true },
     confidence: { type: Number, min: 1, max: 100 },
     access: { type: String, enum: PICK_ACCESS, required: true, default: "smartedgeVIPPremium" },

@@ -39,7 +39,8 @@ function formatReleased(createdAt: string, updatedAt: string) {
   return `${revised ? "Revised" : "Released"} ${formatDateET(ref)}`;
 }
 
-function analysisParagraphs(detailedAnalysis: string) {
+function analysisParagraphs(detailedAnalysis?: string) {
+  if (!detailedAnalysis?.trim()) return [];
   return detailedAnalysis
     .trim()
     .split(/\n\n+/)
@@ -221,20 +222,20 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
 
       {/* Analysis */}
       <section className="relative flex flex-1 flex-col space-y-4 px-5 py-6 sm:px-7 sm:py-8">
-        <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
-          Expert Analysis
-        </h4>
-        <div className={cn("space-y-4", isLocked && "blur-sm")}>
-          {angleParagraphs.length > 0 ? (
-            angleParagraphs.map((para, i) => (
-              <p key={i} className="text-[15px] leading-[1.7] text-zinc-300">
-                {para}
-              </p>
-            ))
-          ) : (
-            <p className="text-[15px] italic text-zinc-500">No analysis provided.</p>
-          )}
-        </div>
+        {angleParagraphs.length > 0 && (
+          <>
+            <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+              Expert Analysis
+            </h4>
+            <div className={cn("space-y-4", isLocked && "blur-sm")}>
+              {angleParagraphs.map((para, i) => (
+                <p key={i} className="text-[15px] leading-[1.7] text-zinc-300">
+                  {para}
+                </p>
+              ))}
+            </div>
+          </>
+        )}
         <div className="mt-auto shrink-0 space-y-4 border-t border-green-500/40 pt-4">
           <p className="text-sm leading-relaxed text-zinc-500">
             {TRACK_RECORD_LINE[source]}

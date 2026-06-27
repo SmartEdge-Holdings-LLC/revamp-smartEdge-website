@@ -10,7 +10,6 @@ export type JonahProductKey = StripeTier;
 export type StripeProductKey =
   | "smartedgeVIP"
   | "smartedgeVIPPremium"
-  | "jonahWeekly"
   | "jonahMonthlyStandard"
   | "jonahMonthlyVip";
 
@@ -18,7 +17,6 @@ export type StripeProductKey =
 const PRODUCT_ENV_KEYS: Record<StripeProductKey, string> = {
   smartedgeVIP: "STRIPE_SMARTEDGE_VIP_PRODUCT_ID",
   smartedgeVIPPremium: "STRIPE_SMARTEDGE_VIP_PREMIUM_PRODUCT_ID",
-  jonahWeekly: "STRIPE_JONAH_WEEKLY_PRODUCT_ID",
   jonahMonthlyStandard: "STRIPE_JONAH_MONTHLY_STANDARD_PRODUCT_ID",
   jonahMonthlyVip: "STRIPE_JONAH_MONTHLY_VIP_PRODUCT_ID",
 };
@@ -26,7 +24,6 @@ const PRODUCT_ENV_KEYS: Record<StripeProductKey, string> = {
 const PRODUCT_META: Record<StripeProductKey, { brand: StripeBrand; tier: StripeTier }> = {
   smartedgeVIP: { brand: "smartedge", tier: "monthlyStandard" },
   smartedgeVIPPremium: { brand: "smartedge", tier: "monthlyVip" },
-  jonahWeekly: { brand: "jonah", tier: "weekly" },
   jonahMonthlyStandard: { brand: "jonah", tier: "monthlyStandard" },
   jonahMonthlyVip: { brand: "jonah", tier: "monthlyVip" },
 };

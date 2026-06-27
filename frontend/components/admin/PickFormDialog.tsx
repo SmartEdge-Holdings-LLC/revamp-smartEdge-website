@@ -228,31 +228,36 @@ export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: Pick
       hasConfidence,
       confidence,
       isPickOfDay,
+      detailedAnalysis,
+      odds,
       ...rest
     } = form;
 
     const matchTime = matchTimeLocal ? new Date(matchTimeLocal).toISOString() : undefined;
     const finalConfidence = hasConfidence ? confidence : undefined;
 
+    const basePayload = {
+      ...rest,
+      matchTime,
+      confidence: finalConfidence,
+      isPickOfDay,
+      ...(detailedAnalysis?.trim() && { detailedAnalysis: detailedAnalysis.trim() }),
+      ...(odds?.trim() && { odds: odds.trim() }),
+    };
+
     if (useCustomMatchup) {
       return {
-        ...rest,
+        ...basePayload,
         useCustomMatchup: true,
         awayTeamName: customAwayName.trim(),
         homeTeamName: customHomeName.trim(),
-        matchTime,
-        confidence: finalConfidence,
-        isPickOfDay,
       };
     }
 
     return {
-      ...rest,
+      ...basePayload,
       awayTeamId,
       homeTeamId,
-      matchTime,
-      confidence: finalConfidence,
-      isPickOfDay,
     };
   };
 
@@ -383,10 +388,9 @@ export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: Pick
               />
             </Field>
 
-            <Field label="Detailed analysis" id="pick-analysis">
+            <Field label="Detailed analysis (optional)" id="pick-analysis">
               <textarea
                 id="pick-analysis"
-                required
                 value={form.detailedAnalysis}
                 onChange={(e) => update("detailedAnalysis", e.target.value)}
                 placeholder="Reasoning, trends, injury notes, etc."
@@ -414,10 +418,9 @@ export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: Pick
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Odds" id="pick-odds">
+              <Field label="Odds (optional)" id="pick-odds">
                 <Input
                   id="pick-odds"
-                  required
                   value={form.odds}
                   onChange={(e) => update("odds", e.target.value)}
                   placeholder="-110"
