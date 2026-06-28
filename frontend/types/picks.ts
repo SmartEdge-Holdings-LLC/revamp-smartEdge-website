@@ -106,7 +106,7 @@ export interface AdminPick {
   odds?: string;
   betType: BetType;
   confidence?: number;
-  access: PickAccess;
+  access: PickAccess[];
   status: PickStatus;
   matchTime?: string;
   isPickOfDay?: boolean;
@@ -146,7 +146,7 @@ export interface CreatePickPayload {
   odds?: string;
   betType: BetType;
   confidence?: number;
-  access: PickAccess;
+  access: PickAccess[];
   status: PickStatus;
   matchTime?: string;
   isPickOfDay?: boolean;

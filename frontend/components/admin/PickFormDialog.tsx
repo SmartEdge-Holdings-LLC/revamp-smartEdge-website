@@ -55,7 +55,7 @@ type PickFormState = Omit<CreatePickPayload, "access"> & {
   matchTimeLocal: string;
   hasConfidence: boolean;
   isPickOfDay: boolean;
-  access: CreatePickPayload["access"][];
+  access: CreatePickPayload["access"];
 };
 
 const emptyForm = (isHandicapper: boolean): PickFormState => ({

@@ -695,9 +695,11 @@ export default function AdminPicksPage() {
                         <Badge className="border border-accent/40 bg-accent/20 px-3 py-1 text-sm text-accent">
                           {viewPick.league}
                         </Badge>
-                        <Badge className={cn("rounded-full border-transparent px-3 py-1 text-xs font-semibold", accessBadgeClass(pickAccess(viewPick)))}>
-                          {PICK_ACCESS_LABELS[pickAccess(viewPick)]}
-                        </Badge>
+                        {getPickAccessArray(viewPick).map((access) => (
+                          <Badge key={access} className={cn("rounded-full border-transparent px-3 py-1 text-xs font-semibold", accessBadgeClass(access))}>
+                            {PICK_ACCESS_LABELS[access]}
+                          </Badge>
+                        ))}
                         <Badge className={cn("rounded-full border-transparent px-3 py-1 text-xs font-semibold", statusBadgeClass(pickStatus(viewPick)))}>
                           {PICK_STATUS_LABELS[pickStatus(viewPick)]}
                         </Badge>
