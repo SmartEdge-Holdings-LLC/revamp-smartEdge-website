@@ -239,16 +239,6 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
 
       {/* Analysis */}
       <section className="relative flex flex-1 flex-col space-y-4 px-5 py-6 sm:px-7 sm:py-8">
-        {isLocked && (
-          <div className="mb-2 rounded-lg border border-accent/30 bg-accent/10 px-3 sm:px-4 py-2.5 sm:py-3">
-            <Link
-              href="/#pricing"
-              className="inline-flex items-center justify-center w-full rounded-md bg-accent px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white transition hover:bg-accent/90"
-            >
-              BUY PICKS NOW
-            </Link>
-          </div>
-        )}
         {angleParagraphs.length > 0 && (
           <>
             <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
