@@ -4,11 +4,12 @@ import * as React from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Lock, Loader2 } from "lucide-react";
-import { listPublicFreePicks, listAuthenticatedPicks } from "@/lib/api/picksApi";
 import { FreePickDetailCard } from "@/components/landing/sections/FreePickDetailCard";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { cn } from "@/lib/utils";
 import type { PublicPick } from "@/lib/api/picksApi";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 type TabType = "smartedge" | "jonah";
 
@@ -25,20 +26,23 @@ export function ExpertPicksSection() {
     setLoading(true);
     setError(null);
 
-    // Determine access types based on selected tab
-    const accessTypes = tab === "smartedge" ? ["smartedgeVIP"] : ["jonahvip"];
+    const accessType = tab === "smartedge" ? "smartedgeVIP" : "jonahvip";
+    const apiUrl = `${BACKEND_URL}/api/picks?page=1&limit=12&access=${accessType}`;
 
-    // Always fetch the respective access type picks (whether authenticated or not)
-    const fetchPicks = session?.user?.backendToken
-      ? listAuthenticatedPicks({ page: 1, limit: 12, access: accessTypes })
-      : listPublicFreePicks({ page: 1, limit: 12, access: accessTypes });
-
-    void fetchPicks
+    void fetch(apiUrl, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    })
       .then((res) => {
-        if (cancelled) return;
-        setExpertPicks(res.picks);
+        if (!res.ok) throw new Error(`Failed to load picks (HTTP ${res.status})`);
+        return res.json();
       })
-      .catch((err) => {
+      .then((data: { picks: PublicPick[] }) => {
+        if (cancelled) return;
+        setExpertPicks(data.picks);
+      })
+      .catch((err: unknown) => {
         if (cancelled) return;
         setExpertPicks([]);
         setError(err instanceof Error ? err.message : "Could not load expert picks");
@@ -50,7 +54,7 @@ export function ExpertPicksSection() {
     return () => {
       cancelled = true;
     };
-  }, [session?.user?.backendToken, tab]);
+  }, [tab]);
 
   const source = tab === "smartedge" ? "smartedge" : "handicapper";
   const title = tab === "smartedge" ? "SmartEdge® VIP" : "Jonah's Monthly Standard";
@@ -111,32 +115,36 @@ export function ExpertPicksSection() {
               No monthly VIP picks available right now.
             </p>
           ) : (
-            expertPicks.map((pick) => (
-              <div key={pick._id} className={session ? "" : "relative"}>
-                {!session && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-2xl z-10">
-                    <div className="rounded-lg border border-white/15 bg-black/80 px-3 sm:px-5 py-2.5 sm:py-4 text-center backdrop-blur-sm max-w-xs mx-2">
-                      <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-white">
-                        <Lock className="size-3 sm:size-4 text-accent" />
-                        VIP pick locked
-                      </p>
-                      <p className="mt-1 text-[10px] sm:text-xs text-zinc-300">
-                        Sign in to view analysis & odds.
-                      </p>
-                      <Link
-                        href="/#pricing"
-                        className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-md bg-accent px-2.5 sm:px-3.5 py-1 sm:py-2 text-[10px] sm:text-xs font-semibold text-white transition hover:bg-accent/90"
-                      >
-                        Sign in
-                      </Link>
+            expertPicks.map((pick) => {
+              const isPickLocked = !session || pick.access !== "free";
+
+              return (
+                <div key={pick._id} className={isPickLocked ? "relative" : ""}>
+                  {isPickLocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-2xl z-10">
+                      <div className="rounded-lg border border-white/15 bg-black/80 px-3 sm:px-5 py-2.5 sm:py-4 text-center backdrop-blur-sm max-w-xs mx-2">
+                        <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-white">
+                          <Lock className="size-3 sm:size-4 text-accent" />
+                          VIP pick locked
+                        </p>
+                        <p className="mt-1 text-[10px] sm:text-xs text-zinc-300">
+                          Purchase a plan to view analysis & odds.
+                        </p>
+                        <Link
+                          href="/#pricing"
+                          className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-md bg-accent px-2.5 sm:px-3.5 py-1 sm:py-2 text-[10px] sm:text-xs font-semibold text-white transition hover:bg-accent/90 w-full"
+                        >
+                          Buy Picks Now
+                        </Link>
+                      </div>
                     </div>
+                  )}
+                  <div className={isPickLocked ? "pointer-events-none select-none" : ""}>
+                    <FreePickDetailCard key={pick._id} pick={pick} source={source} />
                   </div>
-                )}
-                <div className={!session ? "pointer-events-none select-none" : ""}>
-                  <FreePickDetailCard key={pick._id} pick={pick} source={source} />
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

@@ -132,7 +132,7 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
   const pickTitle = pick.pickTitle.trim();
   const odds = pick.odds.trim();
 
-  const isLocked = !session && pick.access !== "free";
+  const isLocked = pick.access !== "free";
 
   return (
     <article className="flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40">

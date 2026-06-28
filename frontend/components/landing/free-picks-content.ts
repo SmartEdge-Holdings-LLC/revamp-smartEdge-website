@@ -80,8 +80,7 @@ export const INTRO_COPY: Record<PublicPickSource, IntroBlock> = {
 };
 
 export const TRACK_RECORD_LINE: Record<PublicPickSource, string> = {
-  smartedge:
-    "SmartEdge® documented free plays are tracked in the member dashboard. Historical win rates and unit returns are available to subscribers.",
+  smartedge: "",
   handicapper:
     "Handicapper free plays include published records where available. Past performance is shown for transparency — past results do not guarantee future outcomes.",
 };

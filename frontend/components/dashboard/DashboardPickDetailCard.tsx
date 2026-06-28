@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { leagueDisplayName, TRACK_RECORD_LINE } from "@/components/landing/free-picks-content";
 import { getPickLeagueLogo, getSportsLeagueLogo } from "@/lib/sports-leagues";
@@ -11,6 +12,7 @@ import { BET_TYPE_LABELS, type BetType } from "@/types/picks";
 import { teamLogoPath } from "@/types/picks";
 import { formatDateET, formatDateTimeLongET } from "@/lib/datetime";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 function betTypeLabel(betType: string) {
   return betType in BET_TYPE_LABELS ? BET_TYPE_LABELS[betType as BetType] : betType;
@@ -104,7 +106,27 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
   const homeLogo = teamLogo(pick.homeTeamLogo, pick.league, pick.homeTeamId);
 
   return (
-    <article className="flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40">
+    <div className={isLocked ? "relative" : ""}>
+      {isLocked && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-2xl z-10">
+          <div className="rounded-lg border border-white/15 bg-black/80 px-3 sm:px-5 py-2.5 sm:py-4 text-center backdrop-blur-sm max-w-xs mx-2">
+            <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-white">
+              <Lock className="size-3 sm:size-4 text-accent" />
+              VIP pick locked
+            </p>
+            <p className="mt-1 text-[10px] sm:text-xs text-zinc-300">
+              Purchase a plan to view analysis & odds.
+            </p>
+            <Link
+              href="/#pricing"
+              className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-md bg-accent px-2.5 sm:px-3.5 py-1 sm:py-2 text-[10px] sm:text-xs font-semibold text-white transition hover:bg-accent/90 w-full"
+            >
+              Buy Picks Now
+            </Link>
+          </div>
+        </div>
+      )}
+      <article className={cn("flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40", isLocked && "pointer-events-none select-none")}>
       {pick.isPickOfDay && (
         <div className="pricing-accent-gradient gradient-animate border-b border-orange-500/50 px-5 py-3 text-center shadow-[0_4px_16px_rgb(212_98_56/0.3)]">
           <span className="text-base font-black uppercase tracking-widest text-white sm:text-lg">
@@ -159,8 +181,8 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
         </div>
       </section>
 
-      <section className="grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2">
-        <div className={`bg-black/40 px-5 py-4 sm:px-6 ${isLocked ? "blur-sm" : ""}`}>
+      <section className={cn("grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2", isLocked && "blur-sm")}>
+        <div className="bg-black/40 px-5 py-4 sm:px-6">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
           <p className="mt-1.5 space-y-2">
             <div className="text-sm text-white">
@@ -182,13 +204,13 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
         </div>
       </section>
 
-      <section className="relative flex flex-1 flex-col space-y-4 px-5 py-5 sm:px-6 sm:py-6">
+      <section className={cn("relative flex flex-1 flex-col space-y-4 px-5 py-5 sm:px-6 sm:py-6", isLocked && "blur-sm")}>
         {angleParagraphs.length > 0 && (
           <>
             <h4 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-zinc-400">
               Expert Analysis
             </h4>
-            <div className={`min-h-0 flex-1 space-y-3 ${!showFullAnalysis || isLocked ? "blur-sm" : ""}`}>
+            <div className={`min-h-0 flex-1 space-y-3 ${!showFullAnalysis ? "blur-sm" : ""}`}>
               {angleParagraphs.map((para, i) => (
                 <p key={i} className="text-[15px] leading-[1.7] text-zinc-300">
                   {para}
@@ -216,5 +238,6 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
         </div>
       </section>
     </article>
+    </div>
   );
 }
