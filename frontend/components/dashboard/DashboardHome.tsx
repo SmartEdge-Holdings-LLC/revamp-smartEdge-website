@@ -52,10 +52,6 @@ export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
   let accessFilter: string[] | undefined;
 
   switch (activeFeed) {
-    case "jonah":
-      actualFeed = "jonah";
-      accessFilter = ["jonahweekly"];
-      break;
     case "jonah-vip":
       actualFeed = "jonah";
       accessFilter = ["jonahvip"];

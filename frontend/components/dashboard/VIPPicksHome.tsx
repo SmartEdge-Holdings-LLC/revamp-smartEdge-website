@@ -123,10 +123,6 @@ function VIPPicksFeed({ feed, token, leagues }: VIPPicksFeedProps) {
   let accessFilter: string[];
 
   switch (feed) {
-    case "jonah":
-      actualFeed = "jonah";
-      accessFilter = ["jonahweekly"];
-      break;
     case "jonah-vip":
       actualFeed = "jonah";
       accessFilter = ["jonahvip"];

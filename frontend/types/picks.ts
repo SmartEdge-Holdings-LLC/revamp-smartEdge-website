@@ -46,7 +46,7 @@ export function normalizeBetTypeForLeague(league: League, betType: string): BetT
   return isBetTypeValidForLeague(league, betType) ? betType : getDefaultBetTypeForLeague(league);
 }
 
-export const PICK_ACCESS = ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahweekly", "jonahvip", "jonah-vip-premium", "tournament"] as const;
+export const PICK_ACCESS = ["free", "smartedgeVIP", "smartedgeVIPPremium", "jonahvip", "jonah-vip-premium", "tournament"] as const;
 
 export type PickAccess = (typeof PICK_ACCESS)[number];
 
@@ -102,8 +102,8 @@ export interface AdminPick {
   homeTeamLogo?: string;
   game: string;
   pickTitle: string;
-  detailedAnalysis: string;
-  odds: string;
+  detailedAnalysis?: string;
+  odds?: string;
   betType: BetType;
   confidence?: number;
   access: PickAccess;
@@ -142,8 +142,8 @@ export interface CreatePickPayload {
   homeTeamName?: string;
   game?: string;
   pickTitle: string;
-  detailedAnalysis: string;
-  odds: string;
+  detailedAnalysis?: string;
+  odds?: string;
   betType: BetType;
   confidence?: number;
   access: PickAccess;
@@ -160,7 +160,6 @@ export const PICK_ACCESS_LABELS: Record<PickAccess, string> = {
   free: "Free",
   smartedgeVIP: "SmartEdge VIP",
   smartedgeVIPPremium: "SmartEdge Premium",
-  jonahweekly: "Jonah's Weekly",
   jonahvip: "Jonah's Monthly Standard",
   "jonah-vip-premium": "Jonah's Monthly VIP",
   tournament: "Tournament",

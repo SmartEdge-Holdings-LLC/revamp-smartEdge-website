@@ -86,8 +86,6 @@ function accessBadgeClass(access: PickAccess) {
       return "bg-purple-500/10 text-purple-300 ring-1 ring-inset ring-purple-400/25";
     case "smartedgeVIPPremium":
       return "bg-pink-500/10 text-pink-300 ring-1 ring-inset ring-pink-400/25";
-    case "jonahweekly":
-      return "bg-blue-500/10 text-blue-300 ring-1 ring-inset ring-blue-400/25";
     case "jonahvip":
       return "bg-green-500/10 text-green-300 ring-1 ring-inset ring-green-400/25";
     case "jonah-vip-premium":
