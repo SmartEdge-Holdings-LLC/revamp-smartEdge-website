@@ -176,7 +176,7 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
           </div>
         </div>
         <span className="pricing-accent-gradient inline-flex w-fit shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]">
-          Free pick{pick.confidence ? ` · ${pick.confidence}% confidence` : ""}
+          {source === "smartedge" ? "SmartEdge® VIP" : "Jonah VIP"}{pick.confidence ? ` · ${pick.confidence}% confidence` : ""}
         </span>
       </header>
 
