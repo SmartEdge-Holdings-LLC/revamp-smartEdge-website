@@ -124,7 +124,7 @@ export function ExpertPicksSection() {
                         Sign in to view analysis & odds.
                       </p>
                       <Link
-                        href="/login"
+                        href="/#pricing"
                         className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-md bg-accent px-2.5 sm:px-3.5 py-1 sm:py-2 text-[10px] sm:text-xs font-semibold text-white transition hover:bg-accent/90"
                       >
                         Sign in
