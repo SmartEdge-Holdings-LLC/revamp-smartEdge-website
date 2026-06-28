@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import { LandingSubpageLayout } from "@/components/landing/LandingSubpageLayout";
+
+export const metadata: Metadata = {
+  title: "Refund Policy | SmartEdgePicks",
+  description: "SmartEdgePicks refund and cancellation policy. Learn about subscription refunds, cancellations, and pause options.",
+  alternates: {
+    canonical: "https://www.smartedgepicks.com/legal/refund-policy",
+  },
+};
 
 export default function RefundPolicyPage() {
   const currentDate = new Date().toLocaleDateString('en-US', {

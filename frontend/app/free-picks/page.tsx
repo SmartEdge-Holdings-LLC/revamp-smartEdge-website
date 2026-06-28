@@ -3,8 +3,11 @@ import { FreePicksSection } from "@/components/landing/sections/FreePicksSection
 import { LandingSubpageLayout } from "@/components/landing/LandingSubpageLayout";
 
 export const metadata: Metadata = {
-  title: "Free Picks | SmartEdgePicks",
-  description: "Free active sports picks with analysis, confidence scores, and matchup details.",
+  title: "Free Daily Sports Picks | SmartEdgePicks",
+  description: "Daily free sports picks with full matchup details, odds, and expert analysis. Sample our AI-backed predictions before upgrading.",
+  alternates: {
+    canonical: "https://www.smartedgepicks.com/free-picks",
+  },
 };
 
 export default function FreePicksPage() {

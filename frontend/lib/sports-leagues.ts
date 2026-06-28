@@ -14,7 +14,7 @@ export const SPORTS_LEAGUE_MARKS = [
   { name: "NCAAW", image: "/sports/NCAAW.png" },
   { name: "MMA", image: "/sports/mma.png" },
   { name: "TENNIS", image: "/sports/tennis.svg" },
-  { name: "SOCCOR", image: "/sports/SOCCOR.png" },
+  { name: "SOCCER", image: "/sports/SOCCER.png" },
   { name: "RACING", image: "/sports/racing.png" },
   { name: "PGA TOUR", image: "/sports/pga-tour.png" },
 ] as const;
@@ -39,7 +39,7 @@ export const PICK_LEAGUES = [
   "PGA TOUR",
   "MMA",
   "TENNIS",
-  "SOCCOR",
+  "SOCCER",
   "RACING",
 ] as const;
 
@@ -59,7 +59,7 @@ const LEAGUE_LOGO_SOURCES: Partial<Record<PickLeague, string>> = {
   NCAAW: markByName.get("NCAAW") ?? "/sports/NCAAW.png",
   MMA: markByName.get("MMA") ?? "/sports/mma.png",
   TENNIS: markByName.get("TENNIS") ?? "/sports/tennis.svg",
-  SOCCOR: markByName.get("SOCCOR") ?? "/sports/SOCCOR.png",
+  SOCCER: markByName.get("SOCCER") ?? "/sports/SOCCER.png",
   RACING: markByName.get("RACING") ?? "/sports/racing.png",
   "PGA TOUR": markByName.get("PGA TOUR") ?? "/sports/pga-tour.png",
 };

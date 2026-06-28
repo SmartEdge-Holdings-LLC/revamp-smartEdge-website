@@ -95,7 +95,7 @@ export function ExpertPicksSection() {
                 : "border-transparent text-subtle hover:text-white"
             )}
           >
-            Jonah Monthly
+            Jonah VIP
           </button>
         </div>
 

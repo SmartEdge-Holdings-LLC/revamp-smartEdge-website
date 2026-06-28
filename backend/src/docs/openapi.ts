@@ -758,7 +758,7 @@ export function buildOpenApiSpec() {
             "PGA TOUR",
             "MMA",
             "TENNIS",
-            "SOCCOR",
+            "SOCCER",
             "RACING",
           ],
         },

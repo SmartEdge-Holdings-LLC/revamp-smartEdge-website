@@ -81,7 +81,7 @@ export function DashboardHome({ user: initialUser }: DashboardHomeProps) {
       <div className="min-h-screen w-full overflow-x-hidden px-4 py-8 md:px-8 lg:px-12">
         <div className="mx-auto w-full max-w-7xl">
           <div className="text-left">
-            <h1 className="text-3xl font-semibold tracking-tight text-white">Premium picks</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-white">Premium Picks</h1>
             <DashboardSectionTabs
               tabs={PICK_TABS}
               active={activeFeed}

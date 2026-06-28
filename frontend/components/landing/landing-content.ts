@@ -57,7 +57,7 @@ export const SPORTS_COVERAGE = [
   {
     name: "MLS",
     tagline: "Match winner and both-teams-to-score analysis",
-    image: "/sports/SOCCOR.png",
+    image: "/sports/SOCCER.png",
   },
   {
     name: "UFC",

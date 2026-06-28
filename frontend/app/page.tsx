@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BackgroundPattern } from "@/components/landing/BackgroundPattern";
 import { Hero } from "@/components/landing/Hero";
 import { LandingBackdrop } from "@/components/landing/LandingBackdrop";
@@ -14,6 +15,14 @@ import {
   StatsBarSection,
   TestimonialsSection,
 } from "@/components/landing/sections";
+
+export const metadata: Metadata = {
+  title: "Professional Sports Picks & AI-Powered Analysis | SmartEdgePicks",
+  description: "Get expert sports picks with AI-backed analysis for NFL, NBA, MLB, NHL, NCAA, UFC, and PGA. Daily free picks and verified track records from professional handicappers.",
+  alternates: {
+    canonical: "https://www.smartedgepicks.com",
+  },
+};
 
 export default function HomePage() {
   return (

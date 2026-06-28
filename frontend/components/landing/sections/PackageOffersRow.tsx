@@ -6,10 +6,10 @@ function pricingPlanViewForSource(source: PublicPickSource) {
 }
 
 type PackageOffersRowProps = {
-  pickSource: PublicPickSource;
+  pickSource?: PublicPickSource;
 };
 
-export function PackageOffersRow({ pickSource }: PackageOffersRowProps) {
+export function PackageOffersRow({ pickSource = "smartedge" }: PackageOffersRowProps) {
   const planView = pricingPlanViewForSource(pickSource);
 
   return (

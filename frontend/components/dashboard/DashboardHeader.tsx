@@ -31,11 +31,11 @@ function initialsFromName(name: string) {
 }
 
 const DASHBOARD_TABS = [
-  { label: "Premium Picks", href: "/dashboard" },
-  { label: "Monthly VIP", href: "/dashboard/vip-picks" },
-  { label: "Free Picks", href: "/free-picks" },
+  { label: "Premium VIP Picks", href: "/dashboard" },
+  { label: "VIP Picks", href: "/dashboard/vip-picks" },
+  { label: "Free Picks", href: "/dashboard/free-picks" },
   { label: "Tournaments", href: "/dashboard/tournaments" },
-  { label: "Odds", href: "/odds" },
+  { label: "Odds", href: "/dashboard/odds" },
   { label: "Contact Us", href: "/contact-us" },
 ];
 

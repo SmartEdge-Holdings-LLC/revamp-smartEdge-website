@@ -12,7 +12,7 @@ export const PICK_LEAGUES = [
   "PGA TOUR",
   "MMA",
   "TENNIS",
-  "SOCCOR",
+  "SOCCER",
   "RACING",
 ] as const;
 

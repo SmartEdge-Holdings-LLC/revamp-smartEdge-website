@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import { LandingSubpageLayout } from "@/components/landing/LandingSubpageLayout";
+
+export const metadata: Metadata = {
+  title: "Terms of Service | SmartEdgePicks",
+  description: "SmartEdgePicks terms of service. Read our terms, conditions, and disclaimers for using our sports picks service.",
+  alternates: {
+    canonical: "https://www.smartedgepicks.com/legal/terms-of-service",
+  },
+};
 
 export default function TermsOfServicePage() {
   const currentDate = new Date().toLocaleDateString('en-US', {

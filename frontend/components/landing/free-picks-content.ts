@@ -19,7 +19,7 @@ export const SMARTEDGE_SPORT_HIGHLIGHTS: SportHighlight[] = [
   { label: "NCAAM", image: getPickLeagueLogo("NCAAM") },
   { label: "WNBA", image: getPickLeagueLogo("WNBA") },
   { label: "PGA", image: getPickLeagueLogo("PGA TOUR") },
-  { label: "MLS", image: getPickLeagueLogo("SOCCOR") },
+  { label: "MLS", image: getPickLeagueLogo("SOCCER") },
   { label: "UFC", image: getPickLeagueLogo("MMA") },
 ];
 
@@ -31,7 +31,7 @@ export const HANDICAPPER_SPORT_HIGHLIGHTS: SportHighlight[] = [
   { label: "NHL", image: getPickLeagueLogo("NHL") },
   { label: "UFC", image: getPickLeagueLogo("MMA") },
   { label: "PGA", image: getPickLeagueLogo("PGA TOUR") },
-  { label: "Soccer", image: getPickLeagueLogo("SOCCOR") },
+  { label: "Soccer", image: getPickLeagueLogo("SOCCER") },
 ];
 
 export const SOURCE_TABS: { value: PublicPickSource; label: string }[] = [
@@ -54,12 +54,9 @@ export const INTRO_COPY: Record<PublicPickSource, IntroBlock> = {
     sections: [
       {
         heading: "Free Sports Picks — Best Bets Today",
-        body: "Our free SmartEdge® card highlights one verified play with full event details, timing, and reasoning. Check back daily for NFL, NBA, MLB, NHL, and more as new free plays are published.",
+        body: "",
       },
-      {
-        heading: "Free Sports Picks Every Day, Every Sport",
-        body: "SmartEdge® covers major U.S. leagues and select international markets. Free plays focus on high-confidence spots where the model and our analysts align — spreads, totals, and moneylines.",
-      },
+     
     ],
     sportHighlights: SMARTEDGE_SPORT_HIGHLIGHTS,
   },
@@ -149,7 +146,7 @@ const LEAGUE_LABELS: Partial<Record<League, string>> = {
   WNBA: "WNBA",
   NCAAF: "NCAA FOOTBALL",
   NCAAM: "NCAA BASKETBALL",
-  SOCCOR: "SOCCER",
+  SOCCER: "SOCCER",
   MMA: "UFC / MMA",
   "PGA TOUR": "PGA TOUR",
 };

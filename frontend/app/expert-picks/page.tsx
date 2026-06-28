@@ -4,9 +4,11 @@ import { LandingSubpageLayout } from "@/components/landing/LandingSubpageLayout"
 import { ExpertPicksSection } from "@/components/landing/sections/ExpertPicksSection";
 
 export const metadata: Metadata = {
-  title: "Expert Picks | SmartEdgePicks",
-  description:
-    "Premium picks from SmartEdge and Jonah. Unlock full odds and detailed analysis with a paid plan.",
+  title: "Premium Expert Picks | SmartEdge & Handicappers | SmartEdgePicks",
+  description: "Premium sports picks from SmartEdge AI and professional handicappers. Full odds, detailed analysis, and verified track records with a paid membership.",
+  alternates: {
+    canonical: "https://www.smartedgepicks.com/expert-picks",
+  },
 };
 
 export default function ExpertPicksPage() {

@@ -204,7 +204,7 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
             {/* Table skeleton */}
             <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
               <div className="overflow-x-auto">
-                <div className="min-w-[600px]">
+                <div className="min-w-150">
                   {/* Orange Header */}
                   <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-3 sm:px-6 py-3 sm:py-4">
                     <div className="flex items-center gap-2 sm:gap-3">
@@ -388,7 +388,7 @@ export function GameDetailsShell({ gameId }: { gameId: string }) {
           {/* Sports Betting Odds Table */}
           <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
            <div className="overflow-x-auto">
-            <div className="min-w-[600px]">
+            <div className="min-w-150">
             {/* Header */}
             <div className="bg-linear-to-r from-[#ED723C] to-[#ED723C]/80 px-3 sm:px-6 py-3 sm:py-4">
               <div className="flex items-center gap-2 sm:gap-3">

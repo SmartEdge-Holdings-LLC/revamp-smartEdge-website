@@ -93,8 +93,13 @@ export function NewsSection() {
                 Learn More
               </Link>
             )}
-
-           
+            <button
+              onClick={() => setClosed(true)}
+              className="inline-flex items-center justify-center rounded-lg p-2 text-white hover:bg-white/20 transition-colors"
+              aria-label="Close news"
+            >
+              <X className="size-5" />
+            </button>
           </div>
         </div>
       </div>

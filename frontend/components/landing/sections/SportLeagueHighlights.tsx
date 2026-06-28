@@ -19,7 +19,7 @@ export function SportLeagueHighlights({ highlights, className }: SportLeagueHigh
       {highlights.map((item) => (
         <li
           key={item.label}
-          className="inline-flex min-w-[4.5rem] flex-col items-center gap-2.5 text-center"
+          className="inline-flex min-w-18 flex-col items-center gap-2.5 text-center"
         >
           <span className="flex size-20 shrink-0 items-center justify-center sm:size-24">
             <BrandImage

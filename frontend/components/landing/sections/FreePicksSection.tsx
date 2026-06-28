@@ -1,28 +1,20 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { Loader2 } from "lucide-react";
-import {
-  INTRO_COPY,
-  SOURCE_TABS,
-} from "@/components/landing/free-picks-content";
+import { INTRO_COPY } from "@/components/landing/free-picks-content";
 import { FreePickDetailCard } from "@/components/landing/sections/FreePickDetailCard";
 import { PackageOffersRow } from "@/components/landing/sections/PackageOffersRow";
 import { FreePicksVideosSection } from "@/components/landing/sections/FreePicksVideosSection";
-import { SportLeagueHighlights } from "@/components/landing/sections/SportLeagueHighlights";
 import {
   listPublicFreePicks,
   type PublicPick,
-  type PublicPickSource,
 } from "@/lib/api/picksApi";
 import { enrichPublicPicks } from "@/lib/enrich-public-pick";
-import { PICK_LEAGUES, getSportsLeagueLogo } from "@/lib/sports-leagues";
 import { cn } from "@/lib/utils";
-import type { League } from "@/types/picks";
 
-function IntroCopy({ source }: { source: PublicPickSource }) {
-  const copy = INTRO_COPY[source];
+function IntroCopy() {
+  const copy = INTRO_COPY.smartedge;
 
   return (
     <div className="max-w-4xl space-y-3 sm:space-y-4 md:space-y-5 text-sm sm:text-[15px] leading-relaxed text-zinc-300">
@@ -32,28 +24,17 @@ function IntroCopy({ source }: { source: PublicPickSource }) {
       {copy.sections.map((section) => (
         <div key={section.heading}>
           <h3 className="text-sm sm:text-base font-bold text-white">{section.heading}</h3>
-          <p className="mt-1 sm:mt-2">{section.body}</p>
+          {section.body && <p className="mt-1 sm:mt-2">{section.body}</p>}
         </div>
       ))}
-      <SportLeagueHighlights highlights={copy.sportHighlights} />
     </div>
   );
 }
 
 export function FreePicksSection({ standalone = false }: { standalone?: boolean }) {
-  const [source, setSource] = React.useState<PublicPickSource>("smartedge");
   const [picks, setPicks] = React.useState<PublicPick[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [selectedLeagues, setSelectedLeagues] = React.useState<League[]>([]);
-
-  const toggleLeague = (league: League) => {
-    setSelectedLeagues((prev) =>
-      prev.includes(league)
-        ? prev.filter((l) => l !== league)
-        : [...prev, league]
-    );
-  };
 
   React.useEffect(() => {
     let cancelled = false;
@@ -62,13 +43,17 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
 
     listPublicFreePicks({
       page: 1,
-      limit: 12,
-      source,
-      league: selectedLeagues.length > 0 ? selectedLeagues : undefined
+      limit: 20,
     })
       .then((res) => {
         if (!cancelled) {
-          setPicks(enrichPublicPicks(res.picks));
+          const enriched = enrichPublicPicks(res.picks);
+          const sorted = enriched.sort((a, b) => {
+            const aIsSmartEdge = a.createdBy?.role !== "handicapper" ? 0 : 1;
+            const bIsSmartEdge = b.createdBy?.role !== "handicapper" ? 0 : 1;
+            return aIsSmartEdge - bIsSmartEdge;
+          });
+          setPicks(sorted);
         }
       })
       .catch((err) => {
@@ -84,7 +69,7 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
     return () => {
       cancelled = true;
     };
-  }, [source, selectedLeagues]);
+  }, []);
 
   return (
     <section
@@ -119,87 +104,7 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
         )}
 
         <div className={standalone ? "mx-auto mt-4 sm:mt-8 md:mt-10 max-w-4xl" : "mt-3 sm:mt-6"}>
-          <IntroCopy source={source} />
-        </div>
-
-        <FreePicksVideosSection
-          showSocial
-          className={cn(standalone && "mx-auto max-w-4xl")}
-        />
-
-        {/* Source toggle — below watch & follow */}
-        <div className={cn("mt-6 sm:mt-8 md:mt-10", standalone && "flex justify-center")}>
-          <div
-            className="relative inline-flex w-full max-w-none flex-nowrap overflow-x-auto rounded-full border border-white/10 bg-white/3 p-1 sm:w-auto"
-            role="tablist"
-            aria-label="Free pick source"
-          >
-            {SOURCE_TABS.map((tab) => {
-              const isActive = source === tab.value;
-              return (
-                <button
-                  key={tab.value}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setSource(tab.value)}
-                  className={cn(
-                    "relative shrink-0 whitespace-nowrap rounded-full px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-center text-xs sm:text-[13px] md:text-sm font-medium leading-none transition-colors",
-                    isActive ? "text-white" : "text-zinc-500 hover:text-zinc-300"
-                  )}
-                >
-                  {isActive ? (
-                    <span
-                      className="absolute inset-0 rounded-full border border-accent/55 bg-white/4 shadow-[0_0_20px_rgb(234_105_58/0.12)]"
-                      aria-hidden
-                    />
-                  ) : null}
-                  <span className="relative z-10">{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* League Filter */}
-        <div className={cn("mt-6 sm:mt-8 md:mt-10", standalone && "mx-auto max-w-4xl")}>
-          <p className="text-xs font-semibold uppercase tracking-wider text-white mb-2">
-            Filter by League
-          </p>
-          <p className="text-xs sm:text-sm text-zinc-400 mb-3 sm:mb-4">
-            We're offering free picks across {PICK_LEAGUES.length} leagues including NBA, NFL, MLB, NHL, and more.
-          </p>
-          <div className="flex flex-wrap gap-2 sm:gap-3">
-            {PICK_LEAGUES.map((league) => {
-              const isSelected = selectedLeagues.includes(league as League);
-              const logoSrc = getSportsLeagueLogo(league as League);
-
-              return (
-                <button
-                  key={league}
-                  onClick={() => toggleLeague(league as League)}
-                  className={cn(
-                    "flex items-center gap-1.5 sm:gap-2 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 transition-all",
-                    "border text-xs sm:text-sm font-medium",
-                    isSelected
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-white/10 bg-white/5 text-zinc-400 hover:border-white/20 hover:text-white"
-                  )}
-                >
-                  {logoSrc && (
-                    <Image
-                      src={logoSrc}
-                      alt={league}
-                      width={16}
-                      height={16}
-                      className="object-contain"
-                    />
-                  )}
-                  <span>{league}</span>
-                </button>
-              );
-            })}
-          </div>
+          <IntroCopy />
         </div>
 
         <div
@@ -231,15 +136,19 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
                 <FreePickDetailCard
                   key={pick._id}
                   pick={pick}
-                  source={source}
+                  source={pick.createdBy?.role === "handicapper" ? "handicapper" : "smartedge"}
                   featured={index === 0}
                 />
               ))
             )}
           </div>
         </div>
+        <FreePicksVideosSection
+          showSocial
+          className={cn(standalone && "mx-auto max-w-4xl")}
+        />
 
-        <PackageOffersRow pickSource={source} />
+        <PackageOffersRow />
       </div>
     </section>
   );

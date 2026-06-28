@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import { LandingSubpageLayout } from "@/components/landing/LandingSubpageLayout";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | SmartEdgePicks",
+  description: "Read SmartEdgePicks privacy policy. Learn how we collect, use, and protect your personal data.",
+  alternates: {
+    canonical: "https://www.smartedgepicks.com/legal/privacy-policy",
+  },
+};
 
 export default function PrivacyPolicyPage() {
   const currentDate = new Date().toLocaleDateString('en-US', {
