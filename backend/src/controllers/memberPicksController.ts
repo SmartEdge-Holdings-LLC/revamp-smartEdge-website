@@ -139,63 +139,35 @@ export const memberPicksController = {
 
       // Filter and mask picks based on user's subscription and pick access level
       const processedPicks = result.picks.map((pick) => {
-        const pickAccess = pick.access as PickAccess;
-        switch (pickAccess) {
-          case "free":
-            // All users can see free picks
-            return pick;
+        const pickAccessArray = Array.isArray(pick.access) ? pick.access : [pick.access];
 
-          case "smartedgeVIP":
-            // Only smartedgeVIP users can see smartedgeVIP picks
-            if (userAccessType === "smartedgeVIP") {
-              return pick;
-            }
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase the SmartEdge VIP plan to view this pick",
-              odds: "Locked",
-              confidence: 0,
-            };
+        // Check if user has access to this pick
+        const hasAccess =
+          pickAccessArray.includes("free") ||
+          (userAccessType && pickAccessArray.includes(userAccessType as PickAccess)) ||
+          pickAccessArray.includes("tournament");
 
-          case "smartedgeVIPPremium":
-            // Only smartedgeVIPPremium users can see smartedgeVIPPremium picks
-            if (userAccessType === "smartedgeVIPPremium") {
-              return pick;
-            }
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase the SmartEdge Premium plan to view this pick",
-              odds: "Locked",
-              confidence: 0,
-            };
-
-          case "jonahvip":
-          case "jonah-vip-premium":
-            // Jonah picks should not appear in SmartEdge endpoint, but if they do, mask them
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase Jonah's Monthly VIP plan to view this pick",
-              odds: "Locked",
-              confidence: 0,
-            };
-
-          case "tournament":
-            // Tournament picks - shown as is (access control handled elsewhere)
-            return pick;
-
-          default:
-            // Default case - show purchase message
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase the SmartEdge plan to view the pick",
-              odds: "Locked",
-              confidence: 0,
-            };
+        if (hasAccess) {
+          return pick;
         }
+
+        // Determine which plan to recommend based on access requirements
+        let lockedMessage = "Purchase the SmartEdge plan to view the pick";
+        if (pickAccessArray.includes("smartedgeVIPPremium")) {
+          lockedMessage = "Purchase the SmartEdge Premium plan to view this pick";
+        } else if (pickAccessArray.includes("smartedgeVIP")) {
+          lockedMessage = "Purchase the SmartEdge VIP plan to view this pick";
+        } else if (pickAccessArray.some((a) => a.includes("jonah"))) {
+          lockedMessage = "Purchase Jonah's Monthly VIP plan to view this pick";
+        }
+
+        return {
+          ...pick,
+          pickTitle: "Premium Pick - Upgrade to view",
+          detailedAnalysis: lockedMessage,
+          odds: "Locked",
+          confidence: 0,
+        };
       });
 
       return res.json({
@@ -243,52 +215,33 @@ export const memberPicksController = {
 
       // Filter and mask picks based on user's subscription and pick access level
       const processedPicks = result.picks.map((pick) => {
-        const pickAccess = pick.access as PickAccess;
-        switch (pickAccess) {
-          case "free":
-            // All users can see free picks
-            return pick;
+        const pickAccessArray = Array.isArray(pick.access) ? pick.access : [pick.access];
 
-          case "jonahvip":
-            // Only jonahvip users can see jonahvip picks
-            if (userAccessType === "jonahvip") {
-              return pick;
-            }
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase Jonah's Monthly Standard plan to view this pick",
-              odds: "Locked",
-              confidence: 0,
-            };
+        // Check if user has access to this pick
+        const hasAccess =
+          pickAccessArray.includes("free") ||
+          (userAccessType && pickAccessArray.includes(userAccessType as PickAccess)) ||
+          pickAccessArray.includes("tournament");
 
-          case "jonah-vip-premium":
-            // Only jonah-vip-premium users can see jonah-vip-premium picks
-            if (userAccessType === "jonah-vip-premium") {
-              return pick;
-            }
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase Jonah's Monthly VIP plan to view this pick",
-              odds: "Locked",
-              confidence: 0,
-            };
-
-          case "tournament":
-            // Tournament picks - shown as is (access control handled elsewhere)
-            return pick;
-
-          default:
-            // Default case - show purchase message
-            return {
-              ...pick,
-              pickTitle: "Premium Pick - Upgrade to view",
-              detailedAnalysis: "Purchase a Jonah plan to view this pick",
-              odds: "Locked",
-              confidence: 0,
-            };
+        if (hasAccess) {
+          return pick;
         }
+
+        // Determine which plan to recommend based on access requirements
+        let lockedMessage = "Purchase a Jonah plan to view this pick";
+        if (pickAccessArray.includes("jonah-vip-premium")) {
+          lockedMessage = "Purchase Jonah's Monthly VIP plan to view this pick";
+        } else if (pickAccessArray.includes("jonahvip")) {
+          lockedMessage = "Purchase Jonah's Monthly Standard plan to view this pick";
+        }
+
+        return {
+          ...pick,
+          pickTitle: "Premium Pick - Upgrade to view",
+          detailedAnalysis: lockedMessage,
+          odds: "Locked",
+          confidence: 0,
+        };
       });
 
       return res.json({

@@ -32,8 +32,8 @@ export interface IPick extends Document {
   betType: BetType;
   /** 1–100 confidence score (optional, defaults to 75) */
   confidence?: number;
-  /** Access level: "free" (all users), "smartedgeVIPPremium" (premium members only), "both" (free and premium), "tournament" (tournament participants only), "monthly_vip" (monthly VIP members only) */
-  access: PickAccess;
+  /** Access levels: array of access types (e.g., ["free", "smartedgeVIP"], ["smartedgeVIPPremium"], etc.) */
+  access: PickAccess[];
   /** Whether the pick is published (active) or hidden (inactive) */
   status: PickStatus;
   /** Scheduled match/game time */
@@ -61,7 +61,7 @@ const pickSchema = new Schema<IPick>(
     odds: { type: String, trim: true, maxlength: 64 },
     betType: { type: String, enum: BET_TYPES, required: true },
     confidence: { type: Number, min: 1, max: 100 },
-    access: { type: String, enum: PICK_ACCESS, required: true, default: "smartedgeVIPPremium" },
+    access: [{ type: String, enum: PICK_ACCESS }],
     status: { type: String, enum: PICK_STATUS, required: true, default: "active" },
     matchTime: { type: Date },
     isPickOfDay: { type: Boolean, default: false },

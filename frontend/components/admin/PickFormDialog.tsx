@@ -4,7 +4,7 @@ import * as React from "react";
 import { Loader2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { BetTypeSelect } from "@/components/admin/BetTypeSelect";
-import { PickAccessSelect } from "@/components/admin/PickAccessSelect";
+import { PickAccessMultiToggle } from "@/components/admin/PickAccessMultiToggle";
 import { PickStatusSelect } from "@/components/admin/PickStatusSelect";
 import { LeagueSelect } from "@/components/admin/LeagueSelect";
 import { MatchupSelect } from "@/components/admin/MatchupSelect";
@@ -38,6 +38,7 @@ import {
   type CreatePickPayload,
   type League,
   type LeagueTeam,
+  type PickAccess,
 } from "@/types/picks";
 
 const fieldClass =
@@ -48,12 +49,13 @@ const textareaClass = cn(
   "min-h-[120px] w-full resize-y rounded-md border px-3 py-2 outline-none focus-visible:ring-1"
 );
 
-type PickFormState = CreatePickPayload & {
+type PickFormState = Omit<CreatePickPayload, "access"> & {
   customAwayName: string;
   customHomeName: string;
   matchTimeLocal: string;
   hasConfidence: boolean;
   isPickOfDay: boolean;
+  access: CreatePickPayload["access"][];
 };
 
 const emptyForm = (isHandicapper: boolean): PickFormState => ({
@@ -68,7 +70,7 @@ const emptyForm = (isHandicapper: boolean): PickFormState => ({
   odds: "",
   betType: "spread",
   confidence: 75,
-  access: isHandicapper ? "jonahvip" : "smartedgeVIPPremium",
+  access: isHandicapper ? ["jonahvip"] : ["smartedgeVIPPremium"],
   status: "active",
   matchTimeLocal: "",
   hasConfidence: false,
@@ -79,6 +81,11 @@ function pickToForm(pick: AdminPick): PickFormState {
   const matchTimeLocal = pick.matchTime
     ? new Date(pick.matchTime).toISOString().slice(0, 16)
     : "";
+
+  // Convert single access to array if needed
+  const accessArray = Array.isArray(pick.access)
+    ? pick.access
+    : [pick.access ?? "smartedgeVIPPremium"];
 
   return {
     league: pick.league ?? "NBA",
@@ -92,7 +99,7 @@ function pickToForm(pick: AdminPick): PickFormState {
     odds: pick.odds,
     betType: normalizeBetTypeForLeague(pick.league ?? "NBA", pick.betType),
     confidence: pick.confidence ?? 75,
-    access: pick.access ?? "smartedgeVIPPremium",
+    access: accessArray,
     status: pick.status ?? "active",
     matchTimeLocal,
     hasConfidence: Boolean(pick.confidence),
@@ -113,7 +120,7 @@ export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: Pick
 
   // Determine allowed access types based on user role
   const isHandicapper = role === "handicapper";
-  const allowedAccess: ("free" | "smartedgeVIP" | "smartedgeVIPPremium" | "jonahvip" | "jonah-vip-premium" | "tournament")[] = isHandicapper
+  const allowedAccess: PickAccess[] = isHandicapper
     ? ["jonahvip", "jonah-vip-premium", "free"]
     : ["free", "smartedgeVIP", "smartedgeVIPPremium", "tournament"];
 
@@ -400,15 +407,12 @@ export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: Pick
               />
             </Field>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Access" id="pick-access">
-                <PickAccessSelect
-                  id="pick-access"
-                  value={form.access}
-                  onChange={(v) => update("access", v)}
-                  allowedAccess={allowedAccess}
-                />
-              </Field>
+            <div className="space-y-4">
+              <PickAccessMultiToggle
+                value={form.access}
+                onChange={(v) => update("access", v)}
+                allowedAccess={allowedAccess}
+              />
               <Field label="Status" id="pick-status">
                 <PickStatusSelect
                   id="pick-status"

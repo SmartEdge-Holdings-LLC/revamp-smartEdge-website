@@ -41,7 +41,7 @@ export type PickCreateInput = {
   odds?: string;
   betType: BetType;
   confidence?: number;
-  access: PickAccess;
+  access: PickAccess[];
   status: PickStatus;
   matchTime?: string;
   isPickOfDay?: boolean;
@@ -85,7 +85,7 @@ export type PublicPickDto = {
   odds?: string;
   betType: BetType;
   confidence?: number;
-  access: "free";
+  access: PickAccess[];
   status: "active";
   matchTime?: Date;
   isPickOfDay?: boolean;
@@ -96,7 +96,7 @@ export type PublicPickDto = {
 
 /** Pick fields exposed on paid member APIs (`GET /api/picks/paid/*`). */
 export type PaidPickDto = Omit<PublicPickDto, "access"> & {
-  access: "smartedgeVIPPremium";
+  access: PickAccess[];
 };
 
 function parsePickAuthor(rawAuthor: unknown): PublicPickAuthor | undefined {

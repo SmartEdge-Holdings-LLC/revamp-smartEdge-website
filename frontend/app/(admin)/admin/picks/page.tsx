@@ -95,8 +95,12 @@ function accessBadgeClass(access: PickAccess) {
   }
 }
 
-function pickAccess(pick: AdminPick): PickAccess {
-  return (pick.access as PickAccess) || "free";
+function getPickAccessArray(pick: AdminPick): PickAccess[] {
+  if (Array.isArray(pick.access)) {
+    return pick.access as PickAccess[];
+  }
+  // Handle legacy single string format
+  return [(pick.access as PickAccess) || "free"];
 }
 
 function statusBadgeClass(status: PickStatus) {
@@ -136,9 +140,13 @@ function PickCard({
             <span className="typo-caption font-semibold text-white">{pick.league}</span>
           </span>
         )}
-        <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", accessBadgeClass(pickAccess(pick)))}>
-          {PICK_ACCESS_LABELS[pickAccess(pick)]}
-        </Badge>
+        <div className="flex flex-wrap gap-1.5">
+          {getPickAccessArray(pick).map((access) => (
+            <Badge key={access} className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", accessBadgeClass(access))}>
+              {PICK_ACCESS_LABELS[access]}
+            </Badge>
+          ))}
+        </div>
         <div className="flex items-center gap-2 px-2 py-0.5">
           <span className={cn("text-xs font-medium", pick.status === "active" ? "text-emerald-400" : "text-zinc-400")}>
             {pick.status === "active" ? "Active" : "Inactive"}
@@ -508,9 +516,13 @@ export default function AdminPicksPage() {
                       <p className="line-clamp-2 typo-body-sm font-medium text-white">{pick.pickTitle}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", accessBadgeClass(pickAccess(pick)))}>
-                        {PICK_ACCESS_LABELS[pickAccess(pick)]}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1.5">
+                        {getPickAccessArray(pick).map((access) => (
+                          <Badge key={access} className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", accessBadgeClass(access))}>
+                            {PICK_ACCESS_LABELS[access]}
+                          </Badge>
+                        ))}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={cn("rounded-full border-transparent px-2 py-0.5 typo-caption font-semibold", betTypeBadgeClass())}>
