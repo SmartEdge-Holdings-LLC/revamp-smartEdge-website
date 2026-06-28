@@ -58,6 +58,16 @@ function authorInitials(name: string) {
     .toUpperCase();
 }
 
+function getAuthorBio(name: string): { initials: string; bio?: string } {
+  if (name === "Dustin") {
+    return {
+      initials: "D.D.",
+      bio: "The Renaissance Man",
+    };
+  }
+  return { initials: authorInitials(name) };
+}
+
 function TeamSide({
   name,
   logoSrc,
@@ -104,6 +114,7 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
   const { data: session } = useSession();
   const authorName =
     pick.createdBy?.name ?? (source === "smartedge" ? "SmartEdge® Desk" : "Featured Expert");
+  const { initials, bio } = getAuthorBio(authorName);
   const leagueMark = getSportsLeagueLogo(pick.league) ?? getPickLeagueLogo(pick.league);
   const angleParagraphs = analysisParagraphs(pick.detailedAnalysis);
   const betLabel = betTypeLabel(pick.betType);
@@ -148,11 +159,12 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
                 className="size-full object-cover"
               />
             ) : (
-              authorInitials(authorName)
+              initials
             )}
           </div>
           <div className="min-w-0">
-            <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">{authorName}</h3>
+            <h3 className="text-xl font-bold tracking-tight text-white sm:text-2xl">{initials}</h3>
+            {bio && <p className="mt-0.5 text-sm italic text-zinc-400">"{bio}"</p>}
             <div className="mt-1.5 flex flex-wrap items-center gap-2">
               {leagueMark ? (
                 <Image
