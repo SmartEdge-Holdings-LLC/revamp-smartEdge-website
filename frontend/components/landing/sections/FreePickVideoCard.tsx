@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { ExternalLink, Play } from "lucide-react";
+import { useEffect } from "react";
 import type { PublicVideo } from "@/lib/api/videosApi";
 import { getVideoPlatformLogo } from "@/lib/video-platform-logos";
 import { VIDEO_PLATFORM_LABELS } from "@/types/videos";
@@ -26,8 +27,34 @@ function platformBadgeClass(platform: PublicVideo["platform"]) {
 
 export function FreePickVideoCard({ video }: FreePickVideoCardProps) {
   const title = video.title.trim() || VIDEO_PLATFORM_LABELS[video.platform];
-  const canEmbed = video.platform === "youtube" && Boolean(video.embedUrl);
   const platformLogo = getVideoPlatformLogo(video.platform);
+
+  // Generate embed URL for Instagram if not provided
+  const getEmbedUrl = () => {
+    if (video.embedUrl) return video.embedUrl;
+    if (video.platform === "instagram") {
+      return `${video.url}embed`;
+    }
+    return null;
+  };
+
+  const embedUrl = getEmbedUrl();
+  const isInstagram = video.platform === "instagram";
+  const canEmbed = Boolean(embedUrl);
+
+  // Load Instagram embed script
+  useEffect(() => {
+    if (isInstagram && canEmbed) {
+      const script = document.createElement("script");
+      script.src = "//www.instagram.com/embed.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [isInstagram, canEmbed]);
 
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-black">
@@ -66,16 +93,24 @@ export function FreePickVideoCard({ video }: FreePickVideoCardProps) {
       <section className="px-5 py-5 sm:px-7 sm:py-6">
         {canEmbed ? (
           <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
-            <div className="relative aspect-video w-full">
-              <iframe
-                src={video.embedUrl!}
-                title={title}
-                className="absolute inset-0 h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
+            {isInstagram ? (
+              <blockquote
+                className="instagram-media w-full"
+                data-instgrm-permalink={video.url}
+                data-instgrm-version="14"
               />
-            </div>
+            ) : (
+              <div className="relative aspect-video w-full">
+                <iframe
+                  src={embedUrl!}
+                  title={title}
+                  className="absolute inset-0 h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
+              </div>
+            )}
           </div>
         ) : (
           <a

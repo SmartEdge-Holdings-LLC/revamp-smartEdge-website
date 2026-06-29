@@ -155,7 +155,7 @@ export function leagueDisplayName(league: League): string {
 }
 
 /** Update hrefs with your live channel URLs */
-export type FreePicksSocialPlatform = "youtube" | "instagram" | "tiktok";
+export type FreePicksSocialPlatform = "youtube" | "instagram" | "x";
 
 export const FREE_PICKS_SOCIAL_LINKS: {
   platform: FreePicksSocialPlatform;
@@ -166,19 +166,19 @@ export const FREE_PICKS_SOCIAL_LINKS: {
   {
     platform: "youtube",
     label: "YouTube",
-    href: "https://www.youtube.com",
+    href: "https://www.youtube.com/@SmartEdgePicks",
     blurb: "Full card breakdowns",
   },
   {
     platform: "instagram",
     label: "Instagram",
-    href: "https://www.instagram.com",
+    href: "https://www.instagram.com/smartedgepicks/",
     blurb: "Daily picks & clips",
   },
   {
-    platform: "tiktok",
-    label: "TikTok",
-    href: "https://www.tiktok.com",
-    blurb: "Quick takes",
+    platform: "x",
+    label: "X",
+    href: "https://x.com/SmartEdgePicks",
+    blurb: "Quick takes & updates",
   },
 ];

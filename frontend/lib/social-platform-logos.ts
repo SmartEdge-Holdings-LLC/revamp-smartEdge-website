@@ -4,7 +4,7 @@ import type { FreePicksSocialPlatform } from "@/components/landing/free-picks-co
 const SOCIAL_PLATFORM_LOGOS: Record<FreePicksSocialPlatform, string> = {
   youtube: "/social/youtube.png",
   instagram: "/social/instagram.png",
-  tiktok: "/social/tik-tok.png",
+  x: "/social/x.jpg",
 };
 
 export function getSocialPlatformLogo(platform: FreePicksSocialPlatform): string {
