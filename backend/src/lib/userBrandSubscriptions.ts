@@ -6,23 +6,29 @@ import type {
 } from "../models/User";
 
 export const EMPTY_BRAND_SUBSCRIPTIONS: UserBrandSubscriptions = {
-  smartedge: null,
-  jonah: null,
+  smartedge: [],
+  jonah: [],
 };
 
 export function normalizeBrandSubscriptions(
   raw?: UserBrandSubscriptions | null
 ): UserBrandSubscriptions {
   return {
-    smartedge: raw?.smartedge ?? null,
-    jonah: raw?.jonah ?? null,
+    smartedge: Array.isArray(raw?.smartedge) ? raw.smartedge : [],
+    jonah: Array.isArray(raw?.jonah) ? raw.jonah : [],
   };
 }
 
 const ACTIVE: SubscriptionStatus[] = ["active", "trialing"];
 
-export function isBrandSnapshotActive(snap: BrandSubscriptionSnapshot | null | undefined): boolean {
-  return Boolean(snap && ACTIVE.includes(snap.subscriptionStatus));
+export function isBrandSnapshotActive(snap: BrandSubscriptionSnapshot | BrandSubscriptionSnapshot[] | null | undefined): boolean {
+  if (!snap) return false;
+
+  if (Array.isArray(snap)) {
+    return snap.some((s) => ACTIVE.includes(s.subscriptionStatus));
+  }
+
+  return ACTIVE.includes(snap.subscriptionStatus);
 }
 
 /** Any brand active (for coarse access checks). */
@@ -34,11 +40,27 @@ export function userHasAnyActiveSubscription(user: Pick<IUser, "brandSubscriptio
 export function aggregateUserSubscriptionStatus(
   bs: UserBrandSubscriptions
 ): SubscriptionStatus {
-  if (isBrandSnapshotActive(bs.smartedge)) return bs.smartedge!.subscriptionStatus;
-  if (isBrandSnapshotActive(bs.jonah)) return bs.jonah!.subscriptionStatus;
-  const smart = bs.smartedge?.subscriptionStatus;
-  const jon = bs.jonah?.subscriptionStatus;
-  if (smart && smart !== "inactive") return smart;
-  if (jon && jon !== "inactive") return jon;
+  // Get first active subscription from smartedge or jonah
+  if (Array.isArray(bs.smartedge)) {
+    const active = bs.smartedge.find((s) => ACTIVE.includes(s.subscriptionStatus));
+    if (active) return active.subscriptionStatus;
+  }
+
+  if (Array.isArray(bs.jonah)) {
+    const active = bs.jonah.find((s) => ACTIVE.includes(s.subscriptionStatus));
+    if (active) return active.subscriptionStatus;
+  }
+
+  // Fallback to first non-inactive status
+  if (Array.isArray(bs.smartedge) && bs.smartedge.length > 0) {
+    const status = bs.smartedge[0].subscriptionStatus;
+    if (status !== "inactive") return status;
+  }
+
+  if (Array.isArray(bs.jonah) && bs.jonah.length > 0) {
+    const status = bs.jonah[0].subscriptionStatus;
+    if (status !== "inactive") return status;
+  }
+
   return "inactive";
 }

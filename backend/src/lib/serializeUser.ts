@@ -6,18 +6,43 @@ import { getMemberEntitlements } from "../services/subscriptionEntitlementsServi
 function snapshotToClient(
   snap: IUser["brandSubscriptions"]["smartedge"]
 ): IUser["brandSubscriptions"]["smartedge"] {
-  if (!snap) return null;
-  return {
-    ...snap,
-    currentPeriodEnd: snap.currentPeriodEnd ?? null,
-  };
+  if (!snap) return [];
+
+  // Handle both single snapshot and array of snapshots
+  if (Array.isArray(snap)) {
+    return snap.map((s) => {
+      // Convert Mongoose subdocument to plain object
+      const plainObj = s instanceof Object && "_doc" in s ? (s as any)._doc || s : s;
+      return {
+        stripeSubscriptionId: plainObj.stripeSubscriptionId,
+        planName: plainObj.planName,
+        priceId: plainObj.priceId,
+        subscriptionStatus: plainObj.subscriptionStatus,
+        currentPeriodEnd: plainObj.currentPeriodEnd ?? null,
+        cancelAtPeriodEnd: plainObj.cancelAtPeriodEnd,
+      };
+    });
+  }
+
+  // Fallback for single snapshot (shouldn't happen with current schema)
+  const plainObj = snap instanceof Object && "_doc" in snap ? (snap as any)._doc || snap : snap;
+  return [
+    {
+      stripeSubscriptionId: plainObj.stripeSubscriptionId,
+      planName: plainObj.planName,
+      priceId: plainObj.priceId,
+      subscriptionStatus: plainObj.subscriptionStatus,
+      currentPeriodEnd: plainObj.currentPeriodEnd ?? null,
+      cancelAtPeriodEnd: plainObj.cancelAtPeriodEnd,
+    },
+  ];
 }
 
 function brandSubscriptionsToClient(bs: IUser["brandSubscriptions"]) {
   const normalized = normalizeBrandSubscriptions(bs);
   return {
-    smartedge: snapshotToClient(normalized.smartedge),
-    jonah: snapshotToClient(normalized.jonah),
+    smartedge: snapshotToClient(normalized.smartedge) || [],
+    jonah: snapshotToClient(normalized.jonah) || [],
   };
 }
 
