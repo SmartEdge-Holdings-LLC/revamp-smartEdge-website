@@ -212,8 +212,10 @@ export function UserDetailsDialog({
                   >
                     {adminUserAggregateStatus(user).replace("_", " ")}
                   </Badge>
-                  {user.brandSubscriptions?.smartedge?.cancelAtPeriodEnd ||
-                  user.brandSubscriptions?.jonah?.cancelAtPeriodEnd ? (
+                  {(Array.isArray(user.brandSubscriptions?.smartedge) &&
+                    user.brandSubscriptions.smartedge.some(sub => sub.cancelAtPeriodEnd)) ||
+                  (Array.isArray(user.brandSubscriptions?.jonah) &&
+                    user.brandSubscriptions.jonah.some(sub => sub.cancelAtPeriodEnd)) ? (
                     <Badge className="rounded-full border-transparent bg-amber-500/12 px-2 py-0.5 typo-caption font-medium text-amber-300 ring-1 ring-inset ring-amber-400/30">
                       Cancels at period end
                     </Badge>

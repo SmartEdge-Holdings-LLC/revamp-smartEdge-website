@@ -10,6 +10,6 @@ export type BrandSubscriptionSnapshot = {
 };
 
 export type UserBrandSubscriptions = {
-  smartedge: BrandSubscriptionSnapshot | null;
-  jonah: BrandSubscriptionSnapshot | null;
+  smartedge: BrandSubscriptionSnapshot[] | null;
+  jonah: BrandSubscriptionSnapshot[] | null;
 };

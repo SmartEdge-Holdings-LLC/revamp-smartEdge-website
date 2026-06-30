@@ -58,13 +58,14 @@ function normalizeBrandSubscriptionsForSession(
   raw?: UserBrandSubscriptions | null
 ): UserBrandSubscriptions {
   const mapDates = (
-    snap: UserBrandSubscriptions["smartedge"]
+    snaps: UserBrandSubscriptions["smartedge"]
   ): UserBrandSubscriptions["smartedge"] => {
-    if (!snap) return null;
-    return {
+    if (!snaps) return null;
+    if (!Array.isArray(snaps)) return null;
+    return snaps.map(snap => ({
       ...snap,
       currentPeriodEnd: toIso(snap.currentPeriodEnd as string | Date | null | undefined),
-    };
+    }));
   };
   return {
     smartedge: mapDates(raw?.smartedge ?? null),

@@ -14,6 +14,7 @@ export interface AdminUserListItem {
   state?: string | null;
   zip?: string | null;
   phoneNumber?: string | null;
+  discordUsername?: string | null;
   wpRole?: string | null;
   brandSubscriptions?: UserBrandSubscriptions;
   createdAt: string;
