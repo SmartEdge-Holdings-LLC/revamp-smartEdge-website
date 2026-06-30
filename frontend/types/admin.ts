@@ -25,8 +25,27 @@ export function adminUserPlansLabel(u: AdminUserListItem): string {
   const bs = u.brandSubscriptions;
   if (!bs) return "—";
   const parts: string[] = [];
-  if (bs.smartedge?.planName && bs.smartedge.planName !== "free") parts.push(bs.smartedge.planName);
-  if (bs.jonah?.planName && bs.jonah.planName !== "free") parts.push(bs.jonah.planName);
+
+  // Handle smartedge subscriptions (array)
+  if (Array.isArray(bs.smartedge) && bs.smartedge.length > 0) {
+    const activeSub = bs.smartedge.find(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
+    if (activeSub?.planName && activeSub.planName !== "free") {
+      parts.push(activeSub.planName);
+    } else if (bs.smartedge[0]?.planName && bs.smartedge[0].planName !== "free") {
+      parts.push(bs.smartedge[0].planName);
+    }
+  }
+
+  // Handle jonah subscriptions (array)
+  if (Array.isArray(bs.jonah) && bs.jonah.length > 0) {
+    const activeSub = bs.jonah.find(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
+    if (activeSub?.planName && activeSub.planName !== "free") {
+      parts.push(activeSub.planName);
+    } else if (bs.jonah[0]?.planName && bs.jonah[0].planName !== "free") {
+      parts.push(bs.jonah[0].planName);
+    }
+  }
+
   return parts.length > 0 ? parts.join(" · ") : "free";
 }
 
@@ -34,13 +53,28 @@ export function adminUserAggregateStatus(u: AdminUserListItem): SubscriptionStat
   const bs = u.brandSubscriptions;
   if (!bs) return "inactive";
   const active = ["active", "trialing"];
-  if (bs.smartedge && active.includes(bs.smartedge.subscriptionStatus)) {
-    return bs.smartedge.subscriptionStatus;
+
+  // Check smartedge subscriptions (array)
+  if (Array.isArray(bs.smartedge) && bs.smartedge.length > 0) {
+    const activeSub = bs.smartedge.find(sub => active.includes(sub.subscriptionStatus));
+    if (activeSub) return activeSub.subscriptionStatus;
   }
-  if (bs.jonah && active.includes(bs.jonah.subscriptionStatus)) {
-    return bs.jonah.subscriptionStatus;
+
+  // Check jonah subscriptions (array)
+  if (Array.isArray(bs.jonah) && bs.jonah.length > 0) {
+    const activeSub = bs.jonah.find(sub => active.includes(sub.subscriptionStatus));
+    if (activeSub) return activeSub.subscriptionStatus;
   }
-  return bs.smartedge?.subscriptionStatus ?? bs.jonah?.subscriptionStatus ?? "inactive";
+
+  // Fallback: return first subscription status found
+  if (Array.isArray(bs.smartedge) && bs.smartedge.length > 0) {
+    return bs.smartedge[0].subscriptionStatus;
+  }
+  if (Array.isArray(bs.jonah) && bs.jonah.length > 0) {
+    return bs.jonah[0].subscriptionStatus;
+  }
+
+  return "inactive";
 }
 
 /** Shape of `GET /api/admin/users?page=&limit=` response (see `userService.findPagedForAdmin`). */

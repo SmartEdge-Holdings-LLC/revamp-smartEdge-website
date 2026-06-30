@@ -92,9 +92,11 @@ export const userService = {
       filter.email = { $regex: escaped, $options: "i" };
     }
     if (status && status.length > 0) {
+      // Match users who have at least one subscription with the specified status
+      // Using $elemMatch to ensure we're matching specific array elements
       filter.$or = [
-        { "brandSubscriptions.smartedge.subscriptionStatus": { $in: status } },
-        { "brandSubscriptions.jonah.subscriptionStatus": { $in: status } },
+        { "brandSubscriptions.smartedge": { $elemMatch: { subscriptionStatus: { $in: status } } } },
+        { "brandSubscriptions.jonah": { $elemMatch: { subscriptionStatus: { $in: status } } } },
       ];
     }
     if (joinedFrom || joinedTo) {

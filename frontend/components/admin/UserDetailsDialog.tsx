@@ -226,7 +226,6 @@ export function UserDetailsDialog({
             <div className="flex flex-col gap-5 px-5 py-4">
               <Section title="Account">
                 <Row label="User ID" mono copyable value={user._id} />
-                <Row label=" Role" value={user.wpRole ?? null} />
               </Section>
 
               <Section title="Subscription">
@@ -236,31 +235,78 @@ export function UserDetailsDialog({
                   copyable
                   value={user.stripeCustomerId ?? null}
                 />
+                <Row label="Discord" value={user.discordUsername ?? null} />
                 {(["smartedge", "jonah"] as const).map((brand) => {
-                  const snap = user.brandSubscriptions?.[brand];
-                  if (!snap?.stripeSubscriptionId) return null;
+                  const subs = user.brandSubscriptions?.[brand];
+                  if (!subs || subs.length === 0) return null;
+
                   const title = brand === "smartedge" ? "SmartEdge" : "Jonah";
+                  const isArray = Array.isArray(subs);
+                  const subsList = isArray ? subs : [subs];
+
                   return (
                     <React.Fragment key={brand}>
-                      <Row
-                        label={`${title} plan`}
-                        value={snap.planName}
-                      />
-                      <Row
-                        label={`${title} subscription`}
-                        mono
-                        copyable
-                        value={snap.stripeSubscriptionId}
-                      />
-                      <Row label={`${title} price`} mono copyable value={snap.priceId} />
-                      <Row
-                        label={`${title} status`}
-                        value={snap.subscriptionStatus.replace("_", " ")}
-                      />
-                      <Row
-                        label={`${title} renews / ends`}
-                        value={formatDateTimeDisplay(snap.currentPeriodEnd)}
-                      />
+                      {subsList.map((snap, index) => {
+                        if (!snap) return null;
+                        const label = subsList.length > 1 ? `${title} #${index + 1}` : title;
+                        return (
+                          <React.Fragment key={`${brand}-${index}`}>
+                            <div className="mt-2 border-t border-white/8 pt-2">
+                              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                                {label}
+                              </p>
+                            </div>
+                            <Row
+                              label="Plan"
+                              value={
+                                <Badge className={cn(
+                                  "rounded-full border-transparent px-2 py-0.5 typo-caption font-medium capitalize",
+                                  statusBadgeClass(snap.planName)
+                                )}>
+                                  {snap.planName}
+                                </Badge>
+                              }
+                            />
+                            <Row
+                              label="Subscription ID"
+                              mono
+                              copyable
+                              value={snap.stripeSubscriptionId}
+                            />
+                            <Row
+                              label="Price ID"
+                              mono
+                              copyable
+                              value={snap.priceId}
+                            />
+                            <Row
+                              label="Status"
+                              value={
+                                <Badge className={cn(
+                                  "rounded-full border-transparent px-2 py-0.5 typo-caption font-medium",
+                                  statusBadgeClass(snap.subscriptionStatus)
+                                )}>
+                                  {snap.subscriptionStatus.replace("_", " ")}
+                                </Badge>
+                              }
+                            />
+                            <Row
+                              label="Period End"
+                              value={formatDateTimeDisplay(snap.currentPeriodEnd)}
+                            />
+                            {snap.cancelAtPeriodEnd && (
+                              <Row
+                                label="Cancels"
+                                value={
+                                  <Badge className="rounded-full border-transparent bg-amber-500/12 px-2 py-0.5 typo-caption font-medium text-amber-300 ring-1 ring-inset ring-amber-400/30">
+                                    At period end
+                                  </Badge>
+                                }
+                              />
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
                     </React.Fragment>
                   );
                 })}
