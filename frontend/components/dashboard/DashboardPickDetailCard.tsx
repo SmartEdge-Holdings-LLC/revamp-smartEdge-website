@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { Lock, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { leagueDisplayName, TRACK_RECORD_LINE } from "@/components/landing/free-picks-content";
 import { getPickLeagueLogo, getSportsLeagueLogo } from "@/lib/sports-leagues";
@@ -108,7 +108,7 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
   return (
     <div className={isLocked ? "relative" : ""}>
       {isLocked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-2xl z-10">
+        <div className="absolute inset-0 flex items-end justify-center pb-12 bg-black/10 rounded-2xl z-10">
           <div className="rounded-lg border border-white/15 bg-black/80 px-3 sm:px-5 py-2.5 sm:py-4 text-center backdrop-blur-sm max-w-xs mx-2">
             <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-white">
               <Lock className="size-3 sm:size-4 text-accent" />
@@ -153,11 +153,36 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
             {leagueDisplayName(pick.league)}
           </span>
         </div>
-        {pick.confidence != null && pick.confidence > 0 && (
-          <span className="pricing-accent-gradient absolute right-5 top-1/2 inline-flex w-fit -translate-y-1/2 shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)] sm:right-6">
-            {feedLabel(feed)} · {pick.confidence}%
-          </span>
-        )}
+        <div className="absolute right-5 top-1/2 flex -translate-y-1/2 flex-col items-end gap-2 sm:right-6">
+          {pick.result && (
+            <span className={cn(
+              "inline-flex w-fit shrink-0 items-center gap-3 rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]",
+              pick.result === "won" ? "bg-emerald-500/30 text-emerald-200 border border-emerald-500/50" : pick.result === "lost" ? "bg-rose-500/30 text-rose-200 border border-rose-500/50" : "bg-yellow-500/30 text-yellow-200 border border-yellow-500/50"
+            )}>
+              {pick.result === "won" ? (
+                <>
+                  <CheckCircle2 className="size-5 sm:size-6" />
+                  Won
+                </>
+              ) : pick.result === "lost" ? (
+                <>
+                  <XCircle className="size-5 sm:size-6" />
+                  Lost
+                </>
+              ) : (
+                <>
+                  <Clock className="size-5 sm:size-6" />
+                  Pending
+                </>
+              )}
+            </span>
+          )}
+          {pick.confidence != null && pick.confidence > 0 && (
+            <span className="pricing-accent-gradient inline-flex w-fit shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]">
+              {feedLabel(feed)} · {pick.confidence}%
+            </span>
+          )}
+        </div>
       </header>
 
       <section className="border-b border-green-500/40 px-5 py-6 sm:px-6 sm:py-8">
@@ -182,23 +207,22 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
       </section>
 
       <section className={cn("grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2", isLocked && "blur-sm")}>
-        <div className="bg-black/40 px-5 py-4 sm:px-6">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
-          <p className="mt-1.5 space-y-2">
-            <div className="text-sm text-white">
-              <span className="font-semibold text-accent">{pick.pickTitle}</span>
+        <div className="bg-black/40 px-5 py-5 sm:px-6 sm:py-6">
+          <div className="space-y-4">
+            <div>
+              <p className="text-lg sm:text-xl font-bold text-green-400">{pick.pickTitle}</p>
             </div>
             {pick.odds.trim() ? (
-              <div className="inline-flex items-center gap-2 rounded-lg bg-accent/10 px-3 py-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Odds:</span>
-                <span className="text-base font-bold text-accent">{pick.odds.trim()}</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Odds:</span>
+                <span className="text-xl sm:text-2xl font-bold text-green-400">{pick.odds.trim()}</span>
               </div>
             ) : null}
-          </p>
+          </div>
         </div>
-        <div className="bg-black/40 px-5 py-4 sm:border-l sm:border-green-500/40 sm:px-6">
+        <div className="bg-black/40 px-5 py-5 sm:border-l sm:border-green-500/40 sm:px-6 sm:py-6 flex flex-col justify-center">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Pick Posted Time</p>
-          <p className="mt-1.5 text-sm text-white">
+          <p className="mt-2 text-sm font-medium text-white">
             {formatDateTimeLongET(pick.createdAt)}
           </p>
         </div>

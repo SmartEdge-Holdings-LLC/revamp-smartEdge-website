@@ -24,6 +24,7 @@
     "fix:brand-subscriptions": "tsx scripts/fix-brand-subscriptions-structure.ts",
     "fix:subscriptions-direct": "tsx scripts/fix-user-subscriptions-direct.ts",
     "sync:to-subscriptions": "tsx scripts/sync-brand-subscriptions-to-collection.ts",
+    "add:subscription": "tsx scripts/add-subscription-manually.ts",
     "sync:jonah-users": "tsx scripts/sync-jonah-users.ts",
     "sync:user-subscriptions": "tsx scripts/syncUserSubscriptions.ts",
     "import:stripe-subscribers": "tsx scripts/import-missing-stripe-subscribers.ts",

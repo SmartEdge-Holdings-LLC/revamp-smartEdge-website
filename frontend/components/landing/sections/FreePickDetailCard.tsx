@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { CheckCircle2, XCircle, Clock } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { leagueDisplayName, TRACK_RECORD_LINE } from "@/components/landing/free-picks-content";
 import { getPickLeagueLogo, getSportsLeagueLogo } from "@/lib/sports-leagues";
@@ -113,9 +114,10 @@ type FreePickDetailCardProps = {
   pick: PublicPick;
   source: PublicPickSource;
   featured?: boolean;
+  isAdmin?: boolean;
 };
 
-export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCardProps) {
+export function FreePickDetailCard({ pick, source, featured, isAdmin }: FreePickDetailCardProps) {
   const { data: session } = useSession();
   const authorName =
     pick.createdBy?.name ?? (source === "smartedge" ? "SmartEdge® Desk" : "Featured Expert");
@@ -132,7 +134,7 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
   const pickTitle = pick.pickTitle.trim();
   const odds = pick.odds.trim();
 
-  const isLocked = pick.access !== "free";
+  const isLocked = !isAdmin && pick.access !== "free";
 
   return (
     <article className="flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40">
@@ -192,9 +194,34 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
             </Link>
           </div>
         </div>
-        <span className="pricing-accent-gradient inline-flex w-fit shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]">
-          {source === "smartedge" ? "SmartEdge® VIP" : "Jonah VIP"}{pick.confidence ? ` · ${pick.confidence}% confidence` : ""}
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          {pick.result && (
+            <span className={cn(
+              "inline-flex w-fit shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-bold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]",
+              pick.result === "won" ? "bg-emerald-500/30 text-emerald-200 border border-emerald-500/50" : pick.result === "lost" ? "bg-rose-500/30 text-rose-200 border border-rose-500/50" : "bg-yellow-500/30 text-yellow-200 border border-yellow-500/50"
+            )}>
+              {pick.result === "won" ? (
+                <>
+                  <CheckCircle2 className="size-4" />
+                  Won
+                </>
+              ) : pick.result === "lost" ? (
+                <>
+                  <XCircle className="size-4" />
+                  Lost
+                </>
+              ) : (
+                <>
+                  <Clock className="size-4" />
+                  Pending
+                </>
+              )}
+            </span>
+          )}
+          <span className="pricing-accent-gradient inline-flex w-fit shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]">
+            {source === "smartedge" ? "SmartEdge® VIP" : "Jonah VIP"}{pick.confidence ? ` · ${pick.confidence}% confidence` : ""}
+          </span>
+        </div>
       </header>
 
       {/* Matchup hero */}
@@ -214,25 +241,26 @@ export function FreePickDetailCard({ pick, source, featured }: FreePickDetailCar
       </section>
 
       {/* Date & play */}
-      <section className="grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2">
-        <div className="bg-black/40 px-5 py-4 sm:px-7 sm:py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            {pick.matchTime ? "Match time" : "Date / time"}
-          </p>
-          <p className="mt-1.5 text-sm leading-snug text-white sm:text-[15px]">
-            {pick.matchTime ? formatDateTimeLongET(pick.matchTime) : formatDateTimeLongET(pick.createdAt)}
-          </p>
-        </div>
-        <div className="bg-black/40 px-5 py-4 sm:border-l sm:border-green-500/40 sm:px-7 sm:py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Play</p>
-          <p className={cn("mt-1.5 text-sm leading-snug text-white sm:text-[15px]", isLocked && "blur-sm")}>
-            <span className="font-semibold text-accent">{pickTitle}</span>
+      <section className={cn("grid gap-px border-b border-green-500/40 bg-white/5 sm:grid-cols-2", isLocked && "blur-sm")}>
+        <div className="bg-black/40 px-5 py-5 sm:px-7 sm:py-6">
+          <div className="space-y-4">
+            <div>
+              <p className="text-lg sm:text-xl font-bold text-green-400">{pickTitle}</p>
+            </div>
             {odds ? (
-              <span className="text-zinc-400">
-                {" "}
-                <span className="text-zinc-600">·</span> {odds}
-              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Odds:</span>
+                <span className="text-xl sm:text-2xl font-bold text-green-400">{odds}</span>
+              </div>
             ) : null}
+          </div>
+        </div>
+        <div className="bg-black/40 px-5 py-5 sm:border-l sm:border-green-500/40 sm:px-7 sm:py-6 flex flex-col justify-center">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            Pick Posted Time
+          </p>
+          <p className="mt-2 text-sm font-medium text-white">
+            {formatDateTimeLongET(pick.createdAt)}
           </p>
         </div>
       </section>

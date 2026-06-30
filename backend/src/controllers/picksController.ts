@@ -69,8 +69,28 @@ function refinePickBody(data: z.infer<typeof pickBodySchema>, ctx: z.RefinementC
 
 const createPickSchema = pickBodySchema.superRefine(refinePickBody);
 
-/** Zod v4: `.partial()` cannot be applied to schemas with refinements — use the base object. */
-const updatePickSchema = pickBodySchema.partial();
+/** Zod v4: `.partial()` cannot be applied to schemas with refinements — use the base object.
+ * For updates, we need to remove the defaults so they don't override existing values */
+const updatePickBaseSchema = z.object({
+  league: leagueSchema,
+  useCustomMatchup: z.boolean().optional(),
+  awayTeamId: z.string().max(100).optional(),
+  homeTeamId: z.string().max(100).optional(),
+  awayTeamName: z.string().max(120).optional(),
+  homeTeamName: z.string().max(120).optional(),
+  game: z.string().max(500).optional(),
+  pickTitle: z.string().min(1).max(300),
+  detailedAnalysis: z.string().min(1).max(10000).optional().or(z.literal("")),
+  odds: z.string().min(1).max(64).optional().or(z.literal("")),
+  betType: betTypeSchema,
+  confidence: z.coerce.number().int().min(1).max(100).optional(),
+  access: z.array(pickAccessSchema).min(1).optional(),
+  status: pickStatusSchema,
+  matchTime: z.string().datetime().optional(),
+  isPickOfDay: z.boolean().optional(),
+  result: z.enum(PICK_RESULTS).optional(),
+});
+const updatePickSchema = updatePickBaseSchema.partial();
 
 const listPicksQuerySchema = z
   .object({

@@ -26,6 +26,41 @@ const FEED_META: Record<
   },
 };
 
+function getDateLabel(date: Date): string {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const dateStr = date.toDateString();
+  const todayStr = today.toDateString();
+  const yesterdayStr = yesterday.toDateString();
+
+  if (dateStr === todayStr) return "Today's Picks";
+  if (dateStr === yesterdayStr) return "Yesterday's Picks";
+  return date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+}
+
+function groupPicksByDate(picks: any[]): Array<{ date: Date; label: string; picks: any[] }> {
+  const grouped = new Map<string, any[]>();
+
+  picks.forEach((pick) => {
+    const pickDate = new Date(pick.createdAt);
+    const dateKey = pickDate.toDateString();
+    if (!grouped.has(dateKey)) {
+      grouped.set(dateKey, []);
+    }
+    grouped.get(dateKey)!.push(pick);
+  });
+
+  return Array.from(grouped.entries())
+    .map(([dateStr, picksForDate]) => ({
+      date: new Date(dateStr),
+      label: getDateLabel(new Date(dateStr)),
+      picks: picksForDate,
+    }))
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+}
+
 type DashboardPaidPicksFeedProps = {
   feed: PaidPickFeed;
   token: string;
@@ -57,7 +92,11 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalys
     })
       .then((res) => {
         if (cancelled) return;
-        setPicks(enrichPaidPicks(res.picks, { stripAnalysis: !showFullAnalysis }));
+        const enriched = enrichPaidPicks(res.picks, { stripAnalysis: !showFullAnalysis });
+        const sorted = enriched.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setPicks(sorted);
       })
       .catch((err) => {
         if (cancelled) return;
@@ -89,16 +128,26 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalys
           {error}
         </div>
       ) : (
-        <div className="space-y-6">
-          {picks.length > 0 && (
-            <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
-              {picks.map((pick) => (
-                <div key={pick._id} className="flex h-full w-full min-w-0">
-                  <DashboardPickDetailCard pick={pick} feed={feed} showFullAnalysis={showFullAnalysis} />
-                </div>
-              ))}
+        <div className="space-y-12">
+          {picks.length > 0 && groupPicksByDate(picks).map((group, groupIndex) => (
+            <div key={group.label}>
+              <div className={groupIndex > 0 ? "pt-8 border-t border-white/10" : ""}>
+                <h3 className="text-left text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-wide text-white">
+                  {group.label}
+                </h3>
+                <p className="mt-1 text-left text-xs text-zinc-500">
+                  Premium picks with full matchup, odds, and analysis
+                </p>
+              </div>
+              <div className="mt-6 grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
+                {group.picks.map((pick) => (
+                  <div key={pick._id} className="flex h-full w-full min-w-0">
+                    <DashboardPickDetailCard pick={pick} feed={feed} showFullAnalysis={showFullAnalysis} />
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
+          ))}
 
           {picks.length === 0 && (
             <div className="rounded-xl border border-white/10 bg-white/5 px-5 py-10 text-center text-sm text-subtle">

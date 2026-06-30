@@ -167,6 +167,7 @@ export const memberPicksController = {
           detailedAnalysis: lockedMessage,
           odds: "Locked",
           confidence: 0,
+          result: pick.result,
         };
       });
 
@@ -241,6 +242,7 @@ export const memberPicksController = {
           detailedAnalysis: lockedMessage,
           odds: "Locked",
           confidence: 0,
+          result: pick.result,
         };
       });
 

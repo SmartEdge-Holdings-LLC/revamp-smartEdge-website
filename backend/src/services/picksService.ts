@@ -89,6 +89,7 @@ export type PublicPickDto = {
   status: "active";
   matchTime?: Date;
   isPickOfDay?: boolean;
+  result?: PickResult;
   createdBy?: PublicPickAuthor;
   createdAt: Date;
   updatedAt: Date;
@@ -138,6 +139,7 @@ function toMemberPick(
     status: "active" as const,
     matchTime: hydrated.matchTime as Date | undefined,
     isPickOfDay: hydrated.isPickOfDay as boolean | undefined,
+    result: hydrated.result as PickResult | undefined,
     createdBy,
     createdAt: hydrated.createdAt as Date,
     updatedAt: hydrated.updatedAt as Date,
@@ -173,6 +175,7 @@ function toPaidPick(pick: Record<string, unknown>): PaidPickDto {
     status: "active" as const,
     matchTime: hydrated.matchTime as Date | undefined,
     isPickOfDay: hydrated.isPickOfDay as boolean | undefined,
+    result: hydrated.result as PickResult | undefined,
     createdBy,
     createdAt: hydrated.createdAt as Date,
     updatedAt: hydrated.updatedAt as Date,

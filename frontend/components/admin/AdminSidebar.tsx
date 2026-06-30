@@ -132,7 +132,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
   }, []);
 
   const handicapperOnly = isHandicapperRole(role);
-  const homeHref = "/admin";
+  const homeHref = "/";
 
   return (
     <Sidebar

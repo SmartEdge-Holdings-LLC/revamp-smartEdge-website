@@ -28,6 +28,7 @@ export interface PublicPick {
   status: "active";
   matchTime?: string;
   isPickOfDay?: boolean;
+  result?: "pending" | "won" | "lost";
   createdBy?: PublicPickAuthor;
   createdAt: string;
   updatedAt: string;

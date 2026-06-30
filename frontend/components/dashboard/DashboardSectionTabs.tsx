@@ -33,15 +33,14 @@ export function DashboardSectionTabs<T extends string>({
             type="button"
             onClick={() => onChange(tab.id)}
             className={cn(
-              "relative -mb-px cursor-pointer pb-3 text-sm transition-colors",
-              isActive ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+              "relative cursor-pointer px-4 py-2 text-lg font-semibold transition-colors rounded-t-md",
+              isActive
+                ? "bg-green-500/20 text-white border-t-4 border-l-4 border-r-4 border-white"
+                : "text-zinc-500 hover:text-zinc-300"
             )}
             aria-current={isActive ? "page" : undefined}
           >
             {tab.label}
-            {isActive ? (
-              <span className="absolute inset-x-0 bottom-0 h-px bg-white" aria-hidden />
-            ) : null}
           </button>
         );
       })}

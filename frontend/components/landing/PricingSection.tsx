@@ -91,7 +91,7 @@ interface PlanConfig {
 const SMARTEDGE_PLANS: PlanConfig[] = [
   {
     key: "vip",
-    name: "Monthly VIP",
+    name: "Smartedge Monthly VIP",
     description: "Our Standard VIP package for consistent, long-term edge",
     tagline:
       "Perfect for ALL bettors seeking consistent and long term profitability!",
@@ -103,7 +103,7 @@ const SMARTEDGE_PLANS: PlanConfig[] = [
   },
   {
     key: "vip-premium",
-    name: "Monthly VIP Premium",
+    name: "Smartedge Monthly VIP PREMIUM",
     description: "Full suite of exclusive picks, alerts, and premium access",
     tagline:
       "OUR FULL SUITE OF PICKS for serious bettors seeking an elite edge and premium access!",
@@ -117,7 +117,7 @@ const SMARTEDGE_PLANS: PlanConfig[] = [
 const JONAH_PLANS: PlanConfig[] = [
   {
     key: "vip",
-    name: "Jonah's Monthly Standard",
+    name: "Jonah's Monthly VIP",
     description: "Month of Jonah's daily picks — best value for followers",
     price: 29.99,
     compareAtPrice: 35,
@@ -128,7 +128,7 @@ const JONAH_PLANS: PlanConfig[] = [
   },
   {
     key: "vip-premium",
-    name: "Jonah's Monthly VIP",
+    name: "Jonah's Monthly PREMIUM VIP",
     description: "Jonah's VIP card plays, breakdowns & priority access",
     price: 75,
     compareAtPrice: 105,
