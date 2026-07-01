@@ -14,6 +14,7 @@ import {
   SportsCoverageSection,
   StatsBarSection,
   TestimonialsSection,
+  WhosHotWidget,
 } from "@/components/landing/sections";
 
 export const metadata: Metadata = {

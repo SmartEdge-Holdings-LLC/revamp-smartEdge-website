@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { SportsSlider } from "@/components/landing/SportsSlider";
+import { WhosHotWidget } from "./sections";
 
 export function Hero() {
   return (
-    <section className="relative z-10 w-full min-h-screen flex items-center justify-center px-3 sm:px-4 md:px-6 text-slate-100">
-      <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-8 sm:gap-10 md:gap-12 lg:flex-row lg:items-center lg:gap-16">
+    <section className="relative z-10 w-full min-h-screen flex items-center justify-center px-8 sm:px-12 md:px-16 lg:px-24 xl:px-32 2xl:px-40 text-slate-100">
+      <div className="mx-auto flex w-full max-w-8xl flex-col items-center gap-8 sm:gap-10 md:gap-12 lg:flex-row lg:items-center lg:gap-16">
         {/* Left — Text & CTA */}
         <div className="flex flex-1 flex-col items-center text-center lg:items-start lg:text-left w-full lg:max-w-[55%]">
           <div className="inline-flex items-center rounded-full border border-white/18 bg-white/5 px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 text-[10px] sm:text-xs md:text-sm font-medium uppercase tracking-[0.14em] text-slate-200/95 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.1)] backdrop-blur-2xl">
@@ -44,7 +45,7 @@ export function Hero() {
 
         {/* Right — Sports logos */}
         <div className="w-full shrink-0 lg:w-[45%] mt-4 sm:mt-6 md:mt-8 lg:mt-0">
-          <SportsSlider />
+        <WhosHotWidget />
         </div>
       </div>
     </section>

@@ -8,3 +8,4 @@ export { WhyTrustSection } from "./WhyTrustSection";
 export { NewsSection } from "./NewsSection";
 export { FaqSection } from "./FaqSection";
 export { LandingFooter } from "./LandingFooter";
+export { WhosHotWidget } from "./WhosHotWidget";
