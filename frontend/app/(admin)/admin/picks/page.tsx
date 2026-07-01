@@ -99,8 +99,7 @@ function getPickAccessArray(pick: AdminPick): PickAccess[] {
   if (Array.isArray(pick.access)) {
     return pick.access as PickAccess[];
   }
-  // Handle legacy single string format
-  return [(pick.access as PickAccess) || "free"];
+  return [];
 }
 
 function statusBadgeClass(status: PickStatus) {

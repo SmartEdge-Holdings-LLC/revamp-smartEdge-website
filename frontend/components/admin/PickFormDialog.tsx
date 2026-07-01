@@ -70,7 +70,7 @@ const emptyForm = (isHandicapper: boolean): PickFormState => ({
   odds: "",
   betType: "spread",
   confidence: 75,
-  access: isHandicapper ? ["jonahvip"] : ["smartedgeVIPPremium"],
+  access: [],
   status: "active",
   matchTimeLocal: "",
   hasConfidence: false,

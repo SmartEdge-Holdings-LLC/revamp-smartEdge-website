@@ -32,28 +32,12 @@ function mapPlanNameToAccessType(planName: string | null | undefined, brand: "jo
   return null;
 }
 
-/** Check if user's tier grants access to required tier (higher tiers have access to lower tiers) */
+/** Check if user's tier grants access to required tiers (exact match or free only) */
 function userTierGrantsAccess(userTier: string | null, requiredTiers: string[]): boolean {
   if (!userTier) return false;
 
-  const tierHierarchy = {
-    "smartedgeVIPPremium": 3,
-    "jonah-vip-premium": 3,
-    "smartedgeVIP": 2,
-    "jonahvip": 2,
-    "free": 1,
-  };
-
-  const userTierValue = tierHierarchy[userTier as keyof typeof tierHierarchy] || 0;
-
-  for (const requiredTier of requiredTiers) {
-    const requiredTierValue = tierHierarchy[requiredTier as keyof typeof tierHierarchy] || 0;
-    if (userTierValue >= requiredTierValue) {
-      return true;
-    }
-  }
-
-  return false;
+  // User can access if they have exact match or if pick is free
+  return requiredTiers.includes(userTier) || requiredTiers.includes("free");
 }
 
 const listPaidQuerySchema = z
@@ -180,7 +164,7 @@ export const memberPicksController = {
           return pick;
         }
 
-        // Determine which plan to recommend based on access requirements
+        // Show locked version with upgrade message
         let lockedMessage = "Purchase the SmartEdge plan to view the pick";
         if (pickAccessArray.includes("smartedgeVIPPremium")) {
           lockedMessage = "Purchase the SmartEdge Premium plan to view this pick";
@@ -192,7 +176,7 @@ export const memberPicksController = {
 
         return {
           ...pick,
-          pickTitle: "Premium Pick - Upgrade to view",
+          pickTitle: pick.pickTitle,
           detailedAnalysis: lockedMessage,
           odds: "Locked",
           confidence: 0,
@@ -263,7 +247,7 @@ export const memberPicksController = {
           return pick;
         }
 
-        // Determine which plan to recommend based on access requirements
+        // Show locked version with upgrade message
         let lockedMessage = "Purchase a Jonah plan to view this pick";
         if (pickAccessArray.includes("jonah-vip-premium")) {
           lockedMessage = "Purchase Jonah's Monthly VIP plan to view this pick";
@@ -273,7 +257,7 @@ export const memberPicksController = {
 
         return {
           ...pick,
-          pickTitle: "Premium Pick - Upgrade to view",
+          pickTitle: pick.pickTitle,
           detailedAnalysis: lockedMessage,
           odds: "Locked",
           confidence: 0,
