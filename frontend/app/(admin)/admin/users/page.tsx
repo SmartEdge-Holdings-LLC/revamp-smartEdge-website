@@ -50,7 +50,7 @@ import {
 
 const PAGE_SIZE = 20;
 
-const COLUMN_COUNT = 10;
+const COLUMN_COUNT = 9;
 
 const STATUS_OPTIONS: { value: SubscriptionStatus; label: string }[] = [
   { value: "active", label: "Active" },
@@ -59,6 +59,11 @@ const STATUS_OPTIONS: { value: SubscriptionStatus; label: string }[] = [
   { value: "past_due", label: "Past due" },
   { value: "canceled", label: "Canceled" },
   { value: "unpaid", label: "Unpaid" },
+];
+
+const LOGIN_STATUS_OPTIONS: { value: "has_login" | "no_login"; label: string }[] = [
+  { value: "has_login", label: "Has logged in" },
+  { value: "no_login", label: "Never logged in" },
 ];
 
 /**
@@ -164,6 +169,9 @@ export default function UsersPage() {
   const [selectedStatuses, setSelectedStatuses] = React.useState<
     Set<SubscriptionStatus>
   >(() => new Set());
+  const [selectedLoginStatus, setSelectedLoginStatus] = React.useState<
+    Set<"has_login" | "no_login">
+  >(() => new Set());
   const [joinedFrom, setJoinedFrom] = React.useState("");
   const [joinedTo, setJoinedTo] = React.useState("");
   const [data, setData] = React.useState<ListUsersResponse | null>(null);
@@ -210,12 +218,25 @@ export default function UsersPage() {
     []
   );
 
+  const toggleLoginStatus = React.useCallback(
+    (value: "has_login" | "no_login", checked: boolean) => {
+      setSelectedLoginStatus((prev) => {
+        const next = new Set(prev);
+        if (checked) next.add(value);
+        else next.delete(value);
+        return next;
+      });
+    },
+    []
+  );
+
   const fetchUsers = React.useCallback(
     async (
       targetPage: number,
       search: string,
       status: SubscriptionStatus[],
-      range: { from: string; to: string }
+      range: { from: string; to: string },
+      loginStatus?: ("has_login" | "no_login")[]
     ) => {
       setLoading(true);
       setError(null);
@@ -227,6 +248,7 @@ export default function UsersPage() {
           status: status.length > 0 ? status : undefined,
           joinedFrom: range.from || undefined,
           joinedTo: range.to || undefined,
+          hasLoggedIn: loginStatus?.includes("has_login") ? true : loginStatus?.includes("no_login") ? false : undefined,
         });
         setData(result);
       } catch (err) {
@@ -250,18 +272,27 @@ export default function UsersPage() {
     return () => clearTimeout(id);
   }, [searchInput]);
 
+  const loginStatusKey = Array.from(selectedLoginStatus).sort().join(",");
+  const loginStatusFilter = React.useMemo<("has_login" | "no_login")[]>(
+    () =>
+      LOGIN_STATUS_OPTIONS.filter((opt) => selectedLoginStatus.has(opt.value)).map(
+        (opt) => opt.value
+      ),
+    [selectedLoginStatus]
+  );
+
   React.useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, statusKey, dateKey]);
+  }, [debouncedSearch, statusKey, dateKey, loginStatusKey]);
 
   const lastFetchedKeyRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    const key = `${page}|${debouncedSearch}|${statusKey}|${dateKey}`;
+    const key = `${page}|${debouncedSearch}|${statusKey}|${dateKey}|${loginStatusKey}`;
     if (lastFetchedKeyRef.current === key) return;
     lastFetchedKeyRef.current = key;
-    fetchUsers(page, debouncedSearch, statusFilter, dateRange);
-  }, [fetchUsers, page, debouncedSearch, statusKey, dateKey, statusFilter, dateRange]);
+    fetchUsers(page, debouncedSearch, statusFilter, dateRange, loginStatusFilter);
+  }, [fetchUsers, page, debouncedSearch, statusKey, dateKey, loginStatusKey, statusFilter, dateRange, loginStatusFilter]);
 
   const totalPages = data?.totalPages ?? 1;
   const total = data?.total ?? 0;
@@ -270,8 +301,8 @@ export default function UsersPage() {
 
   const refreshList = React.useCallback(() => {
     lastFetchedKeyRef.current = null;
-    void fetchUsers(page, debouncedSearch, statusFilter, dateRange);
-  }, [fetchUsers, page, debouncedSearch, statusFilter, dateRange]);
+    void fetchUsers(page, debouncedSearch, statusFilter, dateRange, loginStatusFilter);
+  }, [fetchUsers, page, debouncedSearch, statusFilter, dateRange, loginStatusFilter]);
 
   const handleUserDeleted = React.useCallback(() => {
     if (selectedUser?._id === userToDelete?._id) {
@@ -451,6 +482,66 @@ export default function UsersPage() {
               </PopoverContent>
             </Popover>
 
+            {/* Login status filter (popover) */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-9 gap-2 border-white/12 bg-white/5 px-3 typo-body-sm text-slate-100 hover:bg-white/10 hover:text-white",
+                    selectedLoginStatus.size > 0 && "border-accent/40 text-white"
+                  )}
+                >
+                  <ListFilter className="size-4" />
+                  Login Status
+                  {selectedLoginStatus.size > 0 ? (
+                    <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 typo-caption font-semibold text-accent-foreground">
+                      {selectedLoginStatus.size}
+                    </span>
+                  ) : null}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                className="w-56 border-white/10 bg-[#0a0a0a] p-1 text-slate-100"
+              >
+                <div className="flex items-center justify-between px-2 pb-1 pt-1.5">
+                  <span className="typo-caption uppercase tracking-[0.12em] text-subtle">
+                    Login status
+                  </span>
+                  {selectedLoginStatus.size > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLoginStatus(new Set())}
+                      className="typo-caption text-slate-400 transition hover:text-slate-100"
+                    >
+                      Reset
+                    </button>
+                  ) : null}
+                </div>
+                <div className="flex flex-col">
+                  {LOGIN_STATUS_OPTIONS.map((opt) => {
+                    const checked = selectedLoginStatus.has(opt.value);
+                    return (
+                      <label
+                        key={opt.value}
+                        className="flex cursor-pointer select-none items-center gap-2.5 rounded-md px-2 py-1.5 transition hover:bg-white/5"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(value) => toggleLoginStatus(opt.value, value === true)}
+                          aria-label={`Show ${opt.label.toLowerCase()} users`}
+                        />
+                        <span className="typo-body-sm text-slate-200">{opt.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+
             <div className="ml-auto flex items-center gap-2">
               <Button
                 type="button"
@@ -458,7 +549,7 @@ export default function UsersPage() {
                 size="sm"
                 onClick={() => {
                   lastFetchedKeyRef.current = null;
-                  fetchUsers(page, debouncedSearch, statusFilter, dateRange);
+                  fetchUsers(page, debouncedSearch, statusFilter, dateRange, loginStatusFilter);
                 }}
                 disabled={loading}
                 aria-label="Refresh"
@@ -474,7 +565,8 @@ export default function UsersPage() {
           {debouncedSearch ||
           statusFilter.length > 0 ||
           dateRange.from ||
-          dateRange.to ? (
+          dateRange.to ||
+          selectedLoginStatus.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 py-5">
               {debouncedSearch ? (
                 <FilterChip
@@ -511,6 +603,16 @@ export default function UsersPage() {
                   }}
                 />
               ) : null}
+              {LOGIN_STATUS_OPTIONS.filter((opt) => selectedLoginStatus.has(opt.value)).map(
+                (opt) => (
+                  <FilterChip
+                    key={opt.value}
+                    label="Login Status"
+                    value={opt.label}
+                    onRemove={() => toggleLoginStatus(opt.value, false)}
+                  />
+                )
+              )}
 
               <button
                 type="button"
@@ -519,6 +621,7 @@ export default function UsersPage() {
                   setSelectedStatuses(new Set());
                   setJoinedFrom("");
                   setJoinedTo("");
+                  setSelectedLoginStatus(new Set());
                 }}
                 className="typo-caption text-slate-400 underline-offset-2 transition hover:text-slate-100 hover:underline"
               >
@@ -553,7 +656,6 @@ export default function UsersPage() {
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">User</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Plan</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Status</TableHead>
-                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">WP Role</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Phone</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Location</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Stripe Cust.</TableHead>
@@ -610,7 +712,6 @@ export default function UsersPage() {
                         {adminUserAggregateStatus(u).replace("_", " ")}
                       </Badge>
                     </TableCell>
-                    <TableCell className="typo-body-sm text-white">{u.wpRole ?? "—"}</TableCell>
                     <TableCell className="typo-body-sm text-white">{u.phoneNumber ?? "—"}</TableCell>
                     <TableCell className="typo-body-sm text-white">{formatLocation(u)}</TableCell>
                     <TableCell className="font-mono typo-caption text-white">

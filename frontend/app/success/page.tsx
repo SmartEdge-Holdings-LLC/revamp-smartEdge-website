@@ -63,7 +63,7 @@ function SuccessContent() {
           body: JSON.stringify({ sessionId }),
         });
         const syncData = (await syncRes.json()) as {
-          subscription?: Pick<BackendMemberUser, "entitlements" | "brandSubscriptions">;
+          subscription?: Pick<BackendMemberUser, "brandSubscriptions">;
         };
 
         const token = session?.user?.backendToken;
@@ -77,11 +77,10 @@ function SuccessContent() {
             await updateSession({
               user: mapBackendMemberToSessionUser(user, token),
             });
-          } else if (syncRes.ok && session?.user && syncData.subscription?.entitlements) {
+          } else if (syncRes.ok && session?.user && syncData.subscription?.brandSubscriptions) {
             await updateSession({
               user: {
                 ...session.user,
-                entitlements: syncData.subscription.entitlements,
                 brandSubscriptions:
                   syncData.subscription.brandSubscriptions ?? session.user.brandSubscriptions,
               },

@@ -9,6 +9,9 @@ const router = Router();
 router.get("/paid/admin", authMiddleware, memberPicksController.listAdminPaid);
 router.get("/paid/jonah", authMiddleware, memberPicksController.listJonahPaid);
 
+/** Public hottest picks (status=active AND hottestPick=true, no auth). */
+router.get("/hottest", publicPicksController.listHottestPicks);
+
 /** Public free picks for marketing site (no auth). */
 router.get("/", publicPicksController.list);
 router.get("/:id", publicPicksController.getOne);

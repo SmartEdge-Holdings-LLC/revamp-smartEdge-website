@@ -45,6 +45,8 @@ export type PickCreateInput = {
   status: PickStatus;
   matchTime?: string;
   isPickOfDay?: boolean;
+  hottestPick?: boolean;
+  profit?: number;
   createdBy: string;
 };
 
@@ -398,6 +400,8 @@ export const picksService = {
       status: input.status,
       matchTime: input.matchTime ? new Date(input.matchTime) : undefined,
       isPickOfDay: input.isPickOfDay,
+      hottestPick: input.hottestPick,
+      profit: input.profit,
       createdBy: input.createdBy,
     });
     return this.findById(pick._id.toString());
@@ -637,6 +641,8 @@ export const picksService = {
       update.matchTime = input.matchTime ? new Date(input.matchTime) : undefined;
     }
     if (input.isPickOfDay !== undefined) update.isPickOfDay = input.isPickOfDay;
+    if (input.hottestPick !== undefined) update.hottestPick = input.hottestPick;
+    if (input.profit !== undefined) update.profit = input.profit;
     if (input.result !== undefined) update.result = input.result;
 
     const pick = await Pick.findByIdAndUpdate(id, update, { new: true, runValidators: true });
@@ -684,5 +690,34 @@ export const picksService = {
         await entry.save();
       }
     }
+  },
+
+  async findHottestPicked(options: { page: number; limit: number }) {
+    const { page, limit } = options;
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      status: "active",
+      hottestPick: true,
+    };
+
+    const [picks, total] = await Promise.all([
+      Pick.find(filter)
+        .sort({ createdAt: -1 })
+        .populate("createdBy", CREATED_BY_FIELDS)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Pick.countDocuments(filter),
+    ]);
+
+    const totalPages = limit > 0 ? Math.ceil(total / limit) : 0;
+    return {
+      picks: picks.map((p) => hydratePickMatchup(p)),
+      page,
+      limit,
+      total,
+      totalPages,
+    };
   },
 };

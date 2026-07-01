@@ -17,6 +17,7 @@ export interface AdminUserListItem {
   discordUsername?: string | null;
   wpRole?: string | null;
   brandSubscriptions?: UserBrandSubscriptions;
+  lastLoginAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,7 +28,7 @@ export function adminUserPlansLabel(u: AdminUserListItem): string {
   if (!bs) return "—";
   const parts: string[] = [];
 
-  // Handle smartedge subscriptions (array) - show ALL active plans
+  // Handle smartedge subscriptions (array) - show active paid plans
   if (Array.isArray(bs.smartedge) && bs.smartedge.length > 0) {
     const activeSubs = bs.smartedge.filter(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
     if (activeSubs.length > 0) {
@@ -41,7 +42,7 @@ export function adminUserPlansLabel(u: AdminUserListItem): string {
     }
   }
 
-  // Handle jonah subscriptions (array) - show ALL active plans
+  // Handle jonah subscriptions (array) - show active paid plans
   if (Array.isArray(bs.jonah) && bs.jonah.length > 0) {
     const activeSubs = bs.jonah.filter(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
     if (activeSubs.length > 0) {
@@ -55,7 +56,7 @@ export function adminUserPlansLabel(u: AdminUserListItem): string {
     }
   }
 
-  return parts.length > 0 ? parts.join(" · ") : "free";
+  return parts.length > 0 ? parts.join(" · ") : "—";
 }
 
 export function adminUserAggregateStatus(u: AdminUserListItem): SubscriptionStatus {

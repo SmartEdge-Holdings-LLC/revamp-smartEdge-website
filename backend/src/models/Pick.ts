@@ -40,6 +40,10 @@ export interface IPick extends Document {
   matchTime?: Date;
   /** Mark this pick as Pick/Lock of the Day */
   isPickOfDay?: boolean;
+  /** Mark this pick as Hottest Pick */
+  hottestPick?: boolean;
+  /** Profit amount from this pick */
+  profit?: number;
   result: PickResult;
   createdBy: Types.ObjectId;
   createdAt: Date;
@@ -65,6 +69,8 @@ const pickSchema = new Schema<IPick>(
     status: { type: String, enum: PICK_STATUS, required: true, default: "active" },
     matchTime: { type: Date },
     isPickOfDay: { type: Boolean, default: false },
+    hottestPick: { type: Boolean, default: false },
+    profit: { type: Number },
     result: { type: String, enum: PICK_RESULTS, default: "pending" },
     createdBy: { type: Schema.Types.ObjectId, ref: "Admin", required: true },
   },

@@ -1,7 +1,6 @@
 import type { IUser } from "../models/User";
 import { isMemberOnboardingComplete } from "./onboarding";
 import { normalizeBrandSubscriptions } from "./userBrandSubscriptions";
-import { getMemberEntitlements } from "../services/subscriptionEntitlementsService";
 
 function snapshotToClient(
   snap: IUser["brandSubscriptions"]["smartedge"]
@@ -48,7 +47,6 @@ function brandSubscriptionsToClient(bs: IUser["brandSubscriptions"]) {
 
 /** Member fields safe for API responses (never includes `password`). */
 export async function serializeMemberForClient(user: IUser) {
-  const entitlements = await getMemberEntitlements(user._id.toString());
   return {
     _id: user._id.toString(),
     email: user.email,
@@ -64,7 +62,6 @@ export async function serializeMemberForClient(user: IUser) {
     phoneNumber: user.phoneNumber ?? null,
     wpRole: user.wpRole ?? null,
     brandSubscriptions: brandSubscriptionsToClient(user.brandSubscriptions),
-    entitlements,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     onboarding: isMemberOnboardingComplete(user),

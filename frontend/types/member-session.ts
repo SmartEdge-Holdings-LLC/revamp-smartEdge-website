@@ -1,5 +1,4 @@
 import type { UserBrandSubscriptions } from "@/types/brand-subscriptions";
-import type { MemberEntitlements } from "@/types/entitlements";
 import { isMemberOnboardingComplete } from "@/lib/profile-fields";
 
 /** Public member profile returned by the backend and stored in NextAuth session/JWT. */
@@ -21,7 +20,6 @@ export interface BackendMemberUser {
   createdAt?: string | Date;
   updatedAt?: string | Date;
   onboarding?: boolean;
-  entitlements?: MemberEntitlements;
 }
 
 /** Shape exposed on `GET /api/auth/session` → `session.user`. */
@@ -45,7 +43,6 @@ export interface SessionMemberUser {
   createdAt?: string;
   updatedAt?: string;
   onboarding: boolean;
-  entitlements?: MemberEntitlements;
 }
 
 function toIso(value: string | Date | null | undefined): string | null {
@@ -97,7 +94,6 @@ export function mapBackendMemberToSessionUser(
     brandSubscriptions: normalizeBrandSubscriptionsForSession(user.brandSubscriptions),
     createdAt: toIso(user.createdAt) ?? undefined,
     updatedAt: toIso(user.updatedAt) ?? undefined,
-    entitlements: user.entitlements,
     onboarding:
       typeof user.onboarding === "boolean"
         ? user.onboarding

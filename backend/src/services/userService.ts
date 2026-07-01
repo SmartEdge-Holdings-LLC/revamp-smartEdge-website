@@ -39,6 +39,9 @@ export const userService = {
     const valid = await bcrypt.compare(input.password, user.password);
     if (!valid) throw new Error("Invalid credentials");
 
+    user.lastLoginAt = new Date();
+    await user.save();
+
     const token = jwt.sign(
       { userId: user._id.toString() },
       env.jwtSecret,
@@ -73,6 +76,7 @@ export const userService = {
    * Optional `search` performs a case-insensitive substring match on `email`.
    * Optional `status` filters either brand's `subscriptionStatus` (OR).
    * Optional `joinedFrom` / `joinedTo` filter on `createdAt` (inclusive of both endpoints).
+   * Optional `hasLoggedIn` filters users by whether they have logged in (true/false).
    */
   async findPagedForAdmin(options: {
     page: number;
@@ -81,8 +85,9 @@ export const userService = {
     status?: string[];
     joinedFrom?: Date;
     joinedTo?: Date;
+    hasLoggedIn?: boolean;
   }) {
-    const { page, limit, search, status, joinedFrom, joinedTo } = options;
+    const { page, limit, search, status, joinedFrom, joinedTo, hasLoggedIn } = options;
     const skip = (page - 1) * limit;
 
     const filter: Record<string, unknown> = {};
@@ -105,9 +110,21 @@ export const userService = {
       if (joinedTo) range.$lte = joinedTo;
       filter.createdAt = range;
     }
+    if (hasLoggedIn !== undefined) {
+      if (hasLoggedIn) {
+        filter.lastLoginAt = { $ne: null };
+      } else {
+        filter.lastLoginAt = null;
+      }
+    }
 
     const [users, total] = await Promise.all([
-      User.find(filter).sort({ createdAt: -1 }).select("-password").skip(skip).limit(limit).lean(),
+      User.find(filter)
+        .sort({ createdAt: -1 })
+        .select("-password -wpRole -subscriptionId -subscriptionStatus -currentPlan -priceId -currentPeriodEnd -cancelAtPeriodEnd")
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       User.countDocuments(filter),
     ]);
     const totalPages = Math.ceil(total / limit) || 1;

@@ -13,8 +13,8 @@ import {
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getActiveBrandPlans } from "@/lib/subscription-access";
 import { Subscription } from "@/types";
+import type { UserBrandSubscriptions } from "@/types/brand-subscriptions";
 import type { LucideIcon } from "lucide-react";
 import { BillingHistory } from "@/components/billing/BillingHistory";
 import { BillingPaymentMethods } from "@/components/billing/BillingPaymentMethods";
@@ -22,7 +22,6 @@ import {
   billingPanelClass,
   billingSecondaryButtonClass,
 } from "@/components/billing/billing-styles";
-import type { MemberEntitlements } from "@/types/entitlements";
 
 type BillingTab = "overview" | "payment-methods" | "billing-history";
 
@@ -104,7 +103,8 @@ function BillingNavItem({
   );
 }
 
-function formatPlanLabel(plan: string) {
+function formatPlanLabel(plan: string | undefined) {
+  if (!plan) return "Unknown Plan";
   return plan
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/_/g, " ")
@@ -169,16 +169,14 @@ function BillingPlanCard({
 }
 
 function BillingEntitlementOverview({
-  entitlements,
   subscription,
 }: {
-  entitlements?: MemberEntitlements;
   subscription: Subscription;
 }) {
   const rows = [
-    entitlements?.smartedge ? { key: "smartedge", ent: entitlements.smartedge } : null,
-    entitlements?.jonah ? { key: "jonah", ent: entitlements.jonah } : null,
-  ].filter(Boolean) as { key: string; ent: NonNullable<MemberEntitlements["smartedge"]> }[];
+    subscription.entitlements?.smartedge ? { key: "smartedge", ent: subscription.entitlements.smartedge } : null,
+    subscription.entitlements?.jonah ? { key: "jonah", ent: subscription.entitlements.jonah } : null,
+  ].filter(Boolean) as { key: string; ent: any }[];
 
   if (rows.length === 0) {
     return (
@@ -215,7 +213,7 @@ function hasBillingAlert(subscription: Subscription) {
     return true;
   }
   if (rows.some((e) => e?.cancelAtPeriodEnd)) return true;
-  return getActiveBrandPlans(subscription.entitlements).length === 0;
+  return rows.length === 0;
 }
 
 function alertMessage(subscription: Subscription) {
@@ -226,7 +224,8 @@ function alertMessage(subscription: Subscription) {
   if (ents?.smartedge?.cancelAtPeriodEnd || ents?.jonah?.cancelAtPeriodEnd) {
     return "A plan is set to cancel at period end. Open the customer portal if you want to keep your subscription active.";
   }
-  if (getActiveBrandPlans(subscription.entitlements).length === 0) {
+  const rows = [ents?.smartedge, ents?.jonah].filter(Boolean);
+  if (rows.length === 0) {
     return "You do not have an active subscription. Choose a plan to unlock premium picks and member features.";
   }
   return null;
@@ -241,12 +240,19 @@ async function openStripePortal() {
 
 type DashboardBillingProps = {
   subscription: Subscription;
+  brandSubscriptions?: UserBrandSubscriptions;
 };
 
-export function DashboardBilling({ subscription }: DashboardBillingProps) {
+export function DashboardBilling({ subscription, brandSubscriptions }: DashboardBillingProps) {
   const router = useRouter();
   const [tab, setTab] = useState<BillingTab>("overview");
-  const activeBrands = getActiveBrandPlans(subscription.entitlements);
+  const smartedgePlans = Array.isArray(brandSubscriptions?.smartedge)
+    ? brandSubscriptions.smartedge.filter((s) => s?.subscriptionStatus === "active")
+    : [];
+  const jonahPlans = Array.isArray(brandSubscriptions?.jonah)
+    ? brandSubscriptions.jonah.filter((s) => s?.subscriptionStatus === "active")
+    : [];
+  const activeBrands = [...smartedgePlans, ...jonahPlans] as any[];
   const alertText = alertMessage(subscription);
   const showAlert = hasBillingAlert(subscription) && alertText;
 
@@ -350,7 +356,6 @@ export function DashboardBilling({ subscription }: DashboardBillingProps) {
             {[subscription.entitlements?.smartedge, subscription.entitlements?.jonah].filter(Boolean)
               .length > 1 ? (
               <BillingEntitlementOverview
-                entitlements={subscription.entitlements}
                 subscription={subscription}
               />
             ) : null}

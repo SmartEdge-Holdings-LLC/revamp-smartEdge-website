@@ -56,7 +56,7 @@ import { BET_TYPE_LABELS, PICK_ACCESS_LABELS, PICK_STATUS_LABELS } from "@/types
 import type { League } from "@/types/picks";
 
 const PAGE_SIZE = 20;
-const COLUMN_COUNT = 12;
+const COLUMN_COUNT = 13;
 
 function authorName(pick: AdminPick) {
   const cb = pick.createdBy;
@@ -348,6 +348,17 @@ export default function AdminPicksPage() {
     }
   };
 
+  const handleHottestPickChange = async (pick: AdminPick, hottestPick: boolean) => {
+    try {
+      await updateAdminPick(pick._id, { hottestPick });
+      toast.success(`Hottest pick ${hottestPick ? "enabled" : "disabled"}`);
+      lastKeyRef.current = null;
+      fetchPicks(page, debouncedSearch, leagueFilter);
+    } catch (err) {
+      toast.error(err instanceof AdminApiError ? err.message : "Failed to update hottest pick");
+    }
+  };
+
   const totalPages = data?.totalPages ?? 1;
   const total = data?.total ?? 0;
   const showingFrom = data ? (data.page - 1) * data.limit + 1 : 0;
@@ -481,6 +492,7 @@ export default function AdminPicksPage() {
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Match time</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Posted</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Status</TableHead>
+                <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Hottest Pick</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-subtle">Result</TableHead>
                 <TableHead className="typo-caption uppercase tracking-[0.12em] text-right text-subtle">Actions</TableHead>
               </TableRow>
@@ -565,6 +577,21 @@ export default function AdminPicksPage() {
                           }
                           aria-label="Toggle status"
                           className="data-[state=checked]:bg-emerald-500"
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <span className={cn("text-xs font-medium", pick.hottestPick ? "text-accent" : "text-zinc-400")}>
+                          {pick.hottestPick ? "Yes" : "No"}
+                        </span>
+                        <Switch
+                          checked={pick.hottestPick ?? false}
+                          onCheckedChange={(checked) =>
+                            handleHottestPickChange(pick, checked)
+                          }
+                          aria-label="Toggle hottest pick"
+                          className="data-[state=checked]:bg-accent"
                         />
                       </div>
                     </TableCell>
@@ -718,7 +745,7 @@ export default function AdminPicksPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
                   <div className="rounded-lg border border-white/5 bg-white/5 p-3">
                     <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Bet Type</p>
                     <p className="mt-2 text-sm font-medium text-white">{BET_TYPE_LABELS[viewPick.betType]}</p>
@@ -734,6 +761,16 @@ export default function AdminPicksPage() {
                         <TrendingUp className="size-4 text-emerald-500" />
                         <p className="text-sm font-bold text-emerald-400">{viewPick.confidence}%</p>
                       </div>
+                    ) : (
+                      <p className="mt-2 text-sm text-zinc-400">—</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col rounded-lg border border-white/5 bg-white/5 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Profit</p>
+                    {viewPick.profit !== undefined && viewPick.profit !== null ? (
+                      <p className={cn("mt-2 text-sm font-bold", viewPick.profit >= 0 ? "text-emerald-400" : "text-red-400")}>
+                        ${viewPick.profit}
+                      </p>
                     ) : (
                       <p className="mt-2 text-sm text-zinc-400">—</p>
                     )}

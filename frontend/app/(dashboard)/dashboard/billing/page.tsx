@@ -26,7 +26,7 @@ export default async function BillingPage() {
     <>
       <DashboardHeader />
       <div className="min-w-0 flex-1 overflow-x-hidden px-4 py-8 md:px-8 lg:px-12">
-        <DashboardBilling subscription={subscription} />
+        <DashboardBilling subscription={subscription} brandSubscriptions={session.user.brandSubscriptions} />
       </div>
     </>
   );

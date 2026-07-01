@@ -4,7 +4,6 @@ import {
   hasJonahPaidAccess,
   hasSmartedgePaidAccess,
 } from "../lib/subscriptionAccess";
-import { getMemberEntitlements } from "../services/subscriptionEntitlementsService";
 import { LEAGUES, type PickAccess } from "../models/Pick";
 import { picksService } from "../services/picksService";
 
@@ -31,6 +30,30 @@ function mapPlanNameToAccessType(planName: string | null | undefined, brand: "jo
   }
 
   return null;
+}
+
+/** Check if user's tier grants access to required tier (higher tiers have access to lower tiers) */
+function userTierGrantsAccess(userTier: string | null, requiredTiers: string[]): boolean {
+  if (!userTier) return false;
+
+  const tierHierarchy = {
+    "smartedgeVIPPremium": 3,
+    "jonah-vip-premium": 3,
+    "smartedgeVIP": 2,
+    "jonahvip": 2,
+    "free": 1,
+  };
+
+  const userTierValue = tierHierarchy[userTier as keyof typeof tierHierarchy] || 0;
+
+  for (const requiredTier of requiredTiers) {
+    const requiredTierValue = tierHierarchy[requiredTier as keyof typeof tierHierarchy] || 0;
+    if (userTierValue >= requiredTierValue) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 const listPaidQuerySchema = z
@@ -126,13 +149,19 @@ export const memberPicksController = {
         });
       }
 
-      // User is logged in - check their subscription
-      const entitlements = await getMemberEntitlements(user._id.toString());
-      // Fallback to user's brandSubscriptions if entitlements not found
-      const activeSub = getActiveSubscription(user.brandSubscriptions?.smartedge);
-      const rawUserPlanName = entitlements.smartedge?.active
-        ? entitlements.smartedge.planName
-        : (activeSub?.planName || null);
+      // User is logged in - check their subscription from brandSubscriptions
+      const smartedgeSubs = Array.isArray(user.brandSubscriptions?.smartedge)
+        ? user.brandSubscriptions.smartedge
+        : [];
+      const activeSubs = smartedgeSubs.filter(s => s && s.subscriptionStatus === "active");
+      const rawUserPlanName = activeSubs.length > 0
+        ? activeSubs.reduce((best, current) => {
+            const tierMap = { "smartedgeVIPPremium": 3, "smartedgeVIP": 2, "free": 1 };
+            const bestTier = tierMap[best.planName as keyof typeof tierMap] || 0;
+            const currentTier = tierMap[current.planName as keyof typeof tierMap] || 0;
+            return currentTier > bestTier ? current : best;
+          }).planName
+        : null;
 
       // Map plan name to access type (e.g., "Monthly VIP" → "smartedgevip")
       const userAccessType = mapPlanNameToAccessType(rawUserPlanName, "smartedge");
@@ -144,8 +173,8 @@ export const memberPicksController = {
         // Check if user has access to this pick
         const hasAccess =
           pickAccessArray.includes("free") ||
-          (userAccessType && pickAccessArray.includes(userAccessType as PickAccess)) ||
-          pickAccessArray.includes("tournament");
+          pickAccessArray.includes("tournament") ||
+          userTierGrantsAccess(userAccessType, pickAccessArray as string[]);
 
         if (hasAccess) {
           return pick;
@@ -203,13 +232,19 @@ export const memberPicksController = {
         source: "jonah",
       });
 
-      // User is logged in - check their subscription
-      const entitlements = await getMemberEntitlements(user._id.toString());
-      // Fallback to user's brandSubscriptions if entitlements not found
-      const activeSub = getActiveSubscription(user.brandSubscriptions?.jonah);
-      const rawUserPlanName = entitlements.jonah?.active
-        ? entitlements.jonah.planName
-        : (activeSub?.planName || null);
+      // User is logged in - check their subscription from brandSubscriptions
+      const jonahSubs = Array.isArray(user.brandSubscriptions?.jonah)
+        ? user.brandSubscriptions.jonah
+        : [];
+      const activeSubs = jonahSubs.filter(s => s && s.subscriptionStatus === "active");
+      const rawUserPlanName = activeSubs.length > 0
+        ? activeSubs.reduce((best, current) => {
+            const tierMap = { "jonah-vip-premium": 3, "jonahvip": 2, "free": 1 };
+            const bestTier = tierMap[best.planName as keyof typeof tierMap] || 0;
+            const currentTier = tierMap[current.planName as keyof typeof tierMap] || 0;
+            return currentTier > bestTier ? current : best;
+          }).planName
+        : null;
 
       // Map plan name to access type (e.g., "jonahMonthlyStandard" → "jonahvip")
       const userAccessType = mapPlanNameToAccessType(rawUserPlanName);
@@ -221,8 +256,8 @@ export const memberPicksController = {
         // Check if user has access to this pick
         const hasAccess =
           pickAccessArray.includes("free") ||
-          (userAccessType && pickAccessArray.includes(userAccessType as PickAccess)) ||
-          pickAccessArray.includes("tournament");
+          pickAccessArray.includes("tournament") ||
+          userTierGrantsAccess(userAccessType, pickAccessArray as string[]);
 
         if (hasAccess) {
           return pick;

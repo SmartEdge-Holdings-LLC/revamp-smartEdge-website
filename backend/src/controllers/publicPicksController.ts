@@ -134,4 +134,17 @@ export const publicPicksController = {
       return res.status(400).json({ error: msg });
     }
   },
+
+  async listHottestPicks(req: Request, res: Response) {
+    try {
+      const { page, limit } = listPublicQuerySchema.parse(req.query);
+      const result = await picksService.findHottestPicked({
+        page,
+        limit,
+      });
+      return res.json(result);
+    } catch (error) {
+      return res.status(400).json({ error: (error as Error).message });
+    }
+  },
 };

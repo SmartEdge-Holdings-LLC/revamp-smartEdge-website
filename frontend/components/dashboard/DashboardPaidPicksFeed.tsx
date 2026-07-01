@@ -87,7 +87,7 @@ export function DashboardPaidPicksFeed({ feed, token, hideHeader, showFullAnalys
 
     void listPaidPicks(token, feed, {
       page: 1,
-      limit: 20,
+      limit: 50,
       league: leagues.length > 0 ? leagues : undefined,
       access: accessTypes
     })

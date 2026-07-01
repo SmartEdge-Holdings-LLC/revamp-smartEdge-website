@@ -81,7 +81,7 @@ function handleAdminUnauthorized(status: number) {
  * inspect it directly.
  */
 export async function listAdminUsers(
-  params: ListUsersParams = {}
+  params: ListUsersParams & { hasLoggedIn?: boolean } = {}
 ): Promise<ListUsersResponse> {
   if (!backendUrl) {
     throw new AdminApiError("Missing NEXT_PUBLIC_BACKEND_URL", 500);
@@ -94,6 +94,7 @@ export async function listAdminUsers(
   const status = params.status ?? [];
   const joinedFrom = params.joinedFrom?.trim();
   const joinedTo = params.joinedTo?.trim();
+  const hasLoggedIn = params.hasLoggedIn;
 
   const url = new URL(`${backendUrl}/api/admin/users`);
   url.searchParams.set("page", String(page));
@@ -109,6 +110,9 @@ export async function listAdminUsers(
   }
   if (joinedTo) {
     url.searchParams.set("joinedTo", joinedTo);
+  }
+  if (hasLoggedIn !== undefined) {
+    url.searchParams.set("hasLoggedIn", String(hasLoggedIn));
   }
 
   const res = await fetch(url.toString(), {

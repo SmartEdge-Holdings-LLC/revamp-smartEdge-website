@@ -110,6 +110,8 @@ export interface AdminPick {
   status: PickStatus;
   matchTime?: string;
   isPickOfDay?: boolean;
+  hottestPick?: boolean;
+  profit?: number;
   result?: PickResult;
   createdBy: string | PickAuthor;
   createdAt: string;
@@ -150,6 +152,8 @@ export interface CreatePickPayload {
   status: PickStatus;
   matchTime?: string;
   isPickOfDay?: boolean;
+  hottestPick?: boolean;
+  profit?: number;
 }
 
 export type UpdatePickPayload = Partial<CreatePickPayload> & {

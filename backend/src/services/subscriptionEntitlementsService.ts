@@ -23,8 +23,8 @@ export type BrandEntitlement = {
 };
 
 export type MemberEntitlements = {
-  smartedge: BrandEntitlement | null;
-  jonah: BrandEntitlement | null;
+  smartedge: BrandEntitlement[] | null;
+  jonah: BrandEntitlement[] | null;
 };
 
 function mapStripeStatusToMember(status: string): SubscriptionStatus {
@@ -70,32 +70,79 @@ function pickBetterEntitlement(
   next: BrandEntitlement
 ): BrandEntitlement {
   if (!current) return next;
+  // Prefer active subscriptions
   if (next.active && !current.active) return next;
   if (current.active && !next.active) return current;
-  return next;
+  // If both active/inactive, prefer premium plans
+  const planHierarchy = { "smartedgeVIPPremium": 3, "jonah-vip-premium": 3, "smartedgeVIP": 2, "jonahvip": 2, "free": 1 };
+  const nextTier = planHierarchy[next.planName as keyof typeof planHierarchy] || 0;
+  const currentTier = planHierarchy[current.planName as keyof typeof planHierarchy] || 0;
+  return nextTier >= currentTier ? next : current;
 }
 
 export async function getMemberEntitlements(userId: string): Promise<MemberEntitlements> {
-  const docs = await getSubscriptionsForUser(userId);
-  let smartedge: BrandEntitlement | null = null;
-  let jonah: BrandEntitlement | null = null;
+  // Use user's brandSubscriptions as the source of truth (more reliable than Subscription collection)
+  const user = await User.findById(userId).lean();
+  const smartedgeList: BrandEntitlement[] = [];
+  const jonahList: BrandEntitlement[] = [];
 
-  for (const doc of docs) {
-    const brand = doc.brand ?? resolveBrand(doc.planName as PlanName);
-    const ent = docToEntitlement({ ...doc, brand } as unknown as ISubscription);
-    if (brand === "jonah") jonah = pickBetterEntitlement(jonah, ent);
-    else smartedge = pickBetterEntitlement(smartedge, ent);
+  if (user) {
+    // For smartedge, use brandSubscriptions
+    if (user.brandSubscriptions?.smartedge) {
+      const smartedgeSubs = Array.isArray(user.brandSubscriptions.smartedge)
+        ? user.brandSubscriptions.smartedge
+        : [user.brandSubscriptions.smartedge];
+      for (const sub of smartedgeSubs) {
+        if (sub && sub.subscriptionStatus === "active") {
+          const ent: BrandEntitlement = {
+            brand: "smartedge",
+            active: true,
+            planName: (sub.planName as PlanName) || "free",
+            subscriptionStatus: sub.subscriptionStatus as SubscriptionStatus,
+            stripeSubscriptionId: sub.stripeSubscriptionId || null,
+            priceId: sub.priceId || null,
+            currentPeriodEnd: sub.currentPeriodEnd ?? null,
+            cancelAtPeriodEnd: sub.cancelAtPeriodEnd || false,
+          };
+          smartedgeList.push(ent);
+        }
+      }
+    }
+    // For jonah, use brandSubscriptions
+    if (user.brandSubscriptions?.jonah) {
+      const jonahSubs = Array.isArray(user.brandSubscriptions.jonah)
+        ? user.brandSubscriptions.jonah
+        : [user.brandSubscriptions.jonah];
+      for (const sub of jonahSubs) {
+        if (sub && sub.subscriptionStatus === "active") {
+          const ent: BrandEntitlement = {
+            brand: "jonah",
+            active: true,
+            planName: (sub.planName as PlanName) || "free",
+            subscriptionStatus: sub.subscriptionStatus as SubscriptionStatus,
+            stripeSubscriptionId: sub.stripeSubscriptionId || null,
+            priceId: sub.priceId || null,
+            currentPeriodEnd: sub.currentPeriodEnd ?? null,
+            cancelAtPeriodEnd: sub.cancelAtPeriodEnd || false,
+          };
+          jonahList.push(ent);
+        }
+      }
+    }
   }
 
-  return { smartedge, jonah };
+  return {
+    smartedge: smartedgeList.length > 0 ? smartedgeList : null,
+    jonah: jonahList.length > 0 ? jonahList : null,
+  };
 }
 
 export function hasSmartedgeEntitlement(entitlements: MemberEntitlements): boolean {
-  return Boolean(entitlements.smartedge?.active);
+  return Array.isArray(entitlements.smartedge) && entitlements.smartedge.some(e => e.active);
 }
 
 export function hasJonahEntitlement(entitlements: MemberEntitlements): boolean {
-  return Boolean(entitlements.jonah?.active);
+  return Array.isArray(entitlements.jonah) && entitlements.jonah.some(e => e.active);
 }
 
 function entitlementToSnapshot(ent: BrandEntitlement | null): BrandSubscriptionSnapshot | null {

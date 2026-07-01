@@ -31,6 +31,7 @@ export function Navbar() {
   const pathname = usePathname();
   const isDashboard = pathname.startsWith("/dashboard");
   const { data: session, status } = useSession();
+  
   const adminSession = readAuthSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);

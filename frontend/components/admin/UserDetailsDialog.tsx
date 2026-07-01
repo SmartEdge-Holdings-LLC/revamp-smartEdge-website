@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { formatDateTimeET } from "@/lib/datetime";
+import { formatDateTimeET, formatDateTimeLongET } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import {
   adminUserAggregateStatus,
@@ -329,6 +329,10 @@ export function UserDetailsDialog({
                 <Row
                   label="Last Updated"
                   value={formatDateTimeDisplay(user.updatedAt)}
+                />
+                <Row
+                  label="Last Login"
+                  value={formatDateTimeLongET(user.lastLoginAt)}
                 />
               </Section>
 

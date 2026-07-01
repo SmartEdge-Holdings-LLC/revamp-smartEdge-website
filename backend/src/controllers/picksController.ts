@@ -27,6 +27,7 @@ const pickBodySchema = z.object({
   status: pickStatusSchema.default("active"),
   matchTime: z.string().datetime().optional(),
   isPickOfDay: z.boolean().optional(),
+  profit: z.number().optional(),
   result: z.enum(PICK_RESULTS).optional(),
 });
 
@@ -88,6 +89,8 @@ const updatePickBaseSchema = z.object({
   status: pickStatusSchema,
   matchTime: z.string().datetime().optional(),
   isPickOfDay: z.boolean().optional(),
+  hottestPick: z.boolean().optional(),
+  profit: z.number().optional(),
   result: z.enum(PICK_RESULTS).optional(),
 });
 const updatePickSchema = updatePickBaseSchema.partial();

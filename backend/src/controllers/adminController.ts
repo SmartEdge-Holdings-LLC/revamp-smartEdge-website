@@ -61,6 +61,7 @@ const listUsersQuerySchema = z.object({
   status: z.union([z.string(), z.array(z.string())]).optional(),
   joinedFrom: z.union([z.string(), z.array(z.string())]).optional(),
   joinedTo: z.union([z.string(), z.array(z.string())]).optional(),
+  hasLoggedIn: z.union([z.string(), z.array(z.string())]).optional(),
 }).transform((o) => {
   const pageStr = Array.isArray(o.page) ? o.page[0] : o.page;
   const limitStr = Array.isArray(o.limit) ? o.limit[0] : o.limit;
@@ -95,6 +96,11 @@ const listUsersQuerySchema = z.object({
     [joinedFrom, joinedTo] = [joinedTo, joinedFrom];
   }
 
+  const hasLoggedInStr = Array.isArray(o.hasLoggedIn) ? o.hasLoggedIn[0] : o.hasLoggedIn;
+  let hasLoggedIn: boolean | undefined = undefined;
+  if (hasLoggedInStr === "true") hasLoggedIn = true;
+  else if (hasLoggedInStr === "false") hasLoggedIn = false;
+
   return {
     page,
     limit,
@@ -102,6 +108,7 @@ const listUsersQuerySchema = z.object({
     status: status.length > 0 ? status : undefined,
     joinedFrom,
     joinedTo,
+    hasLoggedIn,
   };
 });
 
@@ -215,7 +222,7 @@ export const adminController = {
 
   async listUsers(req: Request, res: Response) {
     try {
-      const { page, limit, search, status, joinedFrom, joinedTo } =
+      const { page, limit, search, status, joinedFrom, joinedTo, hasLoggedIn } =
         listUsersQuerySchema.parse(req.query);
       const result = await userService.findPagedForAdmin({
         page,
@@ -224,6 +231,7 @@ export const adminController = {
         status,
         joinedFrom,
         joinedTo,
+        hasLoggedIn,
       });
       return res.json(result);
     } catch (error) {

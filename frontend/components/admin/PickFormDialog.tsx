@@ -75,6 +75,7 @@ const emptyForm = (isHandicapper: boolean): PickFormState => ({
   matchTimeLocal: "",
   hasConfidence: false,
   isPickOfDay: false,
+  profit: undefined,
 });
 
 function pickToForm(pick: AdminPick): PickFormState {
@@ -104,6 +105,7 @@ function pickToForm(pick: AdminPick): PickFormState {
     matchTimeLocal,
     hasConfidence: Boolean(pick.confidence),
     isPickOfDay: Boolean((pick as any).isPickOfDay),
+    profit: pick.profit,
   };
 }
 
@@ -343,7 +345,7 @@ export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: Pick
               {isEdit ? "Edit pick" : "Upload pick"}
             </DialogTitle>
             <DialogDescription className="mt-1 typo-caption text-subtle">
-              League, matchup, title, analysis, odds, bet type, and confidence.
+              League, matchup, title, analysis, odds, bet type, confidence, and profit.
             </DialogDescription>
           </div>
 
@@ -616,6 +618,17 @@ export function PickFormDialog({ open, onOpenChange, pick, role, onSaved }: Pick
                 </label>
               </div>
             </div>
+
+            <Field label="Profit Amount (optional)" id="pick-profit">
+              <Input
+                id="pick-profit"
+                type="number"
+                value={form.profit ?? ""}
+                onChange={(e) => update("profit", e.target.value ? parseInt(e.target.value, 10) : undefined)}
+                placeholder="e.g., 250"
+                className={fieldClass}
+              />
+            </Field>
           </div>
 
           <DialogFooter className="shrink-0 border-t border-white/8 px-5 py-4 sm:justify-end">
