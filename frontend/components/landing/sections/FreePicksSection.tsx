@@ -14,6 +14,7 @@ import {
 import { enrichPublicPicks } from "@/lib/enrich-public-pick";
 import { readAuthSession } from "@/lib/authCookies";
 import { cn } from "@/lib/utils";
+import { getDateStringInET, getTodayDateStringInET, getYesterdayDateStringInET } from "@/lib/datetime";
 
 function IntroCopy() {
   const copy = INTRO_COPY.smartedge;
@@ -33,46 +34,49 @@ function IntroCopy() {
   );
 }
 
-function getDateLabel(date: Date): string {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+function getDateLabel(dateStringInET: string): string {
+  const today = getTodayDateStringInET();
+  const yesterday = getYesterdayDateStringInET();
 
-  const dateStr = date.toDateString();
-  const todayStr = today.toDateString();
-  const yesterdayStr = yesterday.toDateString();
-
-  if (dateStr === todayStr) return "Today's Free Picks";
-  if (dateStr === yesterdayStr) return "Yesterday's Free Picks";
-  return date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  if (dateStringInET === today) return "Today's Free Picks";
+  if (dateStringInET === yesterday) return "Yesterday's Free Picks";
+  return dateStringInET;
 }
 
-function groupPicksByDate(picks: PublicPick[]): Array<{ date: Date; label: string; picks: PublicPick[] }> {
+function groupPicksByDate(picks: PublicPick[]): Array<{ dateString: string; label: string; picks: PublicPick[] }> {
   const grouped = new Map<string, PublicPick[]>();
 
   picks.forEach((pick) => {
-    const pickDate = new Date(pick.createdAt);
-    const dateKey = pickDate.toDateString();
-    if (!grouped.has(dateKey)) {
-      grouped.set(dateKey, []);
+    // Group by matchTime converted to ET date string
+    const dateKeyInET = getDateStringInET(pick.matchTime) || getDateStringInET(pick.createdAt) || "Unknown";
+    if (!grouped.has(dateKeyInET)) {
+      grouped.set(dateKeyInET, []);
     }
-    grouped.get(dateKey)!.push(pick);
+    grouped.get(dateKeyInET)!.push(pick);
   });
 
   return Array.from(grouped.entries())
     .map(([dateStr, picksForDate]) => ({
-      date: new Date(dateStr),
-      label: getDateLabel(new Date(dateStr)),
+      dateString: dateStr,
+      label: getDateLabel(dateStr),
       picks: picksForDate,
     }))
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
+    .sort((a, b) => {
+      // Parse date strings in reverse chronological order (newest first)
+      const dateA = new Date(a.dateString);
+      const dateB = new Date(b.dateString);
+      return dateB.getTime() - dateA.getTime();
+    });
 }
+
+type FreePickTab = "smartedge" | "handicapper";
 
 export function FreePicksSection({ standalone = false }: { standalone?: boolean }) {
   const [picks, setPicks] = React.useState<PublicPick[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const [tab, setTab] = React.useState<FreePickTab>("smartedge");
 
   React.useEffect(() => {
     const session = readAuthSession();
@@ -150,6 +154,34 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
           <IntroCopy />
         </div>
 
+        {/* Tabs */}
+        <div className={cn("mt-6 sm:mt-10 md:mt-12 flex justify-center gap-1 sm:gap-2 border-b border-white/10 flex-wrap", standalone && "mx-auto max-w-4xl")}>
+          <button
+            type="button"
+            onClick={() => setTab("smartedge")}
+            className={cn(
+              "px-2.5 sm:px-4 md:px-6 py-2 sm:py-3 text-xs sm:text-sm md:text-base font-medium transition-colors border-b-2 whitespace-nowrap",
+              tab === "smartedge"
+                ? "border-accent text-white"
+                : "border-transparent text-subtle hover:text-white"
+            )}
+          >
+            SmartEdge® Free Picks
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("handicapper")}
+            className={cn(
+              "px-2.5 sm:px-4 md:px-6 py-2 sm:py-3 text-xs sm:text-sm md:text-base font-medium transition-colors border-b-2 whitespace-nowrap",
+              tab === "handicapper"
+                ? "border-accent text-white"
+                : "border-transparent text-subtle hover:text-white"
+            )}
+          >
+            Jonah's Free Picks
+          </button>
+        </div>
+
         <div
           className={cn("mt-6 sm:mt-10 md:mt-12 space-y-8 sm:space-y-12 md:space-y-16", standalone && "mx-auto max-w-4xl")}
           role="tabpanel"
@@ -160,12 +192,20 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
             </div>
           ) : error ? (
             <p className="text-center text-xs sm:text-sm text-red-400/90 px-3 sm:px-4">{error}</p>
-          ) : picks.length === 0 ? (
-            <p className="rounded-lg border border-white/10 bg-white/3 px-3 sm:px-6 py-6 sm:py-12 text-center text-xs sm:text-sm text-zinc-400">
-              No active free picks yet. Check back soon or browse paid plans.
-            </p>
           ) : (
-            groupPicksByDate(picks).map((group, groupIndex) => (
+            (() => {
+              const filteredPicks = picks.filter((pick) => {
+                const pickRole = pick.createdBy?.role;
+                return tab === "smartedge"
+                  ? pickRole === "admin" || pickRole === "subadmin"
+                  : pickRole === "handicapper";
+              });
+              return filteredPicks.length === 0 ? (
+                <p className="rounded-lg border border-white/10 bg-white/3 px-3 sm:px-6 py-6 sm:py-12 text-center text-xs sm:text-sm text-zinc-400">
+                  No active {tab === "smartedge" ? "SmartEdge" : "Jonah"} free picks yet. Check back soon or browse paid plans.
+                </p>
+              ) : (
+                groupPicksByDate(filteredPicks).map((group, groupIndex) => (
               <div key={group.label}>
                 <div className={groupIndex > 0 ? "pt-8 sm:pt-12 border-t border-white/10" : ""}>
                   <h2 className="text-left text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-wide text-white">
@@ -189,6 +229,8 @@ export function FreePicksSection({ standalone = false }: { standalone?: boolean 
                 </div>
               </div>
             ))
+              );
+            })()
           )}
         </div>
         <FreePicksVideosSection

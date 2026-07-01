@@ -27,21 +27,29 @@ export function adminUserPlansLabel(u: AdminUserListItem): string {
   if (!bs) return "—";
   const parts: string[] = [];
 
-  // Handle smartedge subscriptions (array)
+  // Handle smartedge subscriptions (array) - show ALL active plans
   if (Array.isArray(bs.smartedge) && bs.smartedge.length > 0) {
-    const activeSub = bs.smartedge.find(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
-    if (activeSub?.planName && activeSub.planName !== "free") {
-      parts.push(activeSub.planName);
+    const activeSubs = bs.smartedge.filter(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
+    if (activeSubs.length > 0) {
+      activeSubs.forEach(sub => {
+        if (sub.planName && sub.planName !== "free") {
+          parts.push(sub.planName);
+        }
+      });
     } else if (bs.smartedge[0]?.planName && bs.smartedge[0].planName !== "free") {
       parts.push(bs.smartedge[0].planName);
     }
   }
 
-  // Handle jonah subscriptions (array)
+  // Handle jonah subscriptions (array) - show ALL active plans
   if (Array.isArray(bs.jonah) && bs.jonah.length > 0) {
-    const activeSub = bs.jonah.find(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
-    if (activeSub?.planName && activeSub.planName !== "free") {
-      parts.push(activeSub.planName);
+    const activeSubs = bs.jonah.filter(sub => ["active", "trialing"].includes(sub.subscriptionStatus));
+    if (activeSubs.length > 0) {
+      activeSubs.forEach(sub => {
+        if (sub.planName && sub.planName !== "free") {
+          parts.push(sub.planName);
+        }
+      });
     } else if (bs.jonah[0]?.planName && bs.jonah[0].planName !== "free") {
       parts.push(bs.jonah[0].planName);
     }

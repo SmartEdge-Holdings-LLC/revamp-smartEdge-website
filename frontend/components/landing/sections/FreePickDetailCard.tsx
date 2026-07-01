@@ -197,13 +197,13 @@ export function FreePickDetailCard({ pick, source, featured, isAdmin }: FreePick
         <div className="flex flex-col items-end gap-2">
           {pick.result && (
             <span className={cn(
-              "inline-flex w-fit shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-bold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]",
+              "inline-flex w-fit shrink-0 items-center gap-2 rounded-full px-5 py-3 text-base sm:text-lg font-black text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]",
               pick.result === "won" ? "bg-emerald-500/30 text-emerald-200 border border-emerald-500/50" : pick.result === "lost" ? "bg-rose-500/30 text-rose-200 border border-rose-500/50" : "bg-yellow-500/30 text-yellow-200 border border-yellow-500/50"
             )}>
               {pick.result === "won" ? (
                 <>
                   <CheckCircle2 className="size-4" />
-                  Won
+                  Winner
                 </>
               ) : pick.result === "lost" ? (
                 <>
@@ -233,11 +233,19 @@ export function FreePickDetailCard({ pick, source, featured, isAdmin }: FreePick
           </div>
           <TeamSide name={homeName} logoSrc={homeLogo} />
         </div>
-        <p className="mt-6 text-center">
-          <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-medium text-zinc-300">
+        <div className="mt-6 flex flex-col items-center gap-4">
+          {/* <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-medium text-zinc-300">
             {betLabel}
-          </span>
-        </p>
+          </span> */}
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Match Time
+            </p>
+            <p className="mt-1.5 text-sm text-white">
+              {pick.matchTime ? formatDateTimeLongET(pick.matchTime) : "TBD"}
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Date & play */}

@@ -108,20 +108,20 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
   return (
     <div className={isLocked ? "relative" : ""}>
       {isLocked && (
-        <div className="absolute inset-0 flex items-end justify-center pb-12 bg-black/10 rounded-2xl z-10">
-          <div className="rounded-lg border border-white/15 bg-black/80 px-3 sm:px-5 py-2.5 sm:py-4 text-center backdrop-blur-sm max-w-xs mx-2">
-            <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-sm font-semibold text-white">
-              <Lock className="size-3 sm:size-4 text-accent" />
-              VIP pick locked
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/80 to-transparent rounded-b-2xl z-10 pt-12 pb-8 sm:pb-10 px-3 sm:px-4">
+          <div className="w-full max-w-sm text-center">
+            <p className="inline-flex items-center gap-2 text-lg sm:text-xl font-black text-white">
+              <Lock className="size-5 sm:size-6 text-emerald-500" />
+              VIP LOCKED
             </p>
-            <p className="mt-1 text-[10px] sm:text-xs text-zinc-300">
+            <p className="mt-2 text-sm sm:text-base text-zinc-300">
               Purchase a plan to view analysis & odds.
             </p>
             <Link
               href="/#pricing"
-              className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-md bg-accent px-2.5 sm:px-3.5 py-1 sm:py-2 text-[10px] sm:text-xs font-semibold text-white transition hover:bg-accent/90 w-full"
+              className="mt-4 inline-flex cursor-pointer items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-600 px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-black text-white transition w-full shadow-lg"
             >
-              Buy Picks Now
+              BUY PICK NOW
             </Link>
           </div>
         </div>
@@ -156,13 +156,13 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
         <div className="absolute right-5 top-1/2 flex -translate-y-1/2 flex-col items-end gap-2 sm:right-6">
           {pick.result && (
             <span className={cn(
-              "inline-flex w-fit shrink-0 items-center gap-3 rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]",
+              "inline-flex w-fit shrink-0 items-center gap-3 rounded-full px-6 py-3 text-lg sm:text-xl font-black text-white shadow-[0_4px_24px_rgb(0_0_0/0.45),inset_0_1px_0_rgb(255_255_255/0.25)]",
               pick.result === "won" ? "bg-emerald-500/30 text-emerald-200 border border-emerald-500/50" : pick.result === "lost" ? "bg-rose-500/30 text-rose-200 border border-rose-500/50" : "bg-yellow-500/30 text-yellow-200 border border-yellow-500/50"
             )}>
               {pick.result === "won" ? (
                 <>
                   <CheckCircle2 className="size-5 sm:size-6" />
-                  Won
+                  Winner
                 </>
               ) : pick.result === "lost" ? (
                 <>

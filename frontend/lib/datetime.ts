@@ -84,3 +84,43 @@ export function formatYmdAsDateET(ymd: string, fallback = "—"): string {
   const anchor = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
   return dateFormatter.format(anchor);
 }
+
+/** Get the date portion of a timestamp converted to Eastern Time (e.g., `Mon May 22 2026`). */
+export function getDateStringInET(value: string | Date | null | undefined): string | null {
+  const d = parseAppDate(value);
+  if (!d) return null;
+  const formatter = new Intl.DateTimeFormat(APP_LOCALE, {
+    timeZone: APP_TIMEZONE,
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+  return formatter.format(d);
+}
+
+/** Get today's date in Eastern Time as a comparable date string. */
+export function getTodayDateStringInET(): string {
+  const formatter = new Intl.DateTimeFormat(APP_LOCALE, {
+    timeZone: APP_TIMEZONE,
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+  return formatter.format(new Date());
+}
+
+/** Get yesterday's date in Eastern Time as a comparable date string. */
+export function getYesterdayDateStringInET(): string {
+  const formatter = new Intl.DateTimeFormat(APP_LOCALE, {
+    timeZone: APP_TIMEZONE,
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return formatter.format(yesterday);
+}

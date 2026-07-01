@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { listPaidPicks } from "@/lib/api/memberPicksApi";
 import { enrichPaidPicks } from "@/lib/enrich-member-pick";
+import { getDateStringInET, getTodayDateStringInET, getYesterdayDateStringInET } from "@/lib/datetime";
 import type { PaidPickFeed } from "@/lib/subscription-access";
 import type { League } from "@/types/picks";
 import { DashboardPickDetailCard } from "@/components/dashboard/DashboardPickDetailCard";
@@ -26,39 +27,39 @@ const FEED_META: Record<
   },
 };
 
-function getDateLabel(date: Date): string {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+function getDateLabel(dateStringInET: string): string {
+  const today = getTodayDateStringInET();
+  const yesterday = getYesterdayDateStringInET();
 
-  const dateStr = date.toDateString();
-  const todayStr = today.toDateString();
-  const yesterdayStr = yesterday.toDateString();
-
-  if (dateStr === todayStr) return "Today's Picks";
-  if (dateStr === yesterdayStr) return "Yesterday's Picks";
-  return date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  if (dateStringInET === today) return "Today's Picks";
+  if (dateStringInET === yesterday) return "Yesterday's Picks";
+  return dateStringInET;
 }
 
-function groupPicksByDate(picks: any[]): Array<{ date: Date; label: string; picks: any[] }> {
+function groupPicksByDate(picks: any[]): Array<{ dateString: string; label: string; picks: any[] }> {
   const grouped = new Map<string, any[]>();
 
   picks.forEach((pick) => {
-    const pickDate = new Date(pick.createdAt);
-    const dateKey = pickDate.toDateString();
-    if (!grouped.has(dateKey)) {
-      grouped.set(dateKey, []);
+    // Group by matchTime converted to ET date string
+    const dateKeyInET = getDateStringInET(pick.matchTime) || getDateStringInET(pick.createdAt) || "Unknown";
+    if (!grouped.has(dateKeyInET)) {
+      grouped.set(dateKeyInET, []);
     }
-    grouped.get(dateKey)!.push(pick);
+    grouped.get(dateKeyInET)!.push(pick);
   });
 
   return Array.from(grouped.entries())
     .map(([dateStr, picksForDate]) => ({
-      date: new Date(dateStr),
-      label: getDateLabel(new Date(dateStr)),
+      dateString: dateStr,
+      label: getDateLabel(dateStr),
       picks: picksForDate,
     }))
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
+    .sort((a, b) => {
+      // Parse date strings in reverse chronological order (newest first)
+      const dateA = new Date(a.dateString);
+      const dateB = new Date(b.dateString);
+      return dateB.getTime() - dateA.getTime();
+    });
 }
 
 type DashboardPaidPicksFeedProps = {
