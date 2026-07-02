@@ -47,8 +47,8 @@ function groupPicksByDate(picks: PublicPick[]): Array<{ dateString: string; labe
   const grouped = new Map<string, PublicPick[]>();
 
   picks.forEach((pick) => {
-    // Group by matchTime converted to ET date string
-    const dateKeyInET = getDateStringInET(pick.matchTime) || getDateStringInET(pick.createdAt) || "Unknown";
+    // Group by createdAt (when pick was posted) converted to ET date string
+    const dateKeyInET = getDateStringInET(pick.createdAt) || "Unknown";
     if (!grouped.has(dateKeyInET)) {
       grouped.set(dateKeyInET, []);
     }
