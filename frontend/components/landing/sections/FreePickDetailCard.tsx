@@ -115,9 +115,10 @@ type FreePickDetailCardProps = {
   source: PublicPickSource;
   featured?: boolean;
   isAdmin?: boolean;
+  showBuyButton?: boolean;
 };
 
-export function FreePickDetailCard({ pick, source, featured, isAdmin }: FreePickDetailCardProps) {
+export function FreePickDetailCard({ pick, source, featured, isAdmin, showBuyButton }: FreePickDetailCardProps) {
   const { data: session } = useSession();
   const authorName =
     pick.createdBy?.name ?? (source === "smartedge" ? "SmartEdge® Desk" : "Featured Expert");
@@ -298,6 +299,13 @@ export function FreePickDetailCard({ pick, source, featured, isAdmin }: FreePick
           </p>
         </div>
       </section>
+      {showBuyButton && (
+        <Link href="/#pricing" className="block p-5 sm:p-6 border-t border-green-500/40">
+          <button className="w-full bg-emerald-500 hover:bg-emerald-600 px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-black text-white transition shadow-lg">
+            BUY PICK NOW
+          </button>
+        </Link>
+      )}
     </article>
   );
 }

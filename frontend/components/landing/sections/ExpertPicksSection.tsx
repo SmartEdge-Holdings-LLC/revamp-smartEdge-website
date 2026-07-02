@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Lock, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { FreePickDetailCard } from "@/components/landing/sections/FreePickDetailCard";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { readAuthSession } from "@/lib/authCookies";
@@ -28,8 +27,8 @@ function groupPicksByDate(picks: PublicPick[]): Array<{ dateString: string; labe
   const grouped = new Map<string, PublicPick[]>();
 
   picks.forEach((pick) => {
-    // Group by matchTime converted to ET date string
-    const dateKeyInET = getDateStringInET(pick.matchTime) || getDateStringInET(pick.createdAt) || "Unknown";
+    // Group by createdAt (when pick was posted) converted to ET date string
+    const dateKeyInET = getDateStringInET(pick.createdAt) || "Unknown";
     if (!grouped.has(dateKeyInET)) {
       grouped.set(dateKeyInET, []);
     }
@@ -180,30 +179,13 @@ export function ExpertPicksSection() {
                     const isPickLocked = !isAdmin && (!session || pick.access !== "free");
 
                     return (
-                      <div key={pick._id} className={isPickLocked ? "relative" : ""}>
-                        {isPickLocked && (
-                          <div className="absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/80 to-transparent rounded-b-2xl z-10 pt-12 pb-8 sm:pb-10 px-3 sm:px-4">
-                            <div className="w-full max-w-sm text-center">
-                              <p className="inline-flex items-center gap-2 text-lg sm:text-xl font-black text-white">
-                                <Lock className="size-5 sm:size-6 text-emerald-500" />
-                                VIP LOCKED
-                              </p>
-                              <p className="mt-2 text-sm sm:text-base text-zinc-300">
-                                Purchase a plan to view analysis & odds.
-                              </p>
-                              <Link
-                                href="/#pricing"
-                                className="mt-4 inline-flex cursor-pointer items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-600 px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-black text-white transition w-full shadow-lg"
-                              >
-                                BUY PICK NOW
-                              </Link>
-                            </div>
-                          </div>
-                        )}
-                        <div className={isPickLocked ? "pointer-events-none select-none" : ""}>
-                          <FreePickDetailCard pick={pick} source={source} isAdmin={isAdmin} />
-                        </div>
-                      </div>
+                      <FreePickDetailCard
+                        key={pick._id}
+                        pick={pick}
+                        source={source}
+                        isAdmin={isAdmin}
+                        showBuyButton={isPickLocked}
+                      />
                     );
                   })}
                 </div>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Lock, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, Clock } from "lucide-react";
 import { BrandImage } from "@/components/ui/brand-image";
 import { leagueDisplayName, TRACK_RECORD_LINE } from "@/components/landing/free-picks-content";
 import { getPickLeagueLogo, getSportsLeagueLogo } from "@/lib/sports-leagues";
@@ -106,27 +106,8 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
   const homeLogo = teamLogo(pick.homeTeamLogo, pick.league, pick.homeTeamId);
 
   return (
-    <div className={isLocked ? "relative" : ""}>
-      {isLocked && (
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-center bg-linear-to-t from-black/80 to-transparent rounded-b-2xl z-10 pt-12 pb-8 sm:pb-10 px-3 sm:px-4">
-          <div className="w-full max-w-sm text-center">
-            <p className="inline-flex items-center gap-2 text-lg sm:text-xl font-black text-white">
-              <Lock className="size-5 sm:size-6 text-emerald-500" />
-              VIP LOCKED
-            </p>
-            <p className="mt-2 text-sm sm:text-base text-zinc-300">
-              Purchase a plan to view analysis & odds.
-            </p>
-            <Link
-              href="/#pricing"
-              className="mt-4 inline-flex cursor-pointer items-center justify-center rounded-lg bg-emerald-500 hover:bg-emerald-600 px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-black text-white transition w-full shadow-lg"
-            >
-              BUY PICK NOW
-            </Link>
-          </div>
-        </div>
-      )}
-      <article className={cn("flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40", isLocked && "pointer-events-none select-none")}>
+    <div className="w-full">
+      <article className={cn("flex h-full w-full flex-col overflow-hidden rounded-2xl border-5 border-[#F5F4F4] bg-black ring-1 ring-green-500/40")}>
       {pick.isPickOfDay && (
         <div className="pricing-accent-gradient gradient-animate border-b border-orange-500/50 px-5 py-3 text-center shadow-[0_4px_16px_rgb(212_98_56/0.3)]">
           <span className="text-base font-black uppercase tracking-widest text-white sm:text-lg">
@@ -261,6 +242,13 @@ export function DashboardPickDetailCard({ pick, feed, showFullAnalysis = true }:
           </p>
         </div>
       </section>
+      {isLocked && (
+        <Link href="/#pricing" className="block p-5 sm:p-6 border-t border-green-500/40">
+          <button className="w-full rounded-lg bg-emerald-500 hover:bg-emerald-600 px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-black text-white transition shadow-lg">
+            BUY PICK NOW
+          </button>
+        </Link>
+      )}
     </article>
     </div>
   );

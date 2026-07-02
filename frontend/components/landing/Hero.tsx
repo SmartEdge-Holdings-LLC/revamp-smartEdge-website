@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PricingAccentButton } from "@/components/pricing/PricingAccentButton";
 import { SportsSlider } from "@/components/landing/SportsSlider";
-import { WhosHotWidget } from "./sections";
 
 export function Hero() {
   return (
@@ -43,9 +42,9 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right — Sports logos */}
+        {/* Right — Sports slider marquee */}
         <div className="w-full shrink-0 lg:w-[45%] mt-4 sm:mt-6 md:mt-8 lg:mt-0">
-        <WhosHotWidget />
+          <SportsSlider />
         </div>
       </div>
     </section>
