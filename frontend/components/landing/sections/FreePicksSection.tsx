@@ -59,7 +59,9 @@ function groupPicksByDate(picks: PublicPick[]): Array<{ dateString: string; labe
     .map(([dateStr, picksForDate]) => ({
       dateString: dateStr,
       label: getDateLabel(dateStr),
-      picks: picksForDate,
+      picks: picksForDate.sort((a, b) =>
+        new Date(b.matchTime || b.createdAt).getTime() - new Date(a.matchTime || a.createdAt).getTime()
+      ),
     }))
     .sort((a, b) => {
       // Parse date strings in reverse chronological order (newest first)
